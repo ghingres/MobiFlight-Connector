@@ -8,6 +8,8 @@ export interface Project {
 
 export interface ProjectSummary {
   Name: string
+  Thumbnail?: string
+  Favorite?: boolean
   Sims: {
     Name: string
     Available: boolean
