@@ -23,7 +23,7 @@ const ProjectListItem = ({
 }: ProjectListItemProps) => {
   const isRunning = summary.Name === "Fenix A320"
   const isAvailable = summary.Sims.every((sim) => sim.Available)
-  const activateStateClassName = active ? "bg-primary/20" : ""
+  const activateStateClassName = active ? "bg-primary/20" : "opacity-40 group-hover/projectlist:opacity-100"
 
   return (
     <div
