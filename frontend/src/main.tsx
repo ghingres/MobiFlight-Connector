@@ -5,6 +5,7 @@ import "./i18n.ts"
 import { ThemeProvider } from "./components/theme-provider.tsx"
 import { TooltipProvider } from "./components/ui/tooltip.tsx"
 import { AppRoutes } from "@/Routes.tsx"
+import { BrowserRouter } from "react-router"
 
 if (process.env.NODE_ENV !== "development") {
   console.log = () => {}
@@ -17,9 +18,11 @@ if (process.env.NODE_ENV !== "development") {
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider defaultTheme="light" storageKey="ui-mode">
-    <TooltipProvider skipDelayDuration={0}>
-      <AppRoutes />   
-    </TooltipProvider>
+      <TooltipProvider skipDelayDuration={0}>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </TooltipProvider>
     </ThemeProvider>
   </StrictMode>,
 )
