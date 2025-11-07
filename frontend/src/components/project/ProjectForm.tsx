@@ -144,7 +144,8 @@ const ProjectForm = ({
           </div>
 
           {/* Aircraft Selection */}
-          <div className="grid gap-3">
+          { simulator != "fsx" && 
+          ( <div className="grid gap-3">
             <Label className="text-base font-semibold">Aircraft</Label>
             <p className="text-muted-foreground text-sm">
               Select the aircraft you'll use in this project.
@@ -167,7 +168,7 @@ const ProjectForm = ({
               ))}
             </div>
           </div>
-
+        ) }
           {/* Thumbnail Upload */}
           {/* <div className="grid gap-2">
             <Label htmlFor="thumbnail" className="text-base font-semibold">

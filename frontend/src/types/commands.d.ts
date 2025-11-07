@@ -131,6 +131,9 @@ export type CommandMainMenuPayload = {
     | "help.releasenotes"
     | "help.donate"
   index?: number
+  options?: {
+    project: ProjectSummary
+  }
 }
 
 export interface CommandMainMenu extends CommandMessageBase {

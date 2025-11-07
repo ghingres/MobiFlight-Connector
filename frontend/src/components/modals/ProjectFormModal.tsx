@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom"
 import type { ProjectSummary } from "@/types/project"
 import ProjectForm from "@/components/project/ProjectForm"
+import { publishOnMessageExchange } from "@/lib/hooks/appMessage"
 
 export default function NewProjectModalRoute() {
   const navigate = useNavigate()
@@ -8,6 +9,7 @@ export default function NewProjectModalRoute() {
   const location = useLocation()
 
   const project = location.state?.project as ProjectSummary | { Name: "" } as ProjectSummary
+  const { publish } = publishOnMessageExchange()
 
   return (
     <ProjectForm
@@ -17,8 +19,16 @@ export default function NewProjectModalRoute() {
         if (!open) close()
       }}
       onSave={async (values) => {
-        console.log("Creating project:", values)
-        // TODO: await createProject(values)
+        console.log("ProjectFormModal onSave", values)
+        publish({
+          key: "CommandMainMenu",
+          payload: {
+            action: "file.new",
+            options: {
+              project: values
+            }
+          }
+        })
         close()
       }}
     />

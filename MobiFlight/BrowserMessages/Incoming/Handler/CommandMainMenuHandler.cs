@@ -17,7 +17,7 @@ namespace MobiFlight.BrowserMessages.Incoming.Handler
             {
                 // File Menu Actions
                 case CommandMainMenuAction.file_new:
-                    _mainForm.newFileToolStripMenuItem_Click(null, null);
+                    _mainForm.newFileToolStripMenuItem_Click(message.Options);
                     break;
                 case CommandMainMenuAction.file_open:
                     _mainForm.loadToolStripMenuItem_Click(null, null);

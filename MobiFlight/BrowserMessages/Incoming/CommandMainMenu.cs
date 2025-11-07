@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using MobiFlight.Base;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System.Runtime.Serialization;
 
@@ -53,5 +54,13 @@ namespace MobiFlight.BrowserMessages.Incoming
         public CommandMainMenuAction Action { get; set; }
         [JsonProperty("index")] // Matches the lowercase "item" in JSON
         public int Index { get; set; }
+        [JsonProperty("options")] // Matches the lowercase "item" in JSON
+        public CommandMainMenuOptions Options { get; set; }
+    }
+
+    public class CommandMainMenuOptions
+    {
+        [JsonProperty("project")]
+        public Project Project { get; set; }
     }
 }

@@ -2230,7 +2230,7 @@ namespace MobiFlight.UI
         /// <summary>
         /// resets the config after presenting a message box where user hast to confirm the reset first
         /// </summary>
-        public void newFileToolStripMenuItem_Click(object sender, EventArgs e)
+        public void newFileToolStripMenuItem_Click(CommandMainMenuOptions options)
         {
             if (ProjectHasUnsavedChanges && MessageBox.Show(
                        i18n._tr("uiMessageConfirmNewConfig"),
@@ -2240,12 +2240,11 @@ namespace MobiFlight.UI
                 return;
             }
 
-            CreateNewProject();
+            CreateNewProject(options.Project);
         } //toolStripMenuItem3_Click()
 
-        public void CreateNewProject()
+        public void CreateNewProject(Project project)
         {
-            var project = new Project() { Name = i18n._tr("DefaultProjectName") };
             project.ConfigFiles.Add(CreateDefaultConfigFile());
             execManager.Project = project;
             ResetProjectAndConfigChanges();

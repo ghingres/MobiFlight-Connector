@@ -18,7 +18,7 @@ namespace MobiFlight.Base
         public event EventHandler ProjectChanged;
 
         [JsonIgnore]
-        public readonly Version SchemaVersion = new Version(0,9);
+        public readonly Version SchemaVersion = new Version(0, 9);
         [JsonIgnore]
         public Version OriginalSchemaVersion { get; private set; } = null;
 
@@ -39,7 +39,7 @@ namespace MobiFlight.Base
                 }
             }
         }
-        
+
         private string _filePath;
         /// <summary>
         /// Gets or sets the file path where the project is stored. This property is not serialized to JSON.
@@ -72,17 +72,79 @@ namespace MobiFlight.Base
                 {
                     if (_configFiles != null)
                     {
-                        _configFiles.CollectionChanged -= ConfigFiles_CollectionChanged;
+                        _configFiles.CollectionChanged -= CollectionChanged;
                     }
 
                     _configFiles = value;
 
                     if (_configFiles != null)
                     {
-                        _configFiles.CollectionChanged += ConfigFiles_CollectionChanged;
+                        _configFiles.CollectionChanged += CollectionChanged;
                     }
 
                     OnPropertyChanged(nameof(ConfigFiles));
+                    OnProjectChanged();
+                }
+            }
+        }
+
+        private string _sim;
+        /// <summary>
+        /// Gets or sets the name of the project.
+        /// </summary>
+        public string Sim
+        {
+            get => _sim;
+            set
+            {
+                if (_sim != value)
+                {
+                    _sim = value;
+                    OnPropertyChanged(nameof(Sim));
+                    OnProjectChanged();
+                }
+            }
+        }
+
+        private bool _useFsuipc;
+        public bool UseFsuipc
+        {
+            get => _useFsuipc;
+            set
+            {
+                if (_useFsuipc != value)
+                {
+                    _useFsuipc = value;
+                    OnPropertyChanged(nameof(UseFsuipc));
+                    OnProjectChanged();
+                }
+            }
+        }
+
+        private ObservableCollection<string> _aircraft;
+        /// <summary>
+        /// Gets or sets the name of the project.
+        /// </summary>
+        public ObservableCollection<string> Aircraft
+        {
+            get => _aircraft;
+            set
+            {
+                if (_aircraft != value)
+                {
+                    if (_aircraft != null)
+                    {
+                        _aircraft.CollectionChanged -= CollectionChanged;
+                    }
+
+                    _aircraft = value;
+
+                    if (_aircraft != null)
+                    {
+                        _aircraft.CollectionChanged += CollectionChanged;
+                    }
+
+                    OnPropertyChanged(nameof(Aircraft));
                     OnProjectChanged();
                 }
             }
@@ -93,7 +155,7 @@ namespace MobiFlight.Base
         /// </summary>
         public Project()
         {
-            ConfigFiles.CollectionChanged += ConfigFiles_CollectionChanged;
+            ConfigFiles.CollectionChanged += CollectionChanged;
             Name = "New MobiFlight Project";
         }
 
@@ -102,7 +164,7 @@ namespace MobiFlight.Base
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The collection change event arguments.</param>
-        private void ConfigFiles_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             OnProjectChanged();
         }
@@ -134,11 +196,11 @@ namespace MobiFlight.Base
             if (IsJson(FilePath))
             {
                 var json = File.ReadAllText(FilePath);
-                
+
                 // Parse and migrate JSON document
                 var document = JObject.Parse(json);
                 var migratedDocument = ApplyMigrations(document);
-                
+
                 // Deserialize the clean, migrated JSON
                 var project = migratedDocument.ToObject<Project>();
                 if (project == null)
@@ -187,7 +249,7 @@ namespace MobiFlight.Base
                 throw new InvalidDataException("Unsupported file format.");
             }
         }
-        
+
         /// <summary>
         /// Apply all migrations to bring document to current version
         /// Simple, direct approach - no registry needed
@@ -211,11 +273,11 @@ namespace MobiFlight.Base
             }
 
             Log.Instance.log($"Migrating document from version {currentVersion} to {SchemaVersion}", LogSeverity.Info);
-            
+
             var migratedDocument = document;
-            
+
             // Apply migrations step by step
-            if (currentVersion < new Version(0,9))
+            if (currentVersion < new Version(0, 9))
             {
                 Log.Instance.log("Applying V0.9 migrations", LogSeverity.Debug);
                 migratedDocument = Precondition_V_0_9_Migration.Apply(migratedDocument);
@@ -281,8 +343,8 @@ namespace MobiFlight.Base
             }
 
             // Add version when serializing
-            var document = JObject.FromObject(this); 
-            document["_version"] = SchemaVersion.ToString(); 
+            var document = JObject.FromObject(this);
+            document["_version"] = SchemaVersion.ToString();
             File.WriteAllText(FilePath, document.ToString(Formatting.Indented));
         }
 
