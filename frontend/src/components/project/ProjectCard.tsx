@@ -7,6 +7,7 @@ import {
   IconPlaneDeparture,
   IconPlayerPlayFilled,
   IconPlayerStopFilled,
+  IconQuestionMark,
   IconSettings,
 } from "@tabler/icons-react"
 import { Badge } from "@/components/ui/badge"
@@ -81,15 +82,20 @@ export const ProjectCardImage = ({
   summary,
   className,
 }: HtmlHTMLAttributes<HTMLDivElement> & { summary: ProjectInfo }) => {
-  const imageUrl = summary.Thumbnail || `/sim/${summary.Sim.toLowerCase()}.jpg`
-
-  return (
+  const imageUrl = summary.Thumbnail || `/sim/${summary.Sim?.toLowerCase()}.jpg`
+  return summary.Sim ? (
     <div className={cn("bg-accent rounded-lg", className)}>
       <img
         src={new URL(imageUrl, import.meta.url).href}
         alt={summary.Name}
         className="h-full w-full rounded-lg object-cover"
       />
+    </div>
+  ) : (
+    <div className={cn("bg-accent rounded-lg opacity-50", className)}>
+      <div className="flex h-full w-full items-center justify-center rounded-lg bg-linear-to-br from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90% dark:from-indigo-500/10 dark:via-sky-500/0 dark:via-70% dark:to-emerald-500/5">
+        <IconQuestionMark className="text-background h-full w-full" />
+      </div>
     </div>
   )
 }
@@ -170,15 +176,13 @@ const ProjectCard = ({
           <div className="flex flex-1 flex-col gap-4">
             <div className="text-muted-foreground flex flex-row items-center justify-items-center gap-2">
               <Badge key={summary.Sim} className={bgColor}>
-                {summary.Sim}
+                {summary.Sim ? summary.Sim : "No simulator set"}
               </Badge>
             </div>
             <div className="flex flex-row gap-2">
               <IconPlaneDeparture className={"text-primary"} />
               <p className="text-muted-foreground truncate">
-                {summary.Aircraft?.map((a) => `${a})`).join(
-                  ", ",
-                )}
+                {summary.Aircraft?.map((a) => `${a})`).join(", ")}
               </p>
             </div>
             <div className="flex flex-row gap-4">

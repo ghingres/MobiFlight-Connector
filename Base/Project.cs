@@ -1,4 +1,5 @@
 ﻿using MobiFlight.Base.Migration;
+using MobiFlight.InputConfig;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -17,7 +18,7 @@ namespace MobiFlight.Base
     public class ProjectInfo
     {
         public string Name { get; set; }
-        public string Sim { get; set; } = "";
+        public string Sim { get; set; }
         public bool UseFsuipc { get; set; }
         public List<string> Aircraft { get; set; }
         public string FilePath { get; set; }
@@ -103,7 +104,7 @@ namespace MobiFlight.Base
             }
         }
 
-        private string _sim = "";
+        private string _sim;
         /// <summary>
         /// Gets or sets the name of the project.
         /// </summary>
@@ -176,14 +177,27 @@ namespace MobiFlight.Base
 
         public ProjectInfo ToProjectInfo()
         {
-            return new ProjectInfo()
+            var projectInfo = new ProjectInfo()
             {
-                Name = this.Name,
-                Sim = this.Sim,
-                UseFsuipc = this.UseFsuipc,
-                Aircraft = this.Aircraft?.ToList() ?? new List<string>(),
-                FilePath = this.FilePath
+                Name = Name,
+                Sim = Sim,
+                UseFsuipc = UseFsuipc,
+                Aircraft = Aircraft?.ToList() ?? new List<string>(),
+                FilePath = FilePath
             };
+
+            if (string.IsNullOrEmpty(Sim))
+            {
+
+                foreach (var item in ConfigFiles)
+                {
+                    projectInfo.Sim = item.DetermineSim();
+                    projectInfo.Aircraft = item.DetermineAircaft();
+                    projectInfo.UseFsuipc = item.DetermineUsingFsuipc();
+                }
+            }
+
+            return projectInfo;
         }
 
         /// <summary>
@@ -453,6 +467,11 @@ namespace MobiFlight.Base
             var additionalProject = new Project() { FilePath = fileName };
             additionalProject.OpenFile();
             Merge(additionalProject);
+        }
+
+        public bool ContainsConfigOfSourceType(Source type)
+        {
+            return ConfigFiles.ToList().Any(file => file.ContainsConfigOfSourceType(type));
         }
     }
 }

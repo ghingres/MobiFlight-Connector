@@ -2150,7 +2150,7 @@ namespace MobiFlight.UI
             simConnectToolStripMenuItem.Enabled = true;
             simConnectToolStripMenuItem.ToolTipText = "Some configs are using MSFS2020 presets -> WASM module required";
 
-            if (!ContainsConfigOfSourceType(execManager.ConfigItems, new SimConnectSource()))
+            if (!execManager.Project.ContainsConfigOfSourceType(new SimConnectSource()))
             {
                 simConnectToolStripMenuItem.Image = Properties.Resources.disabled;
                 simConnectToolStripMenuItem.Visible = false;
@@ -2179,7 +2179,7 @@ namespace MobiFlight.UI
             xPlaneDirectToolStripMenuItem.Enabled = true;
             xPlaneDirectToolStripMenuItem.ToolTipText = "Some configs are using XPlane DataRefs/Commands -> XPlane direct required";
 
-            if (!ContainsConfigOfSourceType(execManager.ConfigItems, new XplaneSource()))
+            if (!execManager.Project.ContainsConfigOfSourceType(new XplaneSource()))
             {
                 xPlaneDirectToolStripMenuItem.Image = Properties.Resources.disabled;
                 xPlaneDirectToolStripMenuItem.Visible = false;
@@ -2203,7 +2203,7 @@ namespace MobiFlight.UI
             FsuipcToolStripMenuItem.Enabled = true;
             FsuipcToolStripMenuItem.ToolTipText = "Some configs are using FSUIPC -> FSUIPC required";
 
-            if (!ContainsConfigOfSourceType(execManager.ConfigItems, new FsuipcSource()))
+            if (!execManager.Project.ContainsConfigOfSourceType(new FsuipcSource()))
             {
                 FsuipcToolStripMenuItem.Image = Properties.Resources.disabled;
                 FsuipcToolStripMenuItem.Visible = false;

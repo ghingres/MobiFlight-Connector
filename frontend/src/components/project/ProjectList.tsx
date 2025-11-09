@@ -30,11 +30,11 @@ const ProjectList = ({ summarys, activeProject }: ProjectListProps) => {
       </div>
       <ScrollArea className="h-112 pr-4">
         <div className="group/projectlist grid grid-cols-1 gap-2 pb-2 xl:grid-cols-2">
-          {summarys.map((project) => {
+          {summarys.map((project, index) => {
             const isActive = activeProject?.Name === project.Name
             return (
               <ProjectListItem
-                key={project.Name}
+                key={`${project.Name}-${index}`}
                 summary={project}
                 className="border-muted max-w-240 min-w-100 p-3"
                 active={isActive}
