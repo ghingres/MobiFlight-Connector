@@ -27,10 +27,16 @@ import { useTheme } from "@/lib/hooks/useTheme"
 import { ToastNotificationHandler } from "./components/notifications/ToastNotificationHandler"
 import { useHubHopStateActions } from "./stores/stateStore"
 
+import testProject from "@/../tests/data/project.testdata.json" with { type: "json" }
+import testJsDefinition from "@/../tests/data/joystick.definition.json" with { type: "json" }
+import testMidiDefinition from "@/../tests/data/midicontroller.definition.json" with { type: "json" }
+
+import { MidiControllerDefinition, JoystickDefinition } from "@/types/definitions"
+
 function App() {
   const [queryParameters] = useSearchParams()
   const navigate = useNavigate()
-  const { setProject, setHasChanged } = useProjectStore()
+  const { project, setProject, setHasChanged } = useProjectStore()
   const { setRecentProjects } = useRecentProjects()
   const { setSettings } = useSettingsStore()
   const { setJoystickDefinitions, setMidiControllerDefinitions } =
@@ -131,6 +137,23 @@ function App() {
       navigate("/home")
     }
   }, [startupProgress.Value, navigate])
+
+  // this is only for easier UI testing
+  // while developing the UI
+  useEffect(() => {
+    if (
+      process.env.NODE_ENV === "development" &&
+      queryParameters.get("testdata") === "true" &&
+      !project // Only if no project loaded yet
+    ) {
+      setProject(testProject as Project)
+      setJoystickDefinitions([testJsDefinition as JoystickDefinition])
+
+      setMidiControllerDefinitions([
+        testMidiDefinition as MidiControllerDefinition,
+      ])
+    }
+  }, [project, queryParameters, setJoystickDefinitions, setMidiControllerDefinitions, setProject])
 
   return (
     <>
