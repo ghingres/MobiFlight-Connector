@@ -7,7 +7,7 @@ export interface Project {
   Thumbnail?: string
   Sim: string
   UseFsuipc: boolean
-  Controllers: {
+  Controllers?: {
     Name: string
     Type: string
     Available: boolean

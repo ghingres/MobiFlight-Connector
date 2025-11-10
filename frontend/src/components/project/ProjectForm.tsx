@@ -21,10 +21,10 @@ type ProjectFormProps = {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
   onSave: (values: {
-    name: string
-    simulator: string
-    useFsuipc: boolean
-    aircraft: string[]
+    Name: string
+    Sim: string
+    UseFsuipc: boolean
+    Aircraft: string[]
     // thumbnail?: File
   }) => void
 }
@@ -63,10 +63,10 @@ const ProjectForm = ({
     e.preventDefault()
     console.log("Saving")
     onSave({
-      name,
-      simulator,
-      useFsuipc,
-      aircraft: selectedAircraft,
+      Name: name,
+      Sim: simulator,
+      UseFsuipc: useFsuipc,
+      Aircraft: selectedAircraft,
       // thumbnail,
     })
   }
@@ -75,7 +75,9 @@ const ProjectForm = ({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl">{isEdit ? "Edit Project" : "Create New Project"}</DialogTitle>
+          <DialogTitle className="text-2xl">
+            {isEdit ? "Edit Project" : "Create New Project"}
+          </DialogTitle>
           <DialogDescription className="text-md">
             Configure your project settings and select your aircraft.
           </DialogDescription>
@@ -133,8 +135,8 @@ const ProjectForm = ({
                 </div>
               )}
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="xplane" id="xplane" />
-                <Label htmlFor="xplane" className="font-normal">
+                <RadioGroupItem value="x-plane" id="x-plane" />
+                <Label htmlFor="x-plane" className="font-normal">
                   X-Plane 11 / 12
                 </Label>
               </div>
@@ -148,31 +150,31 @@ const ProjectForm = ({
           </div>
 
           {/* Aircraft Selection */}
-          { simulator != "fsx" && 
-          ( <div className="grid gap-3">
-            <Label className="text-base font-semibold">Aircraft</Label>
-            <p className="text-muted-foreground text-sm">
-              Select the aircraft you'll use in this project.
-            </p>
-            <div className="grid gap-2">
-              {aircraftOptions[simulator]?.map((aircraft) => (
-                <div key={aircraft} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`aircraft-${aircraft}`}
-                    checked={selectedAircraft.includes(aircraft)}
-                    onCheckedChange={() => handleAircraftToggle(aircraft)}
-                  />
-                  <Label
-                    htmlFor={`aircraft-${aircraft}`}
-                    className="font-normal"
-                  >
-                    {aircraft}
-                  </Label>
-                </div>
-              ))}
+          {simulator != "fsx" && (
+            <div className="grid gap-3">
+              <Label className="text-base font-semibold">Aircraft</Label>
+              <p className="text-muted-foreground text-sm">
+                Select the aircraft you'll use in this project.
+              </p>
+              <div className="grid gap-2">
+                {aircraftOptions[simulator]?.map((aircraft) => (
+                  <div key={aircraft} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`aircraft-${aircraft}`}
+                      checked={selectedAircraft.includes(aircraft)}
+                      onCheckedChange={() => handleAircraftToggle(aircraft)}
+                    />
+                    <Label
+                      htmlFor={`aircraft-${aircraft}`}
+                      className="font-normal"
+                    >
+                      {aircraft}
+                    </Label>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ) }
+          )}
           {/* Thumbnail Upload */}
           {/* <div className="grid gap-2">
             <Label htmlFor="thumbnail" className="text-base font-semibold">
@@ -205,7 +207,9 @@ const ProjectForm = ({
               Cancel
             </Button>
           </DialogClose>
-          <Button onClick={handleSubmit}>Create Project</Button>
+          <Button onClick={handleSubmit}>
+            {isEdit ? "Save Changes" : "Create Project"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
