@@ -133,7 +133,8 @@ export type CommandMainMenuPayload = {
     | "help.donate"
   index?: number
   options?: {
-    project: ProjectInfo
+    project?: ProjectInfo
+    filePath?: string
   }
 }
 

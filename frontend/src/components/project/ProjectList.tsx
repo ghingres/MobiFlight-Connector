@@ -6,9 +6,10 @@ import { ScrollArea } from "../ui/scroll-area"
 export type ProjectListProps = {
   summarys: ProjectInfo[]
   activeProject?: ProjectInfo
+  onSelect: (project: ProjectInfo) => void
 }
 
-const ProjectList = ({ summarys, activeProject }: ProjectListProps) => {
+const ProjectList = ({ summarys, activeProject, onSelect }: ProjectListProps) => {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-row gap-2">
@@ -38,6 +39,7 @@ const ProjectList = ({ summarys, activeProject }: ProjectListProps) => {
                 summary={project}
                 className="border-muted max-w-240 min-w-100 p-3"
                 active={isActive}
+                onSelect={() => onSelect(project)}
               />
             )
           })}

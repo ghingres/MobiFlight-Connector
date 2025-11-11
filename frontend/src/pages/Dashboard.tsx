@@ -17,11 +17,14 @@ import { ControllerType } from "@/types"
 import { Controller } from "@/types/controller"
 import { ProjectInfo } from "@/types/project"
 import { IconPlus } from "@tabler/icons-react"
+import useMessageExchange from "@/lib/hooks/useMessageExchange"
+import { CommandMainMenu } from "@/types/commands"
 
 const Dashboard = () => {
   const { showOverlay } = useProjectModal()
   const { recentProjects } = useRecentProjects()
   const { project } = useProjectStore()
+  const { publish } = useMessageExchange()
 
   const controller: Controller[] = [
     {
@@ -130,6 +133,18 @@ const Dashboard = () => {
   ]
 
   const activeProject = project
+  const loadProject = (project: ProjectInfo) => {
+    publish({
+      key: "CommandMainMenu",
+      payload: {
+        action: "file.recent",
+        options: {
+          project: project,
+        },
+      }
+    } as CommandMainMenu)
+  }
+
 
   return (
     <div className="grid-flow item grid grid-flow-row-dense grid-cols-1 grid-rows-2 gap-4 border-none 2xl:grid-cols-4">
@@ -157,11 +172,7 @@ const Dashboard = () => {
                 <h3 className="text-lg font-semibold">Current Project</h3>
               </div>
               {activeProject ? (
-                <ProjectCard
-                  key={activeProject.Name}
-                  summary={activeProject}
-                  className=""
-                />
+                <ProjectCard summary={activeProject} className="" />
               ) : (
                 <div>No project loaded</div>
               )}
@@ -173,6 +184,7 @@ const Dashboard = () => {
               <ProjectList
                 summarys={recentProjects}
                 activeProject={activeProject as ProjectInfo}
+                onSelect={(project) => loadProject(project)}
               />
             </div>
           </div>

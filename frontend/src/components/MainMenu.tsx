@@ -32,7 +32,7 @@ export const MainMenu = () => {
   const { showOverlay } = useProjectModal()
 
   return (
-    <Menubar className="justify-between bg-muted/20">
+    <Menubar className="bg-muted/20 justify-between">
       <div className="flex items-center">
         <MenubarMenu>
           <MenubarTrigger>File</MenubarTrigger>
@@ -72,7 +72,9 @@ export const MainMenu = () => {
                       onSelect={() =>
                         handleMenuItemClick({
                           action: "file.recent",
-                          index: index,
+                          options: {
+                            filePath: file,
+                          },
                         })
                       }
                     >

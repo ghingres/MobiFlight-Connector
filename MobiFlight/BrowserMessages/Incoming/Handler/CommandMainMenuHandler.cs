@@ -29,12 +29,9 @@ namespace MobiFlight.BrowserMessages.Incoming.Handler
                     _mainForm.saveAsToolStripMenuItem_Click(null, null);
                     break;
                 case CommandMainMenuAction.file_recent:
-                    if (message.Index < 0 || message.Index >= Properties.Settings.Default.RecentFiles.Count) return;
-                    var filename = Properties.Settings.Default.RecentFiles[message.Index];
-                    if (File.Exists(filename))
-                    {
-                        _mainForm.LoadConfig(filename);
-                    }
+                    if (message.Options.FilePath == null) return;
+
+                    _mainForm.LoadConfig(message.Options.FilePath);
                     break;
                 case CommandMainMenuAction.project_edit:
                     _mainForm.updateProjectSettings(message.Options.Project);

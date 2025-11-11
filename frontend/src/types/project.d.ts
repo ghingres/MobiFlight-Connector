@@ -13,7 +13,7 @@ export interface Project {
     Available: boolean
   }[]
 
-  Aircraft: {
+  Aircraft?: {
     Name: string
     Filter: string
     Available: boolean
@@ -23,17 +23,17 @@ export interface Project {
 export interface ProjectInfo {
   Name: string
   FilePath: string
-  
+
   Thumbnail?: string
   Sim: string
   Favorite?: boolean
   UseFsuipc: boolean
-  Controllers: {
+  Controllers?: {
     Name: string
     Type: string
   }[]
-  
-  Aircraft: {
+
+  Aircraft?: {
     Name: string
     Filter: string
   }[]

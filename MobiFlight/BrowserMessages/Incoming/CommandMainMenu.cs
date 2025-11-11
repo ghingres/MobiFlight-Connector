@@ -64,5 +64,8 @@ namespace MobiFlight.BrowserMessages.Incoming
     {
         [JsonProperty("project")]
         public Project Project { get; set; }
+
+        [JsonProperty("filePath")]
+        public string FilePath { get; set; }
     }
 }
