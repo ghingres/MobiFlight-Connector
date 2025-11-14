@@ -1,5 +1,4 @@
 ﻿using MobiFlight.Base.Migration;
-using MobiFlight.InputConfig;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -176,6 +175,10 @@ namespace MobiFlight.Base
 
         public ProjectInfo ToProjectInfo()
         {
+            if (string.IsNullOrEmpty(Sim)) {
+                DetermineProjectInfos();
+            }
+
             var projectInfo = new ProjectInfo()
             {
                 Name = Name,
@@ -185,18 +188,28 @@ namespace MobiFlight.Base
                 FilePath = FilePath
             };
 
-            if (string.IsNullOrEmpty(Sim))
-            {
-
-                foreach (var item in ConfigFiles)
-                {
-                    projectInfo.Sim = item.DetermineSim();
-                    projectInfo.Aircraft = item.DetermineAircaft();
-                    projectInfo.UseFsuipc = item.DetermineUsingFsuipc();
-                }
-            }
+            
 
             return projectInfo;
+        }
+
+        public void DetermineProjectInfos() {
+            if (string.IsNullOrEmpty(Sim))
+            {
+                foreach (var item in ConfigFiles)
+                {
+                    var sim = item.DetermineSim();
+
+                    // set it only once for now
+                    if (Sim == null && sim != null)
+                    {
+                        Sim = sim;
+                    }
+                    
+                    var useFsuipc = item.DetermineUsingFsuipc();
+                    UseFsuipc |= useFsuipc;
+                }
+            }
         }
 
         /// <summary>

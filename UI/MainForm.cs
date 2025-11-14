@@ -461,6 +461,7 @@ namespace MobiFlight.UI
                         var p = new Project();
                         p.FilePath = project;
                         p.OpenFile();
+                        p.DetermineProjectInfos();
 
                         recentProjects.Add(p.ToProjectInfo());
                     }
@@ -1899,6 +1900,7 @@ namespace MobiFlight.UI
                 {
                     var newProject = new Project() { FilePath = fileName };
                     newProject.OpenFile();
+                    newProject.DetermineProjectInfos();
                     execManager.Project = newProject;
                 }
                 else
