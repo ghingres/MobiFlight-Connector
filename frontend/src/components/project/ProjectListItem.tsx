@@ -4,7 +4,6 @@ import { Badge } from "../ui/badge"
 import { cn } from "@/lib/utils"
 import {
   ProjectCardImage,
-  ProjectCardStartStopButton,
   ProjectCardTitle,
 } from "./ProjectCard"
 import ProjectFavStar from "./ProjectFavStar"
@@ -24,9 +23,7 @@ const ProjectListItem = ({
 
   const { t } = useTranslation()
 
-  const isRunning = summary.Name === "Fenix A320"
-  const isAvailable = true
-  const activateStateClassName = active ? "bg-primary/20" : "opacity-40 group-hover/projectlist:opacity-100"
+  const activateStateClassName = active ? "bg-primary/20" : "opacity-75 group-hover/projectlist:opacity-100"
   const bgColor = summary.Sim
                     ? "bg-primary"
                     : "bg-muted-foreground"
@@ -61,11 +58,6 @@ const ProjectListItem = ({
                 </Badge>
               </div>
             </div>
-            <ProjectCardStartStopButton
-              isAvailable={isAvailable}
-              isRunning={isRunning}
-              className="-mb-1.5"
-            />
           </div>
         </div>
       </div>

@@ -141,10 +141,9 @@ const Dashboard = () => {
         options: {
           project: project,
         },
-      }
+      },
     } as CommandMainMenu)
   }
-
 
   return (
     <div className="grid-flow item grid grid-flow-row-dense grid-cols-1 grid-rows-2 gap-4 border-none 2xl:grid-cols-4">
@@ -165,9 +164,9 @@ const Dashboard = () => {
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="border-none">
+        <CardContent className="">
           <div className="flex flex-row gap-8">
-            <div className="flex w-96 flex-col gap-4">
+            <div className="flex flex-col gap-4 min-w-96">
               <div>
                 <h3 className="text-lg font-semibold">Current Project</h3>
               </div>

@@ -9,7 +9,11 @@ export type ProjectListProps = {
   onSelect: (project: ProjectInfo) => void
 }
 
-const ProjectList = ({ summarys, activeProject, onSelect }: ProjectListProps) => {
+const ProjectList = ({
+  summarys,
+  activeProject,
+  onSelect,
+}: ProjectListProps) => {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-row gap-2">
@@ -29,17 +33,20 @@ const ProjectList = ({ summarys, activeProject, onSelect }: ProjectListProps) =>
           X-Plane
         </Button>
       </div>
-      <ScrollArea className="h-112 pr-4">
-        <div className="group/projectlist grid grid-cols-1 gap-2 pb-2 xl:grid-cols-2">
+      <ScrollArea className="h-112 pr-2">
+        <div className="group/projectlist flex flex-row flex-wrap gap-4">
           {summarys.map((project, index) => {
             const isActive = activeProject?.FilePath === project.FilePath
             return (
               <ProjectListItem
                 key={`${project.Name}-${index}`}
                 summary={project}
-                className="border-muted max-w-240 min-w-100 p-3"
+                className={`w-[calc(100%-1rem)] 2xl:min-w-[calc(50%-1rem)] 2xl:max-w-[calc(50%-1rem)] 2xl:w-[calc(50%-1rem)]`}
                 active={isActive}
-                onSelect={() => onSelect(project)}
+                onClick={() => {
+                  if (isActive) return
+                  onSelect(project)
+                }}
               />
             )
           })}

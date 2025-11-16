@@ -160,14 +160,14 @@ const ProjectCard = ({
     <div
       {...otherProps}
       className={cn(
-        "border-border bg-card space-y-2 rounded-xl p-4 shadow-md transition-all duration-200 ease-in-out hover:shadow-xl",
+        "border-primary/25 border bg-card space-y-2 rounded-xl p-4 shadow-md transition-all duration-200 ease-in-out hover:shadow-lg",
         className,
       )}
     >
       <ProjectCardTitle summary={summary} />
       <div className="flex flex-col gap-4">
         <div className="relative">
-          <ProjectCardImage summary={summary} className="h-72" />
+          <ProjectCardImage summary={summary} className="h-84" />
           <div className="absolute inset-0 flex items-start justify-start p-4">
             <ProjectFavStar summary={summary} />
           </div>
