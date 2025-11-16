@@ -4,7 +4,6 @@ import {
   IconDeviceGamepad2,
   IconDotsVertical,
   IconFile,
-  IconPlaneDeparture,
   IconPlayerPlayFilled,
   IconPlayerStopFilled,
   IconQuestionMark,
@@ -155,6 +154,7 @@ const ProjectCard = ({
 
   const bgColor = isAvailable ? "bg-primary" : "bg-muted-foreground"
   console.log("Rendering ProjectCard for:", summary)
+  const simulatorLabel = summary.Sim ? t(`Project.Simulator.${summary.Sim.toLowerCase()}`) : "No simulator set"
 
   return (
     <div
@@ -176,14 +176,8 @@ const ProjectCard = ({
           <div className="flex flex-1 flex-col gap-4">
             <div className="text-muted-foreground flex flex-row items-center justify-items-center gap-2">
               <Badge key={summary.Sim} className={bgColor}>
-                {summary.Sim ? summary.Sim : "No simulator set"}
+                {simulatorLabel}
               </Badge>
-            </div>
-            <div className="flex flex-row gap-2">
-              <IconPlaneDeparture className={"text-primary"} />
-              <p className="text-muted-foreground truncate">
-                {summary.Aircraft?.map((a) => `${a})`).join(", ")}
-              </p>
             </div>
             <div className="flex flex-row gap-4">
               <div className="flex flex-row gap-2">

@@ -103,19 +103,15 @@ namespace MobiFlight.Base
         {
             if (ContainsConfigOfSourceType(new SimConnectSource()))
             {
-                return "MSFS2020";
-            }
-            else if (ContainsConfigOfSourceType(new FsuipcSource()))
-            {
-                return "FSX-P3D";
+                return "msfs";
             }
             else if (ContainsConfigOfSourceType(new XplaneSource()))
             {
-                return "X-Plane";
+                return (new XplaneSource().SourceType).ToLower();
             }
             else if (ContainsConfigOfSourceType(new ProSimSource()))
             {
-                return "ProSim";
+                return (new ProSimSource()).SourceType.ToLower();
             }
             return null;
         }

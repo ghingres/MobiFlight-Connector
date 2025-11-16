@@ -67,6 +67,12 @@
         "StopMode": "Parar ejecución del modo de prueba",
         "BlockedByRun": "Modo de ejecución activo. Páralo primero."
       }
+    },
+    "Simulator": {
+      "msfs": "Microsoft Flight Simulator",
+      "xplane": "X-Plane",
+      "p3d": "Prepar3D",
+      "fsx": "FSX / FS2004"
     }
   },
   "ConfigList": {

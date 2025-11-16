@@ -7,8 +7,8 @@ import {
   ProjectCardStartStopButton,
   ProjectCardTitle,
 } from "./ProjectCard"
-import { IconPlaneDeparture } from "@tabler/icons-react"
 import ProjectFavStar from "./ProjectFavStar"
+import { useTranslation } from "react-i18next"
 
 export type ProjectListItemProps = HtmlHTMLAttributes<HTMLDivElement> & {
   summary: ProjectInfo
@@ -21,12 +21,17 @@ const ProjectListItem = ({
   active,
   ...props
 }: ProjectListItemProps) => {
+
+  const { t } = useTranslation()
+
   const isRunning = summary.Name === "Fenix A320"
   const isAvailable = true
   const activateStateClassName = active ? "bg-primary/20" : "opacity-40 group-hover/projectlist:opacity-100"
   const bgColor = summary.Sim
                     ? "bg-primary"
                     : "bg-muted-foreground"
+
+  const simulatorLabel = summary.Sim ? t(`Project.Simulator.${summary.Sim.toLowerCase()}`) : "No simulator set"
 
   return (
     <div
@@ -52,20 +57,8 @@ const ProjectListItem = ({
             <div className="flex flex-col gap-2">
               <div className="flex flex-row gap-1">
                   <Badge key={summary.Sim} className={bgColor}>
-                  {summary.Sim ? summary.Sim : "No simulator set"}
+                  {simulatorLabel}
                 </Badge>
-              </div>
-              <div className="flex flex-row gap-2">
-                {summary.Aircraft[0] && (
-                  <IconPlaneDeparture
-                    className={"text-primary"}
-                  />
-                )}
-                <p className="text-muted-foreground truncate">
-                  {summary.Aircraft.map((a) => `${a})`).join(
-                    ", ",
-                  )}
-                </p>
               </div>
             </div>
             <ProjectCardStartStopButton
