@@ -146,7 +146,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="grid-flow item grid grid-flow-row-dense grid-cols-1 grid-rows-2 gap-4 border-none 2xl:grid-cols-4">
+    <div className="grid-flow item grid grid-flow-row-dense grid-cols-1 grid-rows-2 gap-4 border-none 3xl:grid-cols-4">
       <Card className="border-shadow-none flex flex-col border-none shadow-none 2xl:col-span-3">
         <CardHeader>
           <div className="flex flex-row items-center justify-between">
@@ -176,7 +176,7 @@ const Dashboard = () => {
                 <div>No project loaded</div>
               )}
             </div>
-            <div className="flex h-full grow flex-col gap-4">
+            <div className="flex h-full grow flex-col gap-4 overflow-hidden">
               <div className="grow-0">
                 <h3 className="text-lg font-semibold">All Projects</h3>
               </div>

@@ -40,12 +40,12 @@ export const ProjectCardTitle = ({
 }) => {
   const variants = {
     default: {
-      title: "text-xl font-medium",
+      title: "text-xl font-medium truncate",
       button: "p-0 [&_svg]:size-8",
       icon: "h-8",
     },
     listitem: {
-      title: "text-lg font-semibold",
+      title: "text-lg font-semibold truncate",
       button: "h-6 p-0 [&_svg]:size-6",
       icon: "h-6",
     },
@@ -63,7 +63,7 @@ export const ProjectCardTitle = ({
 
   return (
     <div className="flex flex-row items-center justify-between">
-      <div className="flex flex-row items-center justify-start gap-2">
+      <div className="flex flex-row items-center justify-start gap-2 min-w-0">
         <h2 className={titleClassName}>{summary.Name}</h2>
       </div>
       <Button

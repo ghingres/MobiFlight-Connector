@@ -91,7 +91,7 @@ const ProjectList = ({
         </Button>
       </div>
       <ScrollArea className="h-112 pr-2" onMouseLeave={scrollActiveProjectIntoView}>
-        <div className="group/projectlist flex flex-row flex-wrap gap-4">
+        <div className="group/projectlist flex flex-row flex-wrap gap-4 w-[calc(100%)]">
           {filteredSummarys.length > 0 ? (
             filteredSummarys.map((project, index) => {
               const isActive = activeProject?.FilePath === project.FilePath
@@ -101,7 +101,7 @@ const ProjectList = ({
                   {...refActive}
                   key={`${project.Name}-${index}`}
                   summary={project}
-                  className={`w-[calc(100%-1rem)] 2xl:w-[calc(50%-1rem)] 2xl:max-w-[calc(50%-1rem)] 2xl:min-w-[calc(50%-1rem)]`}
+                  className={`w-[calc(100%-1rem)] 2xl:w-[calc(50%-1rem)] 2xl:max-w-[calc(50%-1rem)]`}
                   active={isActive}
                   onClick={() => {
                     if (isActive) return

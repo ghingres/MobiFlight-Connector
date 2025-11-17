@@ -36,16 +36,17 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
         ref={ref}
         {...props}
       >
-        <div className="flex w-full flex-row gap-4">
-          <div className="relative">
+        <div className="flex flex-row gap-4 w-full">
+          <div className="relative shrink-0">
             <ProjectCardImage summary={summary} className="h-24 w-32" />
             <div className="absolute inset-0 flex items-start justify-start p-2">
               <ProjectFavStar summary={summary} variant="small" />
             </div>
           </div>
-          <div className="flex flex-1 flex-col gap-2 overflow-hidden">
+
+          <div className="flex flex-1 flex-col gap-2 w-1">
             <ProjectCardTitle summary={summary} variant="listitem" />
-            <div className="flex w-full flex-row items-end justify-between">
+            <div className="flex flex-row items-end justify-between">
               <div className="flex flex-col gap-2">
                 <div className="flex flex-row gap-1">
                   <Badge key={summary.Sim} className={bgColor}>
@@ -54,13 +55,11 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
                 </div>
               </div>
             </div>
-            <div className="w-full overflow-hidden pr-2">
-              <div
-                title={summary.FilePath}
-                className="text-muted-foreground truncate text-sm"
-              >
-                {summary.FilePath}
-              </div>
+            <div
+              title={summary.FilePath}
+              className="text-muted-foreground truncate text-sm"
+            >
+              {summary.FilePath}
             </div>
           </div>
         </div>
