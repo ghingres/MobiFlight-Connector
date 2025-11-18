@@ -27,6 +27,9 @@ import {
   ProjectModalOptions,
   useProjectModal,
 } from "@/lib/hooks/useProjectModal"
+import { useExecutionStateStore } from "@/stores/executionStateStore"
+import { publishOnMessageExchange } from "@/lib/hooks/appMessage"
+import { CommandProjectToolbarPayload } from "@/types/commands"
 
 export type ProjectCardProps = HtmlHTMLAttributes<HTMLDivElement> & {
   summary: ProjectInfo
@@ -63,7 +66,7 @@ export const ProjectCardTitle = ({
 
   return (
     <div className="flex flex-row items-center justify-between">
-      <div className="flex flex-row items-center justify-start gap-2 min-w-0">
+      <div className="flex min-w-0 flex-row items-center justify-start gap-2">
         <h2 className={titleClassName}>{summary.Name}</h2>
       </div>
       <Button
@@ -100,25 +103,30 @@ export const ProjectCardImage = ({
 }
 
 export const ProjectCardStartStopButton = ({
-  isAvailable,
-  isRunning,
   className,
   ...props
 }: HtmlHTMLAttributes<HTMLButtonElement> & {
   isAvailable: boolean
   isRunning: boolean
 }) => {
+  const { publish } = publishOnMessageExchange()
+  const { isRunning, isTesting } =
+    useExecutionStateStore()
+
+  const handleMenuItemClick = (payload: CommandProjectToolbarPayload) => {
+      publish({
+        key: "CommandProjectToolbar",
+        payload: payload,
+      })
+    }
+
   return (
     <Button
-      // disabled={isTesting}
+      disabled={isTesting}
       variant="ghost"
-      className={cn(
-        "text-md gap-1 p-1 hover:bg-none [&_svg]:size-7",
-        className,
-      )}
+      className={cn("text-md gap-1 p-1 [&_svg]:size-7", className)}
       onClick={() =>
-        // handleMenuItemClick({ action: !isRunning ? "run" : "stop" })
-        console.log("Run/Stop clicked")
+        handleMenuItemClick({ action: !isRunning ? "run" : "stop" })
       }
       {...props}
     >
@@ -127,7 +135,7 @@ export const ProjectCardStartStopButton = ({
         primaryIcon={IconPlayerPlayFilled}
         secondaryIcon={IconPlayerStopFilled}
         primaryClassName={
-          isAvailable
+          !isTesting
             ? "fill-green-600 stroke-green-600"
             : "fill-none stroke-2 stroke-muted-foreground"
         }
@@ -154,13 +162,15 @@ const ProjectCard = ({
 
   const bgColor = isAvailable ? "bg-primary" : "bg-muted-foreground"
   console.log("Rendering ProjectCard for:", summary)
-  const simulatorLabel = summary.Sim ? t(`Project.Simulator.${summary.Sim.toLowerCase()}`) : "No simulator set"
+  const simulatorLabel = summary.Sim
+    ? t(`Project.Simulator.${summary.Sim.toLowerCase()}`)
+    : "No simulator set"
 
   return (
     <div
       {...otherProps}
       className={cn(
-        "border-primary/25 border bg-card space-y-2 rounded-xl p-4 shadow-md transition-all duration-200 ease-in-out hover:shadow-lg",
+        "border-primary/25 bg-card space-y-2 rounded-xl border p-4 shadow-md transition-all duration-200 ease-in-out hover:shadow-lg",
         className,
       )}
     >

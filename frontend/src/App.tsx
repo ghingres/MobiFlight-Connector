@@ -11,6 +11,7 @@ import { MainMenu } from "./components/MainMenu"
 import { useRecentProjects, useSettingsStore } from "./stores/settingsStore"
 import { useControllerDefinitionsStore } from "./stores/definitionStore"
 import {
+  ExecutionState,
   HubHopState,
   JoystickDefinitions,
   MidiControllerDefinitions,
@@ -33,6 +34,7 @@ import testMidiDefinition from "@/../tests/data/midicontroller.definition.json" 
 
 import { MidiControllerDefinition, JoystickDefinition } from "@/types/definitions"
 import DebugInfo from "@/components/DebugInfo"
+import { useExecutionStateStore } from "@/stores/executionStateStore"
 
 function App() {
   const [queryParameters] = useSearchParams()
@@ -42,6 +44,8 @@ function App() {
   const { setSettings } = useSettingsStore()
   const { setJoystickDefinitions, setMidiControllerDefinitions } =
     useControllerDefinitionsStore()
+
+  const { setIsRunning, setIsTesting } = useExecutionStateStore()
 
   const setHubHopState = useHubHopStateActions()
   useKeyAccelerators(GlobalKeyAccelerators, true)
@@ -154,6 +158,13 @@ function App() {
       ])
     }
   }, [project, queryParameters, setJoystickDefinitions, setMidiControllerDefinitions, setProject])
+
+  useAppMessage("ExecutionState", (message) => {
+    console.log("ExecutionState message received", message.payload)
+    const { IsRunning, IsTesting } = message.payload as ExecutionState
+    setIsRunning(IsRunning)
+    setIsTesting(IsTesting)
+  })
 
   return (
     <>
