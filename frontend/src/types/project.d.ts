@@ -7,11 +7,7 @@ export interface Project {
   Thumbnail?: string
   Sim: string
   UseFsuipc: boolean
-  Controllers?: {
-    Name: string
-    Type: string
-    Available: boolean
-  }[]
+  Controllers?: string[]
 
   Aircraft?: {
     Name: string
@@ -28,10 +24,7 @@ export interface ProjectInfo {
   Sim: string
   Favorite?: boolean
   UseFsuipc: boolean
-  Controllers?: {
-    Name: string
-    Type: string
-  }[]
+  Controllers?: string[]
 
   Aircraft?: {
     Name: string

@@ -1,9 +1,7 @@
 import { ProjectInfo } from "@/types/project"
 import {
   IconChevronRight,
-  IconDeviceGamepad2,
   IconDotsVertical,
-  IconFile,
   IconPlayerPlayFilled,
   IconPlayerStopFilled,
   IconQuestionMark,
@@ -30,6 +28,7 @@ import {
 import { useExecutionStateStore } from "@/stores/executionStateStore"
 import { publishOnMessageExchange } from "@/lib/hooks/appMessage"
 import { CommandProjectToolbarPayload } from "@/types/commands"
+import ControllerIcon from "@/components/project/ControllerIcon"
 
 export type ProjectCardProps = HtmlHTMLAttributes<HTMLDivElement> & {
   summary: ProjectInfo
@@ -110,21 +109,20 @@ export const ProjectCardStartStopButton = ({
   isRunning: boolean
 }) => {
   const { publish } = publishOnMessageExchange()
-  const { isRunning, isTesting } =
-    useExecutionStateStore()
+  const { isRunning, isTesting } = useExecutionStateStore()
 
   const handleMenuItemClick = (payload: CommandProjectToolbarPayload) => {
-      publish({
-        key: "CommandProjectToolbar",
-        payload: payload,
-      })
-    }
+    publish({
+      key: "CommandProjectToolbar",
+      payload: payload,
+    })
+  }
 
   return (
     <Button
       disabled={isTesting}
       variant="ghost"
-      className={cn("text-md gap-1 p-1 [&_svg]:size-7", className)}
+      className={cn("text-md gap-1 p-1 [&_svg]:size-8", className)}
       onClick={() =>
         handleMenuItemClick({ action: !isRunning ? "run" : "stop" })
       }
@@ -189,16 +187,16 @@ const ProjectCard = ({
                 {simulatorLabel}
               </Badge>
             </div>
-            <div className="flex flex-row gap-4">
-              <div className="flex flex-row gap-2">
-                <IconDeviceGamepad2 className="text-muted-foreground" />
-                <p className="text-muted-foreground">
-                  {summary.Controllers?.length}
-                </p>
-              </div>
-              <div className="flex flex-row gap-2">
-                <IconFile className="text-muted-foreground" />
-                <p className="text-muted-foreground">5</p>
+            <div className="flex flex-row gap-4 items-center">
+              <div className="flex flex-row -space-x-4 hover:space-x-0">
+                {summary.Controllers?.map((controllerName, index) => (
+                  controllerName != "-" && 
+                  <ControllerIcon
+                    className="ease-in-out transition-all"
+                    key={`${controllerName}-${index}`}
+                    serial={controllerName}
+                  />
+                ))}
               </div>
             </div>
           </div>
@@ -221,7 +219,7 @@ const ProjectCard = ({
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            <div className="-mb-2 flex flex-row items-end">
+            <div className="flex flex-row items-end">
               <ProjectCardStartStopButton
                 isAvailable={isAvailable}
                 isRunning={isRunning}

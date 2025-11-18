@@ -20,6 +20,7 @@ namespace MobiFlight.Base
         public string Sim { get; set; }
         public bool UseFsuipc { get; set; }
         public List<string> Aircraft { get; set; }
+        public List<string> Controllers { get; set; }
         public string FilePath { get; set; }
         public bool Favorite { get; set; } = false;
     }
@@ -164,6 +165,35 @@ namespace MobiFlight.Base
             }
         }
 
+        private ObservableCollection<string> _controllers = new ObservableCollection<string>();
+        /// <summary>
+        /// Gets or sets the name of the project.
+        /// </summary>
+        public ObservableCollection<string> Controllers
+        {
+            get => _controllers;
+            set
+            {
+                if (_aircraft != value)
+                {
+                    if (_controllers != null)
+                    {
+                        _controllers.CollectionChanged -= CollectionChanged;
+                    }
+
+                    _controllers = value;
+
+                    if (_controllers != null)
+                    {
+                        _controllers.CollectionChanged += CollectionChanged;
+                    }
+
+                    OnPropertyChanged(nameof(Controllers));
+                    OnProjectChanged();
+                }
+            }
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Project"/> class with default values.
         /// </summary>
@@ -185,18 +215,18 @@ namespace MobiFlight.Base
                 Sim = Sim,
                 UseFsuipc = UseFsuipc,
                 Aircraft = Aircraft?.ToList() ?? new List<string>(),
+                Controllers = Controllers?.ToList() ?? new List<string>(),
                 FilePath = FilePath
             };
-
-            
 
             return projectInfo;
         }
 
         public void DetermineProjectInfos() {
-            if (string.IsNullOrEmpty(Sim))
+            var controllerSerials = new List<string>();
+            foreach (var item in ConfigFiles)
             {
-                foreach (var item in ConfigFiles)
+                if (string.IsNullOrEmpty(Sim))
                 {
                     var sim = item.DetermineSim();
 
@@ -205,11 +235,19 @@ namespace MobiFlight.Base
                     {
                         Sim = sim;
                     }
-                    
+
                     var useFsuipc = item.DetermineUsingFsuipc();
                     UseFsuipc |= useFsuipc;
                 }
+
+                item.GetIUniqueControllerSerials().ForEach(c => controllerSerials.Add(c));
             }
+
+            Controllers.Clear();
+
+            controllerSerials.Distinct().ToList().ForEach(c => {
+                Controllers.Add(c);
+            });
         }
 
         /// <summary>
