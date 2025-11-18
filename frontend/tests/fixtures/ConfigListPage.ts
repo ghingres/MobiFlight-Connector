@@ -35,6 +35,8 @@ export class ConfigListPage {
         Name: "Test Project",
         FilePath: "SomeFilePath.mfproj",
         ConfigFiles: [],
+        Sim: "msfs",
+        UseFsuipc: false,
       } as Project,
     }
     await this.mobiFlightPage.publishMessage(message)
