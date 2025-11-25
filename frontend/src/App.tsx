@@ -190,7 +190,7 @@ function App() {
 
             {/* Uncomment the Navbar if needed */}
             {/* <Navbar /> */}
-            <div className="flex grow flex-col overflow-hidden p-2">
+            <div className="flex grow flex-col overflow-hidden">
               <Outlet />
             </div>
             <DebugInfo />

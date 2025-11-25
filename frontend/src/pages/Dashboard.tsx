@@ -146,7 +146,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 border-none xl:grid-cols-3 overflow-hidden">
+    <div className="grid grid-cols-1 gap-2 border-none xl:grid-cols-3 overflow-hidden">
       <Card className="flex flex-col border-shadow-none border-none shadow-none xl:col-span-2">
         <CardHeader>
           <div className="flex flex-row items-center justify-between">
