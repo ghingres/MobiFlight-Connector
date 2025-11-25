@@ -18,8 +18,8 @@ const ControllerIconPath = {
   },
   joystick: {
     honeycomb: {
-      "Alpha Flight Controls": "/controller/honeycomb/alpha-yoke.png",
-      "Bravo Throttle Quadrant": "/controller/honeycomb/bravo-throttle.png",
+      "Alpha Flight Controls": "/controller/honeycomb/alpha-yoke.jpg",
+      "Bravo Throttle Quadrant": "/controller/honeycomb/bravo-throttle.jpg",
     },
     octavi: {
       Octavi: "/controller/type/ocatvi-octavi.png",
@@ -52,14 +52,20 @@ const ControllerIconPath = {
   },
 }
 
-const FindControllerIconPath = (controllerType: string, deviceName: string) => {
+const FindControllerIconPath = (
+  controllerType: string,
+  deviceName: string,
+) => {
   console.log(`FindControllerIconPath: ${controllerType} > ${deviceName}`)
   const controllerIconPathSection =
     ControllerIconPath[controllerType as keyof typeof ControllerIconPath]
 
   if (!controllerIconPathSection) return "/controller/type/unknown.png"
 
-  const controllerIcon = Object.values(controllerIconPathSection).flat().find(c=>Object.keys(c).includes(deviceName)) ?? null
+  const controllerIcon =
+    Object.values(controllerIconPathSection)
+      .flat()
+      .find((c) => Object.keys(c).includes(deviceName)) ?? null
   if (controllerIcon) {
     return controllerIcon[deviceName as keyof typeof controllerIcon]
   }
@@ -92,11 +98,12 @@ const ControllerIcon = ({
         ? "midi"
         : "unknown"
 
+  const usingController = serial != ""
   const deviceName = serial.split("/")[0].trim() || ""
   const controllerIconUrl = FindControllerIconPath(controllerType, deviceName)
 
   return (
-    <div
+    usingController && (<div
       title={deviceName}
       className={cn(
         `bg-background border-background flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 shadow-sm`,
@@ -109,7 +116,8 @@ const ControllerIcon = ({
         src={controllerIconUrl}
         alt={`${controllerType} controller icon`}
       />
-    </div>
+      </div>
+    )
   )
 }
 
