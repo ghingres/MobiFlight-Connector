@@ -80,7 +80,7 @@ const ControllerMainCard = () => {
   ]
 
   return (
-    <Card className="border-shadow-none border-none shadow-none xl:col-span-2 2xl:col-span-2">
+    <Card className="border-shadow-none border-none shadow-none">
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="flex flex-col gap-2">
             <CardTitle>

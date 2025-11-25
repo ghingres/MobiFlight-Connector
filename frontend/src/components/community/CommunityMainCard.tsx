@@ -42,7 +42,7 @@ const CommunityMainCard = () => {
   ]
 
   return (
-    <Card className="border-shadow-none bg-muted row-span-2 hidden rounded-none xl:block">
+    <Card className="border-shadow-none bg-muted rounded-none">
       <CardHeader>
         <CardTitle>MobiFlight Community</CardTitle>
         <CardDescription>

@@ -27,7 +27,7 @@ const ProjectMainCard = () => {
   }
 
   return (
-    <Card className="border-shadow-none flex flex-col border-none shadow-none xl:col-span-2">
+    <Card className="border-shadow-none flex flex-col border-none shadow-none">
       <CardHeader>
         <div className="flex flex-row items-center justify-between">
           <div className="flex flex-col gap-2">
