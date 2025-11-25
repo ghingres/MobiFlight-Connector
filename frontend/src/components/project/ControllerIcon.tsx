@@ -7,10 +7,14 @@ export type ControllerIconProps = {
 
 const ControllerIconPath = {
   mobiflight: {
-    mega: "/controller/type/mobiflight-mega.png",
-    micro: "/controller/type/mobiflight-micro.png",
-    nano: "/controller/type/mobiflight-nano.png",
-    "miniCOCKPIT miniFCU": "/controller/minicockpit/minicockpit-logo.png",
+    official: {
+      mega: "/controller/type/mobiflight-mega.png",
+      micro: "/controller/type/mobiflight-micro.png",
+      nano: "/controller/type/mobiflight-nano.png",
+    },
+    miniCockpit: {
+      "miniCOCKPIT miniFCU": "/controller/minicockpit/minicockpit-logo.png",
+    },
   },
   joystick: {
     honeycomb: {
@@ -40,7 +44,7 @@ const ControllerIconPath = {
       "FCU Cube": "/controller/type/wingflex-joystick.png",
     },
     winwing: {
-      "WINWING MCDU-32-CAPTAIN": "/controller/type/winwing-mcdu.png",
+      "WINWING MCDU-32-CAPTAIN": "/controller/winwing/mcdu.jpg",
     },
   },
   midi: {
@@ -55,6 +59,13 @@ const FindControllerIconPath = (controllerType: string, deviceName: string) => {
 
   if (!controllerIconPathSection) return "/controller/type/unknown.png"
 
+  const controllerIcon = Object.values(controllerIconPathSection).flat().find(c=>Object.keys(c).includes(deviceName)) ?? null
+  if (controllerIcon) {
+    return controllerIcon[deviceName as keyof typeof controllerIcon]
+  }
+
+  // if we get here, then we didn't find a specific icon for the deviceName
+  // let's try a generic one for the type
   if (
     !controllerIconPathSection[
       deviceName as keyof typeof controllerIconPathSection
@@ -94,10 +105,10 @@ const ControllerIcon = ({
       {...props}
     >
       <img
-          className="h-9 object-cover"
-          src={controllerIconUrl}
-          alt={`${controllerType} controller icon`}
-        />
+        className="h-9 object-cover"
+        src={controllerIconUrl}
+        alt={`${controllerType} controller icon`}
+      />
     </div>
   )
 }
