@@ -96,7 +96,7 @@ const ProjectList = ({
       </div>
       {summarys.length > 0 ? (
         <ScrollArea
-          className="h-112 pr-2"
+          className="transition-all h-112 vlg:h-180 vxl:h-260 pr-2 duration-300"
           onMouseLeave={scrollActiveProjectIntoView}
         >
           <div className="group/projectlist flex w-[calc(100%)] flex-row flex-wrap gap-4">
