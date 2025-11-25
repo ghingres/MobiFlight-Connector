@@ -2,7 +2,9 @@ import { CommandMessageKey, CommandMessage } from "@/types/commands"
 import { AppMessage } from "@/types/messages"
 import type { Locator, Page } from "@playwright/test"
 import testProject from "../data/project.testdata.json" with { type: "json" }
+import recentProjects from "../data/recentProjects.testdata.json" with { type: "json" }
 import { Project } from "@/types"
+import { ProjectInfo } from "@/types/project"
 
 
 declare global {
@@ -124,6 +126,17 @@ export class MobiFlightPage {
       payload: testProject,
     }
     await this.publishMessage(message)
+    await this.initWithRecentProjects()
+  }
+
+  async initWithRecentProjects() {
+    const recentProjectsMessage: AppMessage = {
+      key: "RecentProjects",
+      payload: {
+        RecentProjects: recentProjects as ProjectInfo[],
+      },
+    }
+    await this.publishMessage(recentProjectsMessage)
   }
 
   async initWithTestDataAndSpecificProjectName(name: string) {
@@ -137,5 +150,6 @@ export class MobiFlightPage {
       payload: testProjectWithName,
     }
     await this.publishMessage(message)
+    await this.initWithRecentProjects()
   }
 }

@@ -32,11 +32,13 @@ import { useHubHopStateActions } from "./stores/stateStore"
 import testProject from "@/../tests/data/project.testdata.json" with { type: "json" }
 import testJsDefinition from "@/../tests/data/joystick.definition.json" with { type: "json" }
 import testMidiDefinition from "@/../tests/data/midicontroller.definition.json" with { type: "json" }
+import testRecentProjects from "@/../tests/data/recentProjects.testdata.json" with { type: "json" }
 
 import { MidiControllerDefinition, JoystickDefinition
  } from "@/types/definitions"
 import DebugInfo from "@/components/DebugInfo"
 import { useExecutionStateStore } from "@/stores/executionStateStore"
+import { ProjectInfo } from "@/types/project"
 
 function App() {
   const [queryParameters] = useSearchParams()
@@ -162,13 +164,14 @@ function App() {
       !project // Only if no project loaded yet
     ) {
       setProject(testProject as Project)
+      setRecentProjects(testRecentProjects as ProjectInfo[])
       setJoystickDefinitions([testJsDefinition as JoystickDefinition])
 
       setMidiControllerDefinitions([
         testMidiDefinition as MidiControllerDefinition,
       ])
     }
-  }, [project, queryParameters, setJoystickDefinitions, setMidiControllerDefinitions, setProject])
+  }, [project, queryParameters, setJoystickDefinitions, setMidiControllerDefinitions, setProject, setRecentProjects])
 
   useAppMessage("ExecutionState", (message) => {
     console.log("ExecutionState message received", message.payload)
