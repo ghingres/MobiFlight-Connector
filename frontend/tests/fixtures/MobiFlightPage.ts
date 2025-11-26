@@ -133,21 +133,25 @@ export class MobiFlightPage {
     const recentProjectsMessage: AppMessage = {
       key: "RecentProjects",
       payload: {
-        RecentProjects: recentProjects as ProjectInfo[],
+        Projects: recentProjects as ProjectInfo[],
       },
     }
     await this.publishMessage(recentProjectsMessage)
   }
 
-  async initWithTestDataAndSpecificProjectName(name: string) {
-    const testProjectWithName = {
+  getRecentProjects(): ProjectInfo[] {
+    return recentProjects as ProjectInfo[]
+  }
+
+  async initWithTestDataAndSpecificProjectProps(props: Partial<Project>) {
+    const testProjectWithProps = {
       ...testProject,
-      Name: name,
+      ...props,
     }
 
     const message: AppMessage = {
       key: "Project",
-      payload: testProjectWithName,
+      payload: testProjectWithProps,
     }
     await this.publishMessage(message)
     await this.initWithRecentProjects()

@@ -26,6 +26,7 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
 
     return (
       <div
+        data-testid ="project-list-item"
         className={cn(
           "group flex flex-row items-center justify-between gap-2 rounded-md p-2",
           "shadow-sm transition-all duration-200 ease-in-out hover:shadow-md",

@@ -104,6 +104,7 @@ const ControllerIcon = ({
 
   return (
     usingController && (<div
+      data-testid="controller-icon"
       title={deviceName}
       className={cn(
         `bg-background border-background flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 shadow-sm`,

@@ -120,6 +120,7 @@ export const ProjectCardStartStopButton = ({
 
   return (
     <Button
+      data-testid="project-card-start-stop-button"
       disabled={isTesting}
       variant="ghost"
       className={cn("text-md gap-1 p-1 [&_svg]:size-8", className)}
@@ -166,6 +167,7 @@ const ProjectCard = ({
 
   return (
     <div
+      data-testid="project-card"
       {...otherProps}
       className={cn(
         "border-primary/25 bg-card space-y-2 rounded-xl border p-4 shadow-md transition-all duration-200 ease-in-out hover:shadow-lg",
@@ -188,7 +190,7 @@ const ProjectCard = ({
               </Badge>
             </div>
             <div className="flex flex-row gap-4 items-center">
-              <div className="flex flex-row -space-x-4 hover:space-x-0">
+              <div className="flex flex-row -space-x-4 hover:space-x-0" data-testid="controller-icons">
                 {summary.Controllers?.map((controllerName, index) => (
                   controllerName != "-" && 
                   <ControllerIcon

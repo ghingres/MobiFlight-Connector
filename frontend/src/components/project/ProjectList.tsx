@@ -60,7 +60,7 @@ const ProjectList = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-row gap-2">
+      <div className="flex flex-row gap-2" data-testid="recent-projects-filter-bar">
         <Input
           placeholder="Filter projects..."
           className="h-8 w-36 transition-all duration-500 md:w-56"
@@ -99,7 +99,7 @@ const ProjectList = ({
           className="transition-all h-112 vlg:h-180 vxl:h-260 pr-2 duration-300"
           onMouseLeave={scrollActiveProjectIntoView}
         >
-          <div className="group/projectlist flex w-[calc(100%)] flex-row flex-wrap gap-4">
+          <div className="group/projectlist flex w-[calc(100%)] flex-row flex-wrap gap-4" data-testid="recent-projects-list">
             {filteredSummarys.length > 0 ? (
               filteredSummarys.map((project, index) => {
                 const isActive = activeProject?.FilePath === project.FilePath

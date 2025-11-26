@@ -710,8 +710,8 @@ test.describe("Filter toolbar tests", () => {
     await searchTextBox.fill("Test")
     await expect(searchTextBox).toHaveValue("Test")
 
-    await configListPage.mobiFlightPage.initWithTestDataAndSpecificProjectName(
-      "Specific Project",
+    await configListPage.mobiFlightPage.initWithTestDataAndSpecificProjectProps(
+      { Name: "Specific Project" },
     )
 
     await expect(searchTextBox).toHaveValue("")

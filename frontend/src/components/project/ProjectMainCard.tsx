@@ -32,8 +32,10 @@ const ProjectMainCard = () => {
     } as CommandMainMenu)
   }
 
+  const showRecentProjects = recentProjects.length > 0
+
   return (
-    <Card className="border-shadow-none flex flex-col border-none shadow-none">
+    <Card className="border-shadow-none flex flex-col border-none shadow-none" data-testid="project-main-card">
       <CardHeader>
         <div className="flex flex-row items-center justify-between">
           <div className="flex flex-col gap-2">
@@ -42,10 +44,13 @@ const ProjectMainCard = () => {
             </CardTitle>
             <CardDescription>Quick access to my projects.</CardDescription>
           </div>
-          <ProjectCreateButton />
+          { 
+            showRecentProjects &&<ProjectCreateButton />
+          }
         </div>
       </CardHeader>
       <CardContent className="">
+        { showRecentProjects ? (
         <div className="flex flex-row gap-8">
           <div className="flex min-w-96 flex-col gap-4">
             <div>
@@ -68,6 +73,16 @@ const ProjectMainCard = () => {
             />
           </div>
         </div>
+        ) : (
+          <Card className="w-full">
+          <CardContent className="flex flex-col items-center justify-center gap-4 pt-4">
+            <div className="text-muted-foreground">
+              Create your first project to get started!
+            </div>
+            <ProjectCreateButton />
+          </CardContent>
+        </Card>
+        )}
       </CardContent>
     </Card>
   )
