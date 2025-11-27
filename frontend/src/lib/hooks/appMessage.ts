@@ -4,7 +4,7 @@ import { useEffect } from "react"
 
 export const publishOnMessageExchange = () => ({
   publish: (message: CommandMessage) => {
-    console.log(`Publishing FrontendMessage -> ${message.key}`)
+    console.log(`Publishing FrontendMessage -> ${message.key} : ${message.payload ? JSON.stringify(message.payload) : "no payload"}`)
     window.chrome?.webview?.postMessage(message)
   },
 })
