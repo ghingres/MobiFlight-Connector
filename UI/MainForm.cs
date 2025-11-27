@@ -2283,8 +2283,11 @@ namespace MobiFlight.UI
         {
             project.ConfigFiles.Add(CreateDefaultConfigFile());
             execManager.Project = project;
-            ResetProjectAndConfigChanges();
+
+            // Indicate that the new project has unsaved changes
+            // because it was never saved before.
             ProjectHasUnsavedChanges = true;
+            SetProjectNameInTitle();
         }
 
         public void CreateNewProject()
