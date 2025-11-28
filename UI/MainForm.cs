@@ -459,7 +459,8 @@ namespace MobiFlight.UI
             var recentProjects = new List<ProjectInfo>();
             Task.Run(() =>
             {
-                foreach (var project in recentFiles) {
+                foreach (var project in recentFiles)
+                {
                     try
                     {
                         var p = new Project();
@@ -846,6 +847,7 @@ namespace MobiFlight.UI
                 this.Invoke(new EventHandler(ExecManager_OnInitialModuleLookupFinished), new object[] { sender, e });
                 return;
             }
+
             StartupProgressValue = 70;
             MessageExchange.Instance.Publish(new StatusBarUpdate { Value = StartupProgressValue, Text = "Checking for Firmware Updates..." });
             CheckForFirmwareUpdates();
@@ -1146,11 +1148,7 @@ namespace MobiFlight.UI
                     LoadConfig(file);
                     return;
                 }
-            } //if 
-
-
-            // Initialize properly the empty project state.
-            CreateNewProject(new Project() { Name = i18n._tr("DefaultProjectName") });
+            } //if
         }
 
 #if ARCAZE
@@ -2288,11 +2286,6 @@ namespace MobiFlight.UI
             // because it was never saved before.
             ProjectHasUnsavedChanges = true;
             SetProjectNameInTitle();
-        }
-
-        public void CreateNewProject()
-        {
-            CreateNewProject(new Project() { Name = i18n._tr("DefaultProjectName") });
         }
 
         public void AddNewFileToProject()

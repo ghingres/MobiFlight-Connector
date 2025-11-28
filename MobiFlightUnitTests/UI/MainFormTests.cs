@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MobiFlight.Base;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -47,7 +48,7 @@ namespace MobiFlight.UI.Tests
             InitializeExecutionManager();
             Assert.IsFalse(_mainForm.ProjectHasUnsavedChanges, "ProjectHasUnsavedChanges should be False when initializing MainForm.");
 
-            _mainForm.CreateNewProject();
+            _mainForm.CreateNewProject(new Project());
             Assert.IsTrue(_mainForm.ProjectHasUnsavedChanges, "ProjectHasUnsavedChanges should be True when creating a new project.");
 
             // save it to bring it into clean state
@@ -67,13 +68,13 @@ namespace MobiFlight.UI.Tests
             }
 
             // Act
-            _mainForm.CreateNewProject();
+            _mainForm.CreateNewProject(new Project());
 
             // Assert
             Assert.IsTrue(_mainForm.ProjectHasUnsavedChanges, "ProjectHasUnsavedChanges should be true when starting with a fresh project.");
 
             var mainFormTitle = _mainForm.Text;
-            var expectedTitle = $"New Project* - MobiFlight Connector - {MainForm.DisplayVersion()}";
+            var expectedTitle = $"New MobiFlight Project* - MobiFlight Connector - {MainForm.DisplayVersion()}";
             Assert.AreEqual(expectedTitle, mainFormTitle);
         }
 
