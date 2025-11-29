@@ -14,7 +14,8 @@ const DebugInfo = () => {
               <div className="rounded border px-2 hidden 3xl:block 4xl:hidden text-xs">3xl</div>
               <div className="rounded border px-2 hidden 4xl:block 5xl:hidden text-xs">4xl</div>
               <div className="text-xs"> | </div>
-              <div className="rounded border px-2 vlg:hidden text-xs">vsm</div>
+              <div className="rounded border px-2 vsm:hidden text-xs">vxs</div>
+              <div className="rounded border px-2 hidden vsm:block vlg:hidden text-xs">vsm</div>
               <div className="rounded border px-2 hidden vlg:block vxl:hidden text-xs">vlg</div>
               <div className="rounded border px-2 hidden vxl:block text-xs">vxl</div>
               <div className="text-muted-foreground text-xs">

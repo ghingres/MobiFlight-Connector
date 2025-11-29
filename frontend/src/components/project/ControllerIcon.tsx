@@ -52,10 +52,7 @@ const ControllerIconPath = {
   },
 }
 
-const FindControllerIconPath = (
-  controllerType: string,
-  deviceName: string,
-) => {
+const FindControllerIconPath = (controllerType: string, deviceName: string) => {
   console.log(`FindControllerIconPath: ${controllerType} > ${deviceName}`)
   const controllerIconPathSection =
     ControllerIconPath[controllerType as keyof typeof ControllerIconPath]
@@ -102,8 +99,8 @@ const ControllerIcon = ({
   const deviceName = serial.split("/")[0].trim() || ""
   const controllerIconUrl = FindControllerIconPath(controllerType, deviceName)
 
-  return (
-    usingController && (<div
+  return usingController ? (
+    <div
       data-testid="controller-icon"
       title={deviceName}
       className={cn(
@@ -117,9 +114,8 @@ const ControllerIcon = ({
         src={controllerIconUrl}
         alt={`${controllerType} controller icon`}
       />
-      </div>
-    )
-  )
+    </div>
+  ) : null
 }
 
 export default ControllerIcon

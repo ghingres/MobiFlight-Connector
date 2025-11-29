@@ -200,7 +200,7 @@
   }
 }
 
-@custom-variant vsm (@media (min-height: 500px));
+@custom-variant vxs (@media (min-height: 500px));
 @custom-variant vsm (@media (min-height: 650px));
 @custom-variant vlg (@media (min-height: 900px));
 @custom-variant vxl (@media (min-height: 1200px));

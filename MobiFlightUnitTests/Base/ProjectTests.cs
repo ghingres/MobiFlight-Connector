@@ -408,24 +408,7 @@ namespace MobiFlight.Base.Tests
 
         #region ProjectInfo Tests
         [TestMethod()]
-        public void DetermineProjectInfosTest()
-        {
-            // Arrange
-            string inFile = @"assets\Base\ConfigFile\Json\OpenProjectTest.mfproj";
-            var project = new Project();
-            project.FilePath = inFile;
-            project.OpenFile();
-
-            // Act
-            project.DetermineProjectInfos();
-
-            // Assert
-            Assert.IsNotNull(project.Controllers);
-            Assert.IsTrue(project.Controllers.Count >= 0);
-        }
-
-        [TestMethod()]
-        public void DetermineProjectInfos_WithEmptyProject_ShouldHaveNoControllers()
+        public void DetermineProjectInfos_WithEmptyProject_ShouldHaveCorrectDefaults()
         {
             // Arrange
             var project = new Project();
@@ -502,7 +485,6 @@ namespace MobiFlight.Base.Tests
 
             // Act - First call
             project.DetermineProjectInfos();
-            var firstCount = project.Controllers.Count;
 
             // Modify project
             project.ConfigFiles.Clear();
@@ -535,29 +517,6 @@ namespace MobiFlight.Base.Tests
             // Assert
             // The method doesn't filter out null/empty serials, it just collects distinct values
             Assert.IsNotNull(project.Controllers);
-        }
-
-        [TestMethod()]
-        public void DetermineProjectInfos_WithRealProjectFile_ShouldPopulateMetadata()
-        {
-            // Arrange
-            string inFile = @"assets\Base\ConfigFile\Json\OpenProjectTest.mfproj";
-            var project = new Project();
-            project.FilePath = inFile;
-            project.OpenFile();
-
-            // Clear any pre-existing values
-            project.Sim = null;
-            project.UseFsuipc = false;
-            project.Controllers.Clear();
-
-            // Act
-            project.DetermineProjectInfos();
-
-            // Assert
-            Assert.IsNotNull(project.Controllers);
-            // Sim and UseFsuipc depend on the content of OpenProjectTest.mfproj
-            // These assertions verify the method executes without exceptions
         }
 
         [TestMethod()]

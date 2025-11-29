@@ -61,7 +61,7 @@ namespace MobiFlight.UI.Panels
         {
             if (zoomFactor < 0.1 || zoomFactor > 5.0)
             {
-                zoomFactor = Math.Max(Math.Min(5,zoomFactor), 1);
+                zoomFactor = Math.Max(Math.Min(5.0,zoomFactor), 1.0);
             }
 
             if (FrontendWebView.CoreWebView2 != null)
