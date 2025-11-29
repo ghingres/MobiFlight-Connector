@@ -32,6 +32,7 @@
     "InputAction": "Input Action"
   },
   "Project" : {
+    "Label": "Projekt",
     "File.Action" : {
       "Add": "Datei hinzufügen",
       "New": "Neue Datei",
@@ -45,7 +46,8 @@
         "HasChanges": "Änderungen speichern",
         "NoChanges": "Keine Änderungen zum Speichern",
         "Success": "Erfolgreich gespeichert"
-      }
+      },
+      "Settings": "Einstellungen"
     },
     "Execution": {
       "AutoRun": {
@@ -82,17 +84,20 @@
         "AllProjects": "Alle Projekte",
         "CurrentProject": "Aktuelles Projekt",
         "NoActiveProject": "Derzeit ist kein Projekt geladen.",
-        "CreateFirstProject": "Erstelle dein erstes Projekt, um zu starten!"
+        "CreateFirstProject": "Erstelle mein erstes Projekt, um zu starten!"
       },
       "Filter": {
         "Search": {
           "Placeholder": "Projekte filtern..."
         }
       },
-      "NoActiveProjectHint": "Öffne eines deiner letzten Projekte rechts oder erstelle ein neues Projekt, um loszulegen."
+      "NoActiveProjectHint": "Öffne eines meiner letzten Projekte rechts oder erstelle ein neues Projekt, um loszulegen."
     },
     "Form": {
-      "Title": "Erstelle ein neues Projekt",
+      "Title": {
+        "New": "Neues Projekt erstellen",
+        "Edit": "Projekt bearbeiten" 
+      },
       "Description": "Konfiguriere deine Projekteinstellungen, wie Name, Simulator und Flugzeugtyp.",
       "Name": {
         "Label": "Projektname",

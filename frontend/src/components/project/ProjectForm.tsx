@@ -58,7 +58,7 @@ const ProjectForm = ({
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle className="text-2xl">
-            {isEdit ? "Edit Project" : "Create New Project"}
+            {isEdit ? t("Project.Form.Title.Edit") : t("Project.Form.Title.New")}
           </DialogTitle>
           <DialogDescription className="text-md">
             {t("Project.Form.Description")}

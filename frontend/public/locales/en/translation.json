@@ -32,6 +32,7 @@
     "InputAction": "Input Action"
   },
   "Project": {
+    "Label": "Project",
     "File.Action": {
       "Add": "Add file",
       "New": "Add new file",
@@ -93,14 +94,17 @@
       "NoActiveProjectHint": "Open one of your recent projects from the right, or create a new project to get started."
     },
     "Form": {
-      "Title": "From existing project",
-      "Description": "Configure your project settings and select your aircraft.",
+      "Title": {
+        "New": "Create new project",
+        "Edit": "Edit project" 
+      },
+      "Description": "Configure your project settings, like name, simulator and aircraft.",
       "Name": {
         "Label": "Project Name",
         "Placeholder": "e.g., Boeing 737 Home Cockpit"
       },
       "Simulator" : {
-        "Label": "Flight Simulator",
+        "Label": "Flight simulator",
         "HelpText": "Select the primary simulator for this project.",
         "UseFsuipc": "Use FSUIPC"
       },
