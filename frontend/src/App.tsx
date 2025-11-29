@@ -34,8 +34,10 @@ import testJsDefinition from "@/../tests/data/joystick.definition.json" with { t
 import testMidiDefinition from "@/../tests/data/midicontroller.definition.json" with { type: "json" }
 import testRecentProjects from "@/../tests/data/recentProjects.testdata.json" with { type: "json" }
 
-import { MidiControllerDefinition, JoystickDefinition
- } from "@/types/definitions"
+import {
+  MidiControllerDefinition,
+  JoystickDefinition,
+} from "@/types/definitions"
 import DebugInfo from "@/components/DebugInfo"
 import { useExecutionStateStore } from "@/stores/executionStateStore"
 import { ProjectInfo } from "@/types/project"
@@ -46,8 +48,11 @@ function App() {
   const { project, setProject, setHasChanged } = useProjectStore()
   const { setRecentProjects } = useRecentProjects()
   const { setSettings } = useSettingsStore()
-  const { setBoardDefinitions, setJoystickDefinitions, setMidiControllerDefinitions } =
-    useControllerDefinitionsStore()
+  const {
+    setBoardDefinitions,
+    setJoystickDefinitions,
+    setMidiControllerDefinitions,
+  } = useControllerDefinitionsStore()
 
   const { setIsRunning, setIsTesting } = useExecutionStateStore()
 
@@ -171,7 +176,14 @@ function App() {
         testMidiDefinition as MidiControllerDefinition,
       ])
     }
-  }, [project, queryParameters, setJoystickDefinitions, setMidiControllerDefinitions, setProject, setRecentProjects])
+  }, [
+    project,
+    queryParameters,
+    setJoystickDefinitions,
+    setMidiControllerDefinitions,
+    setProject,
+    setRecentProjects,
+  ])
 
   useAppMessage("ExecutionState", (message) => {
     console.log("ExecutionState message received", message.payload)
@@ -186,7 +198,7 @@ function App() {
         <LoaderOverlay open={overlayVisible} onOpenChange={setOverlayVisible} />
       )}
       {outlet ? (
-        <div className="flex h-svh flex-row p-0 select-none overflow-hidden">
+        <div className="flex h-svh flex-row overflow-hidden p-0 select-none">
           {/* <Sidebar /> */}
           <div className="flex grow flex-col">
             <MainMenu />

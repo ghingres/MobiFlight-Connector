@@ -18,7 +18,7 @@ export function useProjectModal() {
 
   const showStandalone = (options: ProjectModalOptions) => {
     const route = options.mode === "create" ? "/project/new" : `/project/edit`
-    navigate(route, { state: { backgroundLocation: location, ...options } })
+    navigate(route, { state: { ...options } })
   }
 
   return { showOverlay, showStandalone }
