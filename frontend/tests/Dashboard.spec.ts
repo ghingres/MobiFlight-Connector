@@ -140,7 +140,7 @@ test.describe("Project view tests", () => {
       await dashboardPage.mobiFlightPage.trackCommand("CommandMainMenu")
       
       await createProjectButton.click()
-      await expect(createProjectDialog).toBeVisible()
+        
       await projectNameInput.fill(option.name)
 
       const simOptionLocator = `[role="radio"][value="${option.value}"]`
@@ -167,6 +167,37 @@ test.describe("Project view tests", () => {
 
       await dashboardPage.gotoPage()
     }
+  })
+
+  test("Dont allow new project without a name", async ({ dashboardPage, page }) => {
+    await dashboardPage.gotoPage()
+
+    const createProjectButton = page.getByRole("button", { name: "Project" })
+    const createProjectDialog = page.getByRole("dialog", {
+      name: "Create New Project",
+    })
+    const projectNameInput = createProjectDialog.getByLabel("Project Name")
+    const createButton = createProjectDialog.getByRole("button", {
+      name: "Create",
+    })
+
+    await createProjectButton.click()
+    await projectNameInput.fill("")
+    await createButton.click()
+
+    // The dialog is still open
+    await expect(createProjectDialog).toBeVisible()
+
+    // Error message is shown
+    const errorMessage = createProjectDialog.getByTestId("form-project-name-error")
+    await expect(errorMessage).toBeVisible()
+
+    await projectNameInput.fill("Valid Name")
+    await expect(errorMessage).not.toBeVisible()
+
+    // Now the form can submit and dialog is closed
+    await createButton.click()
+    await expect(createProjectDialog).not.toBeVisible()
   })
 
   test("Edit current project settings", async ({ dashboardPage, page }) => {

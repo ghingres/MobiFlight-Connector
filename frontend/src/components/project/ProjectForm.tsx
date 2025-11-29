@@ -84,10 +84,11 @@ const ProjectForm = ({
               className={showErrorMessage ? "border-red-500" : ""}
               onChange={(e) => setName(e.target.value)}
               placeholder={t("Project.Form.Name.Placeholder")}
+              aria-invalid={showErrorMessage ? "true" : "false"}
               required
             />
             {showErrorMessage && (
-              <p className="text-sm text-red-500">
+              <p className="text-sm text-red-500" data-testid="form-project-name-error">
                 {t("Project.Form.Name.Error.Required")}
               </p>
             )}{" "}
