@@ -72,7 +72,47 @@
       "msfs": "Microsoft Flight Simulator",
       "xplane": "X-Plane",
       "p3d": "Prepar3D",
-      "fsx": "FSX / FS2004"
+      "fsx": "FSX / FS2004",
+      "none": "No simulator"
+    },
+    "Card": {
+      "Main": {
+        "Title": "Meine Projekte",
+        "Description": "Schnellzugriff auf meine Projekte.",
+        "AllProjects": "Alle Projekte",
+        "CurrentProject": "Aktuelles Projekt",
+        "NoActiveProject": "Derzeit ist kein Projekt geladen.",
+        "CreateFirstProject": "Erstelle dein erstes Projekt, um zu starten!"
+      },
+      "Filter": {
+        "Search": {
+          "Placeholder": "Projekte filtern..."
+        }
+      },
+      "NoActiveProjectHint": "Öffne eines deiner letzten Projekte rechts oder erstelle ein neues Projekt, um loszulegen."
+    },
+    "Form": {
+      "Title": "Erstelle ein neues Projekt",
+      "Description": "Konfiguriere deine Projekteinstellungen, wie Name, Simulator und Flugzeugtyp.",
+      "Name": {
+        "Label": "Projektname",
+        "Placeholder": "z.B., Boeing 737 Home Cockpit"
+      },
+      "Simulator" : {
+        "Label": "Flugsimulator",
+        "HelpText": "Wähle den primären Simulator für dieses Projekt aus.",
+        "UseFsuipc": "Verwende FSUIPC"
+      },
+      "Aircraft": {
+        "Label": "Flugzeug",
+        "HelpText": "Wähle das Flugzeug für dieses Projekt aus."
+      }
+    },
+    "UnsavedChanges": {
+      "Title": "Ungespeicherte Änderungen",
+      "Description": "Du hast ungespeicherte Änderungen in deinem Projekt. Was möchtest du tun?",
+      "Save": "Jetzt speichern",
+      "Discard": "Änderungen verwerfen"
     }
   },
   "ConfigList": {
