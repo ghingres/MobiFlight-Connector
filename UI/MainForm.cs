@@ -251,6 +251,11 @@ namespace MobiFlight.UI
                 ProjectHasUnsavedChanges = false;
                 SetTitle("");
             });
+
+            MessageExchange.Instance.Subscribe<CommandOpenLinkInBrowser>((message) =>
+            {
+                Process.Start(message.Url)  ;
+            });
         }
 
         private void OpenOutputConfigWizardForId(string guid)
