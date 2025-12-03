@@ -39,8 +39,7 @@ const CommunityFeedItem = (props: CommunityFeedItemProps) => {
     <div
       key={post.title}
       className={cn(
-        "border-muted 4xl:flex-row flex flex-row justify-between gap-8 border-b p-8 lg:flex-col",
-        post.featured && "bg-background rounded-md",
+        "border-muted 4xl:flex-row flex flex-row justify-between gap-8 border-b p-8 lg:flex-col"        
       )}
     >
       {post.media && post.media.type === "image" && (
@@ -55,7 +54,6 @@ const CommunityFeedItem = (props: CommunityFeedItemProps) => {
       <div className="flex w-1/2 flex-col justify-between gap-4 lg:w-full">
         <div>
           <h4 className="text-xl font-semibold">{post.title}</h4>
-          <div className="text-muted-foreground">{post.date}</div>
           <div className="flex flex-col gap-4 text-sm">
             {post.content.map((paragraph, index) => (
               <Markdown key={index} components={{ a: renderLink }}>
