@@ -31,10 +31,10 @@ const CommunityMainCard = () => {
     {
       title: "100% Dedication to MobiFlight!",
       date: "2025-11-30",
-      content:[
+      content: [
         "This year, I decided to commit myself full-time to MobiFlight development.",
         "Please consider supporting us through donations to help sustain the continuous development and growth of MobiFlight.",
-        ],
+      ],
       featured: false,
       tags: ["Community"],
       media: {
@@ -50,7 +50,7 @@ const CommunityMainCard = () => {
     {
       title: "New products in the MobiFlight Store",
       date: "2025-11-30",
-      content:[
+      content: [
         "Check out the latest additions to our store, including new modules and accessories to enhance your flight simulation experience.",
       ],
       featured: true,
@@ -68,7 +68,58 @@ const CommunityMainCard = () => {
     {
       title: "Subscribe to Our Newsletter",
       date: "2025-11-30",
-      content:[
+      content: [
+        "Stay updated with the **latest news, tutorials, and community highlights** by subscribing to [our newsletter](https://mobiflight.com/newsletter).",
+      ],
+      action: {
+        title: "Subscribe",
+        url: "https://mobiflight.com/newsletter",
+      },
+      media: {
+        type: "image",
+        src: "/feed/newsletter-subscribe.jpg",
+        alt: "Subscribe to Our Newsletter",
+      },
+      tags: ["Community"],
+    },
+    {
+      title: "Subscribe to Our Newsletter",
+      date: "2025-11-30",
+      content: [
+        "Stay updated with the **latest news, tutorials, and community highlights** by subscribing to [our newsletter](https://mobiflight.com/newsletter).",
+      ],
+      action: {
+        title: "Subscribe",
+        url: "https://mobiflight.com/newsletter",
+      },
+      media: {
+        type: "image",
+        src: "/feed/newsletter-subscribe.jpg",
+        alt: "Subscribe to Our Newsletter",
+      },
+      tags: ["Community"],
+    },
+    {
+      title: "Subscribe to Our Newsletter",
+      date: "2025-11-30",
+      content: [
+        "Stay updated with the **latest news, tutorials, and community highlights** by subscribing to [our newsletter](https://mobiflight.com/newsletter).",
+      ],
+      action: {
+        title: "Subscribe",
+        url: "https://mobiflight.com/newsletter",
+      },
+      media: {
+        type: "image",
+        src: "/feed/newsletter-subscribe.jpg",
+        alt: "Subscribe to Our Newsletter",
+      },
+      tags: ["Community"],
+    },
+    {
+      title: "Subscribe to Our Newsletter",
+      date: "2025-11-30",
+      content: [
         "Stay updated with the **latest news, tutorials, and community highlights** by subscribing to [our newsletter](https://mobiflight.com/newsletter).",
       ],
       action: {
@@ -85,7 +136,7 @@ const CommunityMainCard = () => {
   ] as CommunityPost[]
 
   return (
-    <Card className="border-shadow-none bg-muted h-full rounded-none">
+    <Card className="border-shadow-none bg-muted h-full rounded-none flex flex-col">
       <CardHeader>
         <CardTitle className="flex flex-row gap-2">
           <IconBrandMobiFlightLogo /> Community Feed
@@ -94,11 +145,11 @@ const CommunityMainCard = () => {
           News and updates from the MobiFlight community.
         </CardDescription>
       </CardHeader>
-      <CardContent className="">
-        <div className="h-auto max-h-full overflow-y-scroll bg-green-900 p-5">
-          {communityFeed.map((post) => (
-            <CommunityFeedItem key={post.title} post={post} />
-          ))}
+      <CardContent className="h-full p-4 relative">        
+        <div className="absolute inset-0 overflow-auto">
+          {communityFeed.map((post, index) => (
+            <CommunityFeedItem key={index} post={post} />
+          ))}          
         </div>
       </CardContent>
     </Card>
