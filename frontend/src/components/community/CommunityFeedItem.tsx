@@ -1,4 +1,4 @@
-import { CommunityPost } from "@/components/community/CommunityMainCard"
+import { CommunityPost } from "@/types/feed"
 import { Button } from "@/components/ui/button"
 import useMessageExchange from "@/lib/hooks/useMessageExchange"
 import { cn } from "@/lib/utils"
