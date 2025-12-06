@@ -30,6 +30,7 @@ namespace MobiFlight.Base
     /// </summary>
     public class Project
     {
+        public const string FileExtension = ".mfproj";
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler ProjectChanged;
 
@@ -533,6 +534,16 @@ namespace MobiFlight.Base
         public bool ContainsConfigOfSourceType(Source type)
         {
             return ConfigFiles.ToList().Any(file => file.ContainsConfigOfSourceType(type));
+        }
+
+        public string MigrateFileExtension()
+        {
+            if (FilePath.EndsWith(".mcc") || FilePath.EndsWith(".aic"))
+            {
+                FilePath = Path.ChangeExtension(FilePath, FileExtension);
+            }
+
+            return FilePath;
         }
     }
 }

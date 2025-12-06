@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using MobiFlight.Base;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Linq;
 
@@ -748,5 +749,25 @@ namespace MobiFlight.Base.Tests
             Assert.AreEqual(2, project.Controllers.Count);
         }
         #endregion
+
+        [TestMethod()]
+        public void MigrateFileExtensionTest()
+        {
+            var project = new Project();
+            var mccExtension = "Extension.FilePath.mcc";
+            var aicExtension = "Extension.FilePath.aic";
+            var mfprojExtension = "Extension.FilePath.mfproj";
+
+            project.FilePath = mccExtension;
+            project.MigrateFileExtension();
+
+            Assert.AreEqual(mfprojExtension, project.FilePath, "Extension is still old.");
+
+            project.FilePath = aicExtension;
+            var result = project.MigrateFileExtension();
+
+            Assert.AreEqual(mfprojExtension, project.FilePath, "Extension is still old.");
+            Assert.AreEqual(project.FilePath, result, "Return value should be the same as FilePath value");
+        }
     }
 }
