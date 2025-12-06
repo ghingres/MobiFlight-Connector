@@ -235,7 +235,8 @@
     "Filter": {
       "all": "Alle",
       "shop": "Angebote",
-      "events": "Termine"
+      "events": "Termine",
+      "community": "Community"
     }
   }
 }

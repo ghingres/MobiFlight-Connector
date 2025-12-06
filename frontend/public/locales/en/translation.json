@@ -235,7 +235,8 @@
     "Filter": {
       "all": "All",
       "shop": "Offers",
-      "events": "Events"
+      "events": "Events",
+      "community": "Community"
     }
   }
 }

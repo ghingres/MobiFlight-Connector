@@ -289,3 +289,67 @@ test.describe("Project list view tests", () => {
     }
   })
 })
+
+test.describe("Community Feed tests", () => {
+  test("Confirm default feed items", async ({
+    dashboardPage,
+    page,
+  }) => {
+    await dashboardPage.gotoPage()
+
+    await expect(
+      page.getByText("Community Feed"),
+    ).toBeVisible()
+
+    const feedFilter = page.getByTestId("community-feed-filter-bar")
+    await expect(feedFilter).toBeVisible()
+
+    const allFilterButton = page.getByRole("button", { name: "All" })
+    await expect(allFilterButton).toBeVisible()
+    await expect(allFilterButton).toHaveCount(1)
+
+    const communityFilterButton = page.getByRole("button", { name: "Community" })
+    await expect(communityFilterButton).toBeVisible()
+    await expect(communityFilterButton).toHaveCount(1)
+    
+    const offersFilterButton = page.getByRole("button", { name: "Offers" })
+    await expect(offersFilterButton).toBeVisible()
+    await expect(offersFilterButton).toHaveCount(1)
+
+    const eventsFilterButton = page.getByRole("button", { name: "Events" })
+    await expect(eventsFilterButton).toBeVisible()
+    await expect(eventsFilterButton).toHaveCount(1)
+
+    const feedItems = page.getByTestId("community-feed-item")
+    await expect(feedItems).toHaveCount(4)
+
+    await communityFilterButton.click()
+    await expect(feedItems).toHaveCount(2)
+
+    await offersFilterButton.click()
+    await expect(feedItems).toHaveCount(1)
+
+    await eventsFilterButton.click()
+    await expect(feedItems).toHaveCount(1)
+  })
+
+  test("Confirm responsiveness small window size", async ({
+    dashboardPage,
+    page,
+  }) => {
+    await dashboardPage.gotoPage()
+    await page.setViewportSize({ width: 500, height: 800 })
+    const feedItems = page.getByTestId("community-feed-item")
+    await expect(feedItems).not.toBeVisible()
+
+    const dashBoardNav = page.getByTestId("dashboard-nav")
+    await expect(dashBoardNav).toBeVisible()
+
+    const communityNavButton = dashBoardNav.getByRole("button", { name: "Community" })
+    await expect(communityNavButton).toBeVisible()
+    await expect(communityNavButton).toHaveCount(1)
+
+    await communityNavButton.click()
+    await expect(feedItems).toBeVisible()
+  })
+})

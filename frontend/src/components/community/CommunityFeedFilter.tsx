@@ -15,13 +15,14 @@ const CommunityFeedFilter = () => {
 
   const className = "h-8 px-3 text-sm"
   const allActive = activeFilter === "all"
+  const communityActive = activeFilter === "community"
   const shopActive = activeFilter === "shop"
   const eventsActive = activeFilter === "events"
 
   return (
     <div
       className="flex flex-row gap-2"
-      data-testid="recent-projects-filter-bar"
+      data-testid="community-feed-filter-bar"
     >
       <Button
         className={className}
@@ -29,6 +30,13 @@ const CommunityFeedFilter = () => {
         onClick={() => handleFilterChange("all")}
       >
         {t("Feed.Filter.all")}
+      </Button>
+      <Button
+        className={className}
+        variant={communityActive ? "default" : "outline"}
+        onClick={() => handleFilterChange("community")}
+      >
+        {t("Feed.Filter.community")}
       </Button>
       <Button
         className={className}

@@ -41,6 +41,8 @@ const CommunityFeedItem = (props: CommunityFeedItemProps) => {
       className={cn(
         "border-muted 4xl:flex-row flex flex-row justify-between gap-8 border-b xl:flex-col",
       )}
+
+      data-testid="community-feed-item"
     >
       {post.media && post.media.type === "image" && (
         <div
