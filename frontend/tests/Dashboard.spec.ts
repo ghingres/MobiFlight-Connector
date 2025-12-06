@@ -86,13 +86,13 @@ test.describe("Project view tests", () => {
   }) => {
     await dashboardPage.gotoPage()
     await dashboardPage.mobiFlightPage.initWithTestData()
+    await dashboardPage.mobiFlightPage.trackCommand("CommandProjectToolbar")
     const currentProjectCard = page.getByTestId("project-card")
 
     // Verify correct start and stop messages
     await currentProjectCard
       .getByTestId("project-card-start-stop-button")
       .click()
-    await dashboardPage.mobiFlightPage.trackCommand("CommandProjectToolbar")
     let postedCommands = await dashboardPage.mobiFlightPage.getTrackedCommands()
     let lastCommand = postedCommands!.pop()
     expect(lastCommand.key).toEqual("CommandProjectToolbar")
@@ -339,9 +339,10 @@ test.describe("Community Feed tests", () => {
   }) => {
     await dashboardPage.gotoPage()
     await page.setViewportSize({ width: 500, height: 800 })
-    const feedItems = page.getByTestId("community-feed-item")
-    await expect(feedItems).not.toBeVisible()
 
+    const feedTitle = page.getByText("Community Feed")
+    await expect(feedTitle).not.toBeVisible()
+    
     const dashBoardNav = page.getByTestId("dashboard-nav")
     await expect(dashBoardNav).toBeVisible()
 
@@ -350,6 +351,6 @@ test.describe("Community Feed tests", () => {
     await expect(communityNavButton).toHaveCount(1)
 
     await communityNavButton.click()
-    await expect(feedItems).toBeVisible()
+    await expect(feedTitle).toBeVisible()
   })
 })
