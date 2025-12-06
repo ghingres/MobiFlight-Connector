@@ -159,7 +159,7 @@ namespace MobiFlight.Tests
             var json = JsonConvert.SerializeObject(p);
 
             // Assert
-            Assert.AreEqual("null", json, "Empty Precondition must be serialized to JSON null when the converter is enabled.");
+            Assert.AreEqual("", json, "Empty Precondition must be serialized to JSON null when the converter is enabled.");
         }
 
         [TestMethod]

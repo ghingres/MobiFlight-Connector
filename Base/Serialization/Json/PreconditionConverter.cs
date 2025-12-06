@@ -14,7 +14,6 @@ namespace MobiFlight.Base.Serialization.Json
             var p = value as Precondition;
             if (IsNullOrEmpty(p))
             {
-                writer.WriteNull();
                 return;
             }
 
