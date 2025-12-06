@@ -39,13 +39,13 @@ const CommunityFeedItem = (props: CommunityFeedItemProps) => {
     <div
       key={post.title}
       className={cn(
-        "border-muted 4xl:flex-row flex flex-row justify-between gap-8 border-b lg:flex-col",
+        "border-muted 4xl:flex-row flex flex-row justify-between gap-8 border-b xl:flex-col",
       )}
     >
       {post.media && post.media.type === "image" && (
         <div
           className={cn(
-            "bg-background flex max-h-48 min-h-48 w-1/2 items-center justify-center overflow-hidden rounded-lg border shadow-md lg:w-full",
+            "bg-background flex max-h-48 min-h-48 w-full items-center justify-center overflow-hidden rounded-lg border shadow-md sm:w-1/2 md:w-1/3 xl:w-full",
             post.media.className || "",
           )}
         >
@@ -56,7 +56,7 @@ const CommunityFeedItem = (props: CommunityFeedItemProps) => {
           />
         </div>
       )}
-      <div className="flex w-1/2 flex-col justify-between gap-4 lg:w-full">
+      <div className="flex w-full flex-col justify-between gap-4 sm:w-1/2 md:w-2/3 xl:w-full">
         <div className="flex flex-col gap-4">
           <h4 className="text-xl font-semibold">{post.title}</h4>
           <div className="flex flex-col gap-4 text-sm">
