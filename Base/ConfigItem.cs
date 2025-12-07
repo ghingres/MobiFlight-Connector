@@ -141,5 +141,20 @@ namespace MobiFlight.Base
         {
             return ConfigRefs != null && ConfigRefs.Count > 0;
         }
+
+        public bool ShouldSerializeStatus()
+        {
+            return Status != null && Status.Keys.Count > 0;
+        }
+
+        public bool ShouldSerializeRawValue()
+        {
+            return !string.IsNullOrEmpty(RawValue);
+        }
+
+        public bool ShouldSerializeValue()
+        {
+            return !string.IsNullOrEmpty(Value);
+        }   
     }
 }
