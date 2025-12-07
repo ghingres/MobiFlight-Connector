@@ -150,7 +150,7 @@ namespace MobiFlight.Tests
         }
 
         [TestMethod]
-        public void Empty_Precondition_ShouldSerializeAsJsonNull()
+        public void Empty_Precondition_ShouldSerializeAsEmptyString()
         {
             // Arrange
             var p = new Precondition(); // defaults to Type == "none" and other fields null
@@ -159,11 +159,11 @@ namespace MobiFlight.Tests
             var json = JsonConvert.SerializeObject(p);
 
             // Assert
-            Assert.AreEqual("", json, "Empty Precondition must be serialized to JSON null when the converter is enabled.");
+            Assert.AreEqual("", json, "Empty Precondition must be serialized to empty when the converter is enabled.");
         }
 
         [TestMethod]
-        public void NonEmpty_Precondition_ShouldSerializeAsJsonNull()
+        public void NonEmpty_Precondition_ShouldNotSerializeAsEmptyString()
         {
             // Arrange
             var p = _generateTestObject();
@@ -172,7 +172,7 @@ namespace MobiFlight.Tests
             var json = JsonConvert.SerializeObject(p);
 
             // Assert
-            Assert.AreNotEqual("null", json, "Non-empty Precondition must not be serialized to JSON null when the converter is enabled.");
+            Assert.AreNotEqual("", json, "Non-empty Precondition must not be serialized to empty when the converter is enabled.");
             Assert.IsFalse(string.IsNullOrEmpty(json), "Serialized JSON should not be empty.");
         }
     }

@@ -298,7 +298,7 @@ namespace MobiFlight.Base.Tests
         public void ConfigFile_WithEmptyPreconditions_ShouldNotContainNull()
         {
             // Arrange
-            var configFile = new Base.ConfigFile();
+            var configFile = new ConfigFile();
             var configItem = new OutputConfigItem
             {
                 Name = "Test",

@@ -218,10 +218,9 @@ namespace MobiFlight.Base.Migration.Tests
         }
 
         [TestMethod]
-        public void OpenFile_ModernJsonProject_RemovesEmptyPreconditions()
+        public void OpenFile_ModernJsonProject_ShouldRemoveEmptyPreconditions()
         {
             // Arrange
-            var modernProject = new Project();
             var modernProjectJson = JsonConvert.SerializeObject(new
             {
                 _version = "0.8",

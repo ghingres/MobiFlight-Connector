@@ -179,7 +179,7 @@ test("Confirm status icons working", async ({ configListPage, page }) => {
   }
 })
 
-test("Confirm status icons are intialized correctly when status is not present", async ({
+test("Confirm status icons are initialized correctly when status is not present", async ({
   configListPage
 }) => {
   await configListPage.gotoPage()

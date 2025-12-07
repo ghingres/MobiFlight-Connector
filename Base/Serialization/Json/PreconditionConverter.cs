@@ -6,6 +6,11 @@ namespace MobiFlight.Base.Serialization.Json
 {
     public class PreconditionConverter : JsonConverter
     {
+        /// <summary>
+        /// A custom JsonConverter for Precondition objects that skips serialization of empty preconditions
+        /// (where Type="none" and key fields are null). This prevents saving null or empty properties to
+        /// project files, improving file cleanliness and maintainability.
+        /// </summary>
         public override bool CanRead => false;
         public override bool CanWrite => true;
 
