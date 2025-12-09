@@ -24,7 +24,7 @@ function ConfigItemTableRawValueCell({
   const label = item.RawValue
 
   return (
-    <div className="text-md">
+    <div className="text-md" data-testid="raw-value">
       {!isEmpty(label) && !Source ? (
         item.Type == "InputConfigItem" ? (
           <ToolTip content={label}>

@@ -23,7 +23,7 @@ function ConfigItemTableFinalValueCell({
   const label = item.Value
 
   return (
-    <div className="text-md">
+    <div className="text-md" data-testid="final-value">
       {!isEmpty(label) && !Modifier ? (
         item.Type == "InputConfigItem" ? (
           <ToolTip content={label}>
