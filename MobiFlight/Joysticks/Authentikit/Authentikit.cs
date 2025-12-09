@@ -47,7 +47,7 @@ namespace MobiFlight.Joysticks
         /// </summary>
         public override string Serial
         {
-            get { return $"{Joystick.SerialPrefix}{Device?.ConnectedDeviceDefinition?.SerialNumber}" ?? "Authentikit"; }
+            get { return $"{Joystick.SerialPrefix}{Device?.ConnectedDeviceDefinition?.SerialNumber ?? "Authentikit"}"; }
         }
 
         /// <summary>
@@ -77,10 +77,11 @@ namespace MobiFlight.Joysticks
             }
 
             var deviceDefinition = deviceDefinitions.First();
-            
+
             Device = (IHidDevice)await hidFactory.GetDeviceAsync(deviceDefinitions.First()).ConfigureAwait(false);
 
-            try {                 
+            try
+            {
                 await Device.InitializeAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -162,7 +163,8 @@ namespace MobiFlight.Joysticks
         /// type.</remarks>
         protected override void EnumerateDevices()
         {
-            Definition.Inputs.ForEach(d => {
+            Definition.Inputs.ForEach(d =>
+            {
                 var device = new JoystickDevice() { Name = d.Name, Label = d.Label, JoystickDeviceType = d.Type };
                 switch (d.Type)
                 {
