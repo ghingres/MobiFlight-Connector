@@ -1,5 +1,6 @@
 import StatusIcon from "@/components/icons/StatusIcon"
 import ValueIcon from "@/components/icons/ValueIcon"
+import ToolTip from "@/components/ToolTip"
 import { Badge } from "@/components/ui/badge"
 import { IConfigItem } from "@/types"
 import { IconBuildingBroadcastTower } from "@tabler/icons-react"
@@ -26,13 +27,17 @@ function ConfigItemTableRawValueCell({
     <div className="text-md">
       {!isEmpty(label) && !Source ? (
         item.Type == "InputConfigItem" ? (
-          <div className="flex flex-row justify-center">
-            <Badge variant="secondary">{label?.replace("CHANGE =>", "")}</Badge>
-          </div>
+          <ToolTip content={label}>
+            <div className="flex flex-row justify-center">
+              <Badge variant="secondary" className="truncate">
+                {label?.replace("CHANGE =>", "")}
+              </Badge>
+            </div>
+          </ToolTip>
         ) : (
-          <div className="truncate px-2 text-sm" title={label ?? ""}>
-            {label}
-          </div>
+          <ToolTip content={label}>
+            <div className="truncate px-2 text-sm">{label}</div>
+          </ToolTip>
         )
       ) : Source ? (
         <div className="flex flex-row justify-center">
