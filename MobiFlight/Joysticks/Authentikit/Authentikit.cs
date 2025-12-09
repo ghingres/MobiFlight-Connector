@@ -28,7 +28,7 @@ namespace MobiFlight.Joysticks
         IHidDevice Device { get; set; }
 
         /// <summary>
-        /// The report implementation for the FCU Cube.
+        /// The report implementation.
         /// </summary>
         private readonly AuthentikitReport report = new AuthentikitReport();
 
@@ -116,7 +116,7 @@ namespace MobiFlight.Joysticks
                 }
                 catch
                 {
-                    // Exception when disconnecting fcu while mobiflight is running.
+                    // Exception when disconnecting while mobiflight is running.
                     Shutdown();
                     break;
                 }
