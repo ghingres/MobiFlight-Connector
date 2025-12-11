@@ -17,18 +17,18 @@ import { useTranslation } from "react-i18next"
 import { InlineEditLabel, InlineEditLabelRef } from "../InlineEditLabel"
 import { useDroppable } from "@dnd-kit/core"
 
-export interface FileButtonProps extends VariantProps<typeof buttonVariants> {
+export interface ProfileTabProps extends VariantProps<typeof buttonVariants> {
   file: ConfigFile
   index: number
   selectActiveFile: (index: number) => void
 }
 
-const FileButton = ({
+const ProfileTab = ({
   file,
   index,
   variant,
   selectActiveFile: onSelectActiveFile,
-}: FileButtonProps) => {
+}: ProfileTabProps) => {
   const { t } = useTranslation()
   const { publish } = publishOnMessageExchange()
   const inlineEditRef = useRef<InlineEditLabelRef>(null)
@@ -152,4 +152,4 @@ const FileButton = ({
   )
 }
 
-export default FileButton
+export default ProfileTab

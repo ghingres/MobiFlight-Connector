@@ -1,4 +1,4 @@
-import FileButton from "./FileButton"
+import ProfileTab from "./ProfileTab"
 import { Button } from "../ui/button"
 import {
   IconChevronLeft,
@@ -175,7 +175,7 @@ const ProjectPanel = () => {
       <div className="flex flex-row items-end gap-0 rounded-md" role="tablist">
         {configFiles?.map((file, index) => {
           return (
-            <FileButton
+            <ProfileTab
               key={index}
               variant={
                 index === activeConfigFileIndex
@@ -187,7 +187,7 @@ const ProjectPanel = () => {
               file={file}
               index={index}
               selectActiveFile={selectActiveFile}
-            ></FileButton>
+            ></ProfileTab>
           )
         })}
       </div>
