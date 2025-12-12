@@ -85,7 +85,7 @@ const ProfileTab = ({
 
   return (
     <div
-      className={`group flex justify-center border-b border-muted-foreground/50`}
+      className={`group flex flex-row justify-center border-b`}
       ref={setNodeRef}
       role="tab"
       aria-selected={isActiveTab}
@@ -96,7 +96,7 @@ const ProfileTab = ({
         value={optimisticLabel}
         className={cn(
           groupHoverStyle,
-          "rounded-r-none rounded-b-none border-r-0 border-b-0",
+          "rounded-r-none rounded-b-none border-r-0",
           maxInputWidth
         )}
         onClick={() => onSelectActiveFile(index)}
@@ -116,7 +116,6 @@ const ProfileTab = ({
         file={file.FileName}
         inlineEditRef={inlineEditRef}
       />
-
     </div>
   )
 }

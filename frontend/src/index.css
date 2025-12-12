@@ -200,6 +200,17 @@
   }
 }
 
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+
 @custom-variant vxs (@media (min-height: 500px));
 @custom-variant vsm (@media (min-height: 650px));
 @custom-variant vlg (@media (min-height: 900px));

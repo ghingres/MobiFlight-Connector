@@ -41,7 +41,7 @@ const ProfileTabContextMenu = ({
             variant={variant}
             className={cn(
               groupHoverStyle,
-              "w-8 rounded-l-none rounded-b-none border-b-0 border-l-0 p-0 pb-0",
+              "w-8 rounded-l-none rounded-b-none border-l-0 p-0 pb-0",
             )}
           >
             <span className="sr-only">{t("General.Action.OpenMenu")}</span>
