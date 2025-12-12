@@ -228,29 +228,27 @@ const ProjectPanel = () => {
         </div>
       </div>
       <div className="border-muted-foreground/50 border-b px-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <div className="py-1">
-                    <Button variant={"default"} className="h-8 px-2">
-                      <span className="sr-only">
-                        {t("General.Action.OpenMenu")}
-                      </span>
-                      <IconPlus />
-                    </Button>
-                  </div>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  <DropdownMenuItem onClick={addConfigFile}>
-                    <IconPlus />
-                    {t("Project.File.Action.New")}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={mergeConfigFile}>
-                    <IconFolderPlus />
-                    {t("Project.File.Action.Merge")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div className="py-1">
+              <Button variant={"default"} className="h-8 px-2">
+                <span className="sr-only">{t("General.Action.OpenMenu")}</span>
+                <IconPlus />
+              </Button>
             </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <DropdownMenuItem onClick={addConfigFile}>
+              <IconPlus />
+              {t("Project.File.Action.New")}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={mergeConfigFile}>
+              <IconFolderPlus />
+              {t("Project.File.Action.Merge")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader className="sr-only">
