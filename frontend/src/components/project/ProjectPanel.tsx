@@ -223,11 +223,15 @@ const ProjectPanel = () => {
                 />
               )
             })}
-            <div className="border-muted-foreground/50 relative grow border-b px-2">
+            <div className="border-muted-foreground/50 grow border-b"></div>
+          </div>
+        </div>
+      </div>
+      <div className="border-muted-foreground/50 border-b px-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <div className="py-1">
-                    <Button variant={"ghost"} className="h-8 px-2">
+                    <Button variant={"default"} className="h-8 px-2">
                       <span className="sr-only">
                         {t("General.Action.OpenMenu")}
                       </span>
@@ -247,10 +251,6 @@ const ProjectPanel = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            <div className="border-muted-foreground/50 grow border-b"></div>
-          </div>
-        </div>
-      </div>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader className="sr-only">
