@@ -4,7 +4,7 @@ import { publishOnMessageExchange } from "@/lib/hooks/appMessage"
 import { CommandFileContextMenu } from "@/types/commands"
 import { Button } from "@/components/ui/button"
 import { buttonVariants } from "@/components/ui/variants"
-import { useEffect, useRef, useState } from "react"
+import { forwardRef, useCallback, useEffect, useRef, useState } from "react"
 import { cn } from "@/lib/utils"
 import { InlineEditLabel, InlineEditLabelRef } from "../InlineEditLabel"
 import { useDroppable } from "@dnd-kit/core"
@@ -18,13 +18,13 @@ export interface ProfileTabProps extends VariantProps<typeof buttonVariants> {
   selectActiveFile: (index: number) => void
 }
 
-const ProfileTab = ({
+const ProfileTab = forwardRef<HTMLDivElement, ProfileTabProps>(({
   file,
   index,
   variant,
   totalCount,
   selectActiveFile: onSelectActiveFile,
-}: ProfileTabProps) => {
+}: ProfileTabProps, ref) => {
   const { publish } = publishOnMessageExchange()
   const inlineEditRef = useRef<InlineEditLabelRef>(null)
   const label = file.Label ?? file.FileName
@@ -83,15 +83,21 @@ const ProfileTab = ({
   const maxInputWidth = labelWidthBasedOnCount[clamp(totalCount, 0, 0)]
   const labelClassName = `truncate transition-all duration-300 ease-in-out ${labelWidthBasedOnCount[clamp(totalCount, 0, 0)]}`
 
+  const combinedRef = useCallback((node: HTMLDivElement | null) => {
+    setNodeRef(node)
+    if (typeof ref === 'function') ref(node)
+    else if (ref) ref.current = node
+  }, [ref, setNodeRef])
+
   return (
     <div
       className={`group flex flex-row justify-center border-b`}
-      ref={setNodeRef}
+      ref={combinedRef}
       role="tab"
       aria-selected={isActiveTab}
       title={optimisticLabel}
     >
-      <Button
+      <Button      
         variant={variant}
         value={optimisticLabel}
         className={cn(
@@ -118,6 +124,6 @@ const ProfileTab = ({
       />
     </div>
   )
-}
+})
 
 export default ProfileTab

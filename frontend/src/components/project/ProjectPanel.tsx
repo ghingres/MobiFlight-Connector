@@ -22,12 +22,15 @@ import { useConfigItemDragContext } from "@/lib/hooks/useConfigItemDragContext"
 import { useNavigate } from "react-router"
 import { Dialog, DialogTitle } from "@radix-ui/react-dialog"
 import { DialogContent, DialogHeader } from "@/components/ui/dialog"
+import { useWindowSize } from "@/lib/hooks/useWindowSize"
 
 const ProjectPanel = () => {
+  const SCROLL_TAB_INTO_VIEW_DELAY_MS = 1000
   const { t } = useTranslation()
   const { publish } = publishOnMessageExchange()
   const navigate = useNavigate()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const { width, height } = useWindowSize()
 
   const {
     activeConfigFileIndex,
@@ -65,6 +68,23 @@ const ProjectPanel = () => {
       },
     })
   }, [activeConfigFileIndex])
+
+  const scrollActiveProjectIntoView = () => {
+    if (!activeProfileTabRef.current) return
+    window.setTimeout(() => {
+      activeProfileTabRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      })
+    }, SCROLL_TAB_INTO_VIEW_DELAY_MS)
+  }
+
+  useEffect(() => {
+    // scroll tab into view
+    // when activeConfigFileIndex changes
+    if (activeConfigFileIndex === -1) return
+    scrollActiveProjectIntoView()
+  }, [activeConfigFileIndex, width, height])
 
   const addConfigFile = () => {
     publishOnMessageExchange().publish({
@@ -132,6 +152,8 @@ const ProjectPanel = () => {
 
   // Hover timer ref
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const activeProfileTabRef = useRef<HTMLDivElement | null>(null)
+
   useEffect(() => {
     if (
       dragState?.ui.hoveredTabIndex !== undefined &&
@@ -150,8 +172,10 @@ const ProjectPanel = () => {
 
   return (
     <div
-      className="flex flex-row gap-0 pt-1 pr-2 pb-0 pl-0 h-11"
+      className="flex h-11 flex-row gap-0 pt-1 pr-2 pb-0 pl-0"
       data-testid="project-panel"
+      onMouseLeave={scrollActiveProjectIntoView}
+      onBlur={scrollActiveProjectIntoView}
     >
       <div className="border-muted-foreground/50 flex flex-row items-center gap-2 border-b border-solid px-2">
         <IconChevronLeft
@@ -182,6 +206,9 @@ const ProjectPanel = () => {
               return (
                 <ProfileTab
                   key={index}
+                  ref={
+                    index === activeConfigFileIndex ? activeProfileTabRef : null
+                  }
                   variant={
                     index === activeConfigFileIndex
                       ? "tabActive"
@@ -196,7 +223,7 @@ const ProjectPanel = () => {
                 />
               )
             })}
-            <div className="relative border-muted-foreground/50 grow border-b px-2">
+            <div className="border-muted-foreground/50 relative grow border-b px-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <div className="py-1">
