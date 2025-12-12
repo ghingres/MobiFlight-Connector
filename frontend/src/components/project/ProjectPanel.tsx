@@ -153,7 +153,7 @@ const ProjectPanel = () => {
       className="flex flex-row gap-0 pt-1 pr-2 pb-0 pl-0"
       data-testid="project-panel"
     >
-      <div className="flex flex-row items-center gap-2 border-b border-solid px-2">
+      <div className="flex flex-row items-center gap-2 border-b border-solid px-2 border-muted-foreground/50">
         <IconChevronLeft
           role="button"
           onClick={() => {
@@ -167,15 +167,15 @@ const ProjectPanel = () => {
         />
       </div>
 
-      <div className="flex flex-row items-center rounded-md rounded-br-none rounded-bl-none border border-b-0 border-solid px-2">
+      <div className="flex flex-row items-center rounded-md rounded-br-none rounded-bl-none border border-b-0 border-solid px-2 border-muted-foreground/50">
         <ProjectNameLabel />
         <IconMinusVertical className="stroke-muted-foreground/50" />
         <ExecutionToolbar />
       </div>
 
-      <div className="w-2 border-b"></div>
+      <div className="w-2 border-b border-muted-foreground/50"></div>
 
-      <div className="relative h-full grow bg-amber-400" role="tablist">
+      <div className="relative h-full grow" role="tablist">
         <div className="no-scrollbar absolute inset-0 overflow-x-auto overflow-y-hidden">
           <div className="flex h-full flex-row">
             {configFiles?.map((file, index) => {
