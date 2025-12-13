@@ -251,7 +251,7 @@ const ProjectPanel = () => {
         <ExecutionToolbar />
       </div>
 
-      <div className="border-muted-foreground/50 w-2 border-b"></div>
+      <div className="border-muted-foreground/50 w-0 border-b"></div>
 
       <div className="relative h-full grow" role="tablist">
         <div className="no-scrollbar absolute inset-0 overflow-x-auto overflow-y-hidden">
@@ -280,6 +280,13 @@ const ProjectPanel = () => {
             <div className="border-muted-foreground/50 grow border-b"></div>
           </div>
         </div>
+        {/* Left shadow */}
+        {
+          activeConfigFileIndex > 0 &&
+          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-2 bg-linear-to-r from-foreground/20 dark:w-3 dark:from-background dark:bottom-0.5 to-transparent z-20 pb-1 rounded-tl-sm" />
+        }
+        {/* Right shadow */}
+        <div className="pointer-events-none absolute right-0 top-0 bottom-0.5 w-2 bg-linear-to-l from-background to-transparent z-200 pb-1" />
       </div>
       <div className="border-muted-foreground/50 border-b px-2">
         <DropdownMenu>
