@@ -25,12 +25,15 @@ import { DialogContent, DialogHeader } from "@/components/ui/dialog"
 import { useWindowSize } from "@/lib/hooks/useWindowSize"
 
 const ProjectPanel = () => {
-  const SCROLL_TAB_INTO_VIEW_DELAY_MS = 1000
+  const SCROLL_TAB_INTO_VIEW_DELAY_MS = 1500
   const { t } = useTranslation()
   const { publish } = publishOnMessageExchange()
   const navigate = useNavigate()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const { width, height } = useWindowSize()
+
+  // Track previous width and height
+  const prevWindowSizeRef = useRef({ width, height })
 
   const {
     activeConfigFileIndex,
@@ -69,22 +72,52 @@ const ProjectPanel = () => {
     })
   }, [activeConfigFileIndex])
 
-  const scrollActiveProjectIntoView = () => {
+  const scrollIntoViewTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const scrollActiveProfileTabIntoView = useCallback(() => {
+    if (activeConfigFileIndex === -1) return
+
+    activeProfileTabRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+    })
+  }, [activeConfigFileIndex])
+
+  const resetScrollActiveProfileTabIntoView = useCallback(() => {
+    if (scrollIntoViewTimeoutRef.current == null) return
+    clearTimeout(scrollIntoViewTimeoutRef.current)
+    scrollIntoViewTimeoutRef.current = null
+  }, [])
+
+  const scrollActiveProfileTabIntoViewWithDelay = useCallback(() => {
     if (!activeProfileTabRef.current) return
-    window.setTimeout(() => {
-      activeProfileTabRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-      })
-    }, SCROLL_TAB_INTO_VIEW_DELAY_MS)
-  }
+
+    resetScrollActiveProfileTabIntoView()
+
+    scrollIntoViewTimeoutRef.current = setTimeout(
+      scrollActiveProfileTabIntoView,
+      SCROLL_TAB_INTO_VIEW_DELAY_MS,
+    )
+  }, [
+    SCROLL_TAB_INTO_VIEW_DELAY_MS,
+    scrollActiveProfileTabIntoView,
+    resetScrollActiveProfileTabIntoView,
+  ])
 
   useEffect(() => {
     // scroll tab into view
     // when activeConfigFileIndex changes
-    if (activeConfigFileIndex === -1) return
-    scrollActiveProjectIntoView()
-  }, [activeConfigFileIndex, width, height])
+    resetScrollActiveProfileTabIntoView()
+    scrollActiveProfileTabIntoView()
+  }, [activeConfigFileIndex, scrollActiveProfileTabIntoView, resetScrollActiveProfileTabIntoView])
+
+  useEffect(() => {
+    if (prevWindowSizeRef.current.width === width && prevWindowSizeRef.current.height === height) return
+    prevWindowSizeRef.current = { width, height }
+    // scroll tab into view
+    // when window size changes
+    scrollActiveProfileTabIntoViewWithDelay()
+  }, [width, height, scrollActiveProfileTabIntoViewWithDelay])
 
   const addConfigFile = () => {
     publishOnMessageExchange().publish({
@@ -174,8 +207,8 @@ const ProjectPanel = () => {
     <div
       className="flex h-11 flex-row gap-0 pt-1 pr-2 pb-0 pl-0"
       data-testid="project-panel"
-      onMouseLeave={scrollActiveProjectIntoView}
-      onBlur={scrollActiveProjectIntoView}
+      onMouseEnter={resetScrollActiveProfileTabIntoView}
+      onMouseLeave={scrollActiveProfileTabIntoViewWithDelay}
     >
       <div className="border-muted-foreground/50 flex flex-row items-center gap-2 border-b border-solid px-2">
         <IconChevronLeft
@@ -230,14 +263,22 @@ const ProjectPanel = () => {
       <div className="border-muted-foreground/50 border-b px-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <div className="py-1">
+            <div
+              className="py-1"
+              onMouseEnter={resetScrollActiveProfileTabIntoView}
+              onMouseLeave={scrollActiveProfileTabIntoViewWithDelay}
+            >
               <Button variant={"default"} className="h-8 px-2">
                 <span className="sr-only">{t("General.Action.OpenMenu")}</span>
                 <IconPlus />
               </Button>
             </div>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
+          <DropdownMenuContent
+            align="start"
+            onMouseEnter={resetScrollActiveProfileTabIntoView}
+            onMouseLeave={scrollActiveProfileTabIntoViewWithDelay}
+          >
             <DropdownMenuItem onClick={addConfigFile}>
               <IconPlus />
               {t("Project.File.Action.New")}
