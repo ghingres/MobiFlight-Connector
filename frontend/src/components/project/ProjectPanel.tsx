@@ -1,4 +1,4 @@
-import ProfileTab from "./ProfileTab"
+import { ProfileTab } from "./ProfileTab"
 import { Button } from "../ui/button"
 import {
   IconChevronLeft,
@@ -99,7 +99,6 @@ const ProjectPanel = () => {
       SCROLL_TAB_INTO_VIEW_DELAY_MS,
     )
   }, [
-    SCROLL_TAB_INTO_VIEW_DELAY_MS,
     scrollActiveProfileTabIntoView,
     resetScrollActiveProfileTabIntoView,
   ])
@@ -109,10 +108,18 @@ const ProjectPanel = () => {
     // when activeConfigFileIndex changes
     resetScrollActiveProfileTabIntoView()
     scrollActiveProfileTabIntoView()
-  }, [activeConfigFileIndex, scrollActiveProfileTabIntoView, resetScrollActiveProfileTabIntoView])
+  }, [
+    activeConfigFileIndex,
+    scrollActiveProfileTabIntoView,
+    resetScrollActiveProfileTabIntoView,
+  ])
 
   useEffect(() => {
-    if (prevWindowSizeRef.current.width === width && prevWindowSizeRef.current.height === height) return
+    if (
+      prevWindowSizeRef.current.width === width &&
+      prevWindowSizeRef.current.height === height
+    )
+      return
     prevWindowSizeRef.current = { width, height }
     // scroll tab into view
     // when window size changes
@@ -202,6 +209,20 @@ const ProjectPanel = () => {
       }
     }
   }, [dragState?.ui.hoveredTabIndex, selectActiveFile])
+
+  // clear timers on unmount
+  useEffect(() => {
+    return () => {
+      if (scrollIntoViewTimeoutRef.current) {
+        clearTimeout(scrollIntoViewTimeoutRef.current)
+        scrollIntoViewTimeoutRef.current = null
+      }
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current)
+        hoverTimeoutRef.current = null
+      }
+    }
+  }, [])
 
   return (
     <div

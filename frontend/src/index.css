@@ -1,6 +1,6 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
-@plugin 'tailwindcss-animate';
+@plugin "tailwindcss-animate";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -209,7 +209,6 @@
     scrollbar-width: none;
   }
 }
-
 
 @custom-variant vxs (@media (min-height: 500px));
 @custom-variant vsm (@media (min-height: 650px));

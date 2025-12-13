@@ -20,7 +20,7 @@ export interface ProfileTabContextMenuProps
   index: number
   file: string | null
   groupHoverStyle: string
-  inlineEditRef: RefObject<InlineEditLabelRef | null> 
+  inlineEditRef: RefObject<InlineEditLabelRef | null>
 }
 
 const ProfileTabContextMenu = ({

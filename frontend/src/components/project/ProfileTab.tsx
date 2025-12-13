@@ -18,7 +18,7 @@ export interface ProfileTabProps extends VariantProps<typeof buttonVariants> {
   selectActiveFile: (index: number) => void
 }
 
-const ProfileTab = forwardRef<HTMLDivElement, ProfileTabProps>(({
+export const ProfileTab = forwardRef<HTMLDivElement, ProfileTabProps>(({
   file,
   index,
   variant,
@@ -126,4 +126,4 @@ const ProfileTab = forwardRef<HTMLDivElement, ProfileTabProps>(({
   )
 })
 
-export default ProfileTab
+ProfileTab.displayName = "ProfileTab"
