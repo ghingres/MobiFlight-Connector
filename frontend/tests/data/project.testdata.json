@@ -472,7 +472,7 @@
       ],
       "EmbedContent": true,
       "FileName": null,
-      "Label": "Config 1",
+      "Label": "Config 1 - This is a long label",
       "ReferenceOnly": false
     },
     {
@@ -506,7 +506,7 @@
       ],
       "EmbedContent": true,
       "FileName": null,
-      "Label": "Config 2",
+      "Label": "Config 2 - This is a long label",
       "ReferenceOnly": false
     },
     {
@@ -540,7 +540,7 @@
       ],
       "EmbedContent": true,
       "FileName": null,
-      "Label": "Config 3",
+      "Label": "Config 3 - This is a long label",
       "ReferenceOnly": false
     }
   ],
