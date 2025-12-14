@@ -107,6 +107,16 @@ const ProjectPanel = () => {
     resetScrollActiveProfileTabIntoView,
   ])
 
+  const overflowRef = useRef<HTMLDivElement | null>(null)
+
+  const handleMouseWheel = (event: React.WheelEvent) => {
+    if (overflowRef.current === null) return
+    const scrollContainer = overflowRef.current
+    if (!scrollContainer) return
+    const newScrollLeft = scrollContainer.scrollLeft + event.deltaY
+    scrollContainer.scrollLeft = newScrollLeft
+  }
+
   const startScrolling = useCallback((direction: "left" | "right") => {
     if (!overflowRef.current) return
 
@@ -205,7 +215,6 @@ const ProjectPanel = () => {
     navigate("/home")
   }
 
-  const overflowRef = useRef<HTMLDivElement | null>(null)
   const overflow = useOverflowDetector(overflowRef)
 
   // Hover timer ref
@@ -273,7 +282,7 @@ const ProjectPanel = () => {
         <ExecutionToolbar />
       </div>
 
-      <div className="border-muted-foreground/50 flex w-5 flex-col items-center justify-between border-b py-0.5">
+      <div className="border-muted-foreground/50 flex w-5 flex-col items-center gap-1 border-b py-0.5">
         <Button
           className={`h-4 w-4 p-1 transition-opacity duration-200 ${!overflow.left ? "opacity-0" : ""}`}
           variant={"secondary"}
@@ -299,6 +308,7 @@ const ProjectPanel = () => {
         <div
           className="no-scrollbar absolute inset-0 overflow-x-auto overflow-y-hidden"
           ref={overflowRef}
+          onWheel={handleMouseWheel}
         >
           <div className="flex h-full flex-row">
             {configFiles?.map((file, index) => {
@@ -334,11 +344,13 @@ const ProjectPanel = () => {
           </div>
         </div>
         {/* Left shadow */}
-        {activeConfigFileIndex > 0 && (
-          <div className="from-foreground/20 dark:from-background pointer-events-none absolute top-0 bottom-0 left-0 z-20 w-2 rounded-tl-sm bg-linear-to-r to-transparent pb-1 dark:bottom-0.5 dark:w-3" />
+        {activeConfigFileIndex > 0 && overflow.left && (
+          <div className="from-foreground/20 dark:from-background/50 pointer-events-none absolute top-0 bottom-0 left-0 z-20 w-2 rounded-tl-sm bg-linear-to-r to-transparent pb-1 dark:bottom-0.5 dark:w-3" />
         )}
         {/* Right shadow */}
-        <div className="from-background pointer-events-none absolute top-0 right-0 bottom-0.5 z-200 w-2 bg-linear-to-l to-transparent pb-1" />
+        {overflow.right && (
+          <div className="from-foreground/20 dark:from-background/50 pointer-events-none absolute top-0 right-0 bottom-0.5 z-200 w-2 bg-linear-to-l to-transparent pb-1" />
+        )}
       </div>
       {overflow.right && (
         <AddProfileTabMenu
