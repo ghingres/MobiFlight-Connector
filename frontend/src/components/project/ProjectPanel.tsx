@@ -1,10 +1,7 @@
 import { ProfileTab } from "./ProfileTab"
 import { AddProfileTabMenu } from "./ProfileTab/AddProfileTabMenu"
 import { Button } from "../ui/button"
-import {
-  IconChevronLeft,
-  IconMinusVertical,
-} from "@tabler/icons-react"
+import { IconChevronLeft, IconMinusVertical } from "@tabler/icons-react"
 import { publishOnMessageExchange } from "@/lib/hooks/appMessage"
 import { useProjectStore } from "@/stores/projectStore"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -115,7 +112,6 @@ const ProjectPanel = () => {
     const newScrollLeft = scrollContainer.scrollLeft + event.deltaY
     scrollContainer.scrollLeft = newScrollLeft
   }
-
 
   useEffect(() => {
     if (
@@ -260,8 +256,7 @@ const ProjectPanel = () => {
         <ExecutionToolbar />
       </div>
 
-      <div className="border-muted-foreground/50 flex w-0 flex-col items-center gap-1 border-b py-0.5">
-      </div>
+      <div className="border-muted-foreground/50 flex w-0 flex-col items-center gap-1 border-b py-0.5"></div>
 
       <div className="relative h-full grow" role="tablist">
         <div
@@ -308,7 +303,7 @@ const ProjectPanel = () => {
         )}
         {/* Right shadow */}
         {overflow.right && (
-          <div className="from-foreground/20 dark:from-background/50 pointer-events-none absolute top-0 right-0 bottom-0.5 z-200 w-2 bg-linear-to-l to-transparent pb-1" />
+          <div className="from-foreground/20 dark:from-background/50 pointer-events-none absolute top-0 right-0 bottom-0 z-200 w-2 bg-linear-to-l to-transparent pb-1" />
         )}
       </div>
       {overflow.right && (
