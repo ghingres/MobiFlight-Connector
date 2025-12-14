@@ -8,7 +8,7 @@ import {
 import { IconFolderPlus, IconPlus } from "@tabler/icons-react"
 import { useTranslation } from "react-i18next"
 
-interface AddProfileTabMenuProps {
+interface AddProfileTabMenuProps extends React.HTMLAttributes<HTMLDivElement> {
   onAddConfigFile: () => void
   onMergeConfigFile: () => void
   onMouseEnter?: () => void
@@ -20,11 +20,12 @@ export const AddProfileTabMenu = ({
   onMergeConfigFile,
   onMouseEnter,
   onMouseLeave,
-}: AddProfileTabMenuProps) => {
+  ...props
+} : AddProfileTabMenuProps) => {
   const { t } = useTranslation()
 
   return (
-    <div className="border-muted-foreground/50 border-b px-2">
+    <div className="border-muted-foreground/50 border-b px-2" {...props}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <div

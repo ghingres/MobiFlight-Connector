@@ -19,6 +19,11 @@ export const useOverflowDetector = (ref: RefObject<HTMLElement | null>) => {
     }
 
     checkOverflow()
+    const resizeObserver = new ResizeObserver(() => {
+      checkOverflow()
+    })
+    
+    resizeObserver.observe(element)
     element.addEventListener('scroll', checkOverflow)
     window.addEventListener('resize', checkOverflow)
 

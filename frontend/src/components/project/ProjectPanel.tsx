@@ -109,6 +109,8 @@ const ProjectPanel = () => {
     if (overflowRef.current === null) return
     const scrollContainer = overflowRef.current
     if (!scrollContainer) return
+
+    event.stopPropagation()
     const newScrollLeft = scrollContainer.scrollLeft + event.deltaY
     scrollContainer.scrollLeft = newScrollLeft
   }
@@ -258,7 +260,7 @@ const ProjectPanel = () => {
 
       <div className="border-muted-foreground/50 flex w-0 flex-col items-center gap-1 border-b py-0.5"></div>
 
-      <div className="relative h-full grow" role="tablist">
+      <div className="relative h-full grow min-h-10" role="tablist">
         <div
           className="no-scrollbar absolute inset-0 overflow-x-auto overflow-y-hidden"
           ref={overflowRef}
@@ -288,6 +290,7 @@ const ProjectPanel = () => {
             })}
             {!overflow.right && (
               <AddProfileTabMenu
+                data-testid="add-profile-tab-menu-regular"
                 onAddConfigFile={addConfigFile}
                 onMergeConfigFile={mergeConfigFile}
                 onMouseEnter={resetScrollActiveProfileTabIntoView}
@@ -298,16 +301,17 @@ const ProjectPanel = () => {
           </div>
         </div>
         {/* Left shadow */}
-        {activeConfigFileIndex > 0 && overflow.left && (
-          <div className="from-foreground/20 dark:from-background/50 pointer-events-none absolute top-0 bottom-0 left-0 z-20 w-2 rounded-tl-sm bg-linear-to-r to-transparent pb-1 dark:bottom-0.5 dark:w-3" />
+        {overflow.left && (
+          <div data-testid="tab-overflow-indicator-left" className="from-foreground/20 dark:from-background/50 pointer-events-none absolute top-0 bottom-0 left-0 z-20 w-2 rounded-tl-sm bg-linear-to-r to-transparent pb-1 dark:bottom-0.5 dark:w-3" />
         )}
         {/* Right shadow */}
         {overflow.right && (
-          <div className="from-foreground/20 dark:from-background/50 pointer-events-none absolute top-0 right-0 bottom-0 z-200 w-2 bg-linear-to-l to-transparent pb-1" />
+          <div data-testid="tab-overflow-indicator-right" className="from-foreground/20 dark:from-background/50 pointer-events-none absolute top-0 right-0 bottom-0 z-200 w-2 bg-linear-to-l to-transparent pb-1" />
         )}
       </div>
       {overflow.right && (
         <AddProfileTabMenu
+          data-testid="add-profile-tab-menu-overflow"
           onAddConfigFile={addConfigFile}
           onMergeConfigFile={mergeConfigFile}
           onMouseEnter={resetScrollActiveProfileTabIntoView}
