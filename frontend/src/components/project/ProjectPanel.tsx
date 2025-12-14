@@ -3,7 +3,6 @@ import { AddProfileTabMenu } from "./ProfileTab/AddProfileTabMenu"
 import { Button } from "../ui/button"
 import {
   IconChevronLeft,
-  IconChevronRight,
   IconMinusVertical,
 } from "@tabler/icons-react"
 import { publishOnMessageExchange } from "@/lib/hooks/appMessage"
@@ -117,27 +116,6 @@ const ProjectPanel = () => {
     scrollContainer.scrollLeft = newScrollLeft
   }
 
-  const startScrolling = useCallback((direction: "left" | "right") => {
-    if (!overflowRef.current) return
-
-    const scrollAmount = direction === "left" ? -15 : 15
-
-    // Immediate scroll
-    overflowRef.current.scrollLeft += scrollAmount
-
-    // Continuous scroll while holding
-    scrollIntervalRef.current = setInterval(() => {
-      if (!overflowRef.current) return
-      overflowRef.current.scrollLeft += scrollAmount
-    }, 50)
-  }, [])
-
-  const stopScrolling = useCallback(() => {
-    if (scrollIntervalRef.current) {
-      clearInterval(scrollIntervalRef.current)
-      scrollIntervalRef.current = null
-    }
-  }, [])
 
   useEffect(() => {
     if (
@@ -282,26 +260,7 @@ const ProjectPanel = () => {
         <ExecutionToolbar />
       </div>
 
-      <div className="border-muted-foreground/50 flex w-5 flex-col items-center gap-1 border-b py-0.5">
-        <Button
-          className={`h-4 w-4 p-1 transition-opacity duration-200 ${!overflow.left ? "opacity-0" : ""}`}
-          variant={"secondary"}
-          onMouseDown={() => startScrolling("left")}
-          onMouseUp={stopScrolling}
-          onMouseLeave={stopScrolling}
-        >
-          <IconChevronLeft />
-        </Button>
-
-        <Button
-          className={`h-4 w-4 p-1 transition-opacity duration-200 ${!overflow.right ? "opacity-0" : ""}`}
-          variant={"secondary"}
-          onMouseDown={() => startScrolling("right")}
-          onMouseUp={stopScrolling}
-          onMouseLeave={stopScrolling}
-        >
-          <IconChevronRight />
-        </Button>
+      <div className="border-muted-foreground/50 flex w-0 flex-col items-center gap-1 border-b py-0.5">
       </div>
 
       <div className="relative h-full grow" role="tablist">
