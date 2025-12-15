@@ -17,11 +17,15 @@ import { useOverflowDetector } from "@/lib/hooks/useOverflowDetector"
 
 const ProjectPanel = () => {
   const SCROLL_TAB_INTO_VIEW_DELAY_MS = 1500
+
+  const overflowRef = useRef<HTMLDivElement | null>(null)
+
   const { t } = useTranslation()
   const { publish } = publishOnMessageExchange()
   const navigate = useNavigate()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const { width, height } = useWindowSize()
+  const { overflow, checkOverflow } = useOverflowDetector(overflowRef)
 
   // Track previous width and height
   const prevWindowSizeRef = useRef({ width, height })
@@ -63,6 +67,10 @@ const ProjectPanel = () => {
     })
   }, [activeConfigFileIndex])
 
+  useEffect(() => {
+    checkOverflow()
+  }, [activeConfigFileIndex, checkOverflow])
+
   const scrollIntoViewTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -102,8 +110,6 @@ const ProjectPanel = () => {
     scrollActiveProfileTabIntoView,
     resetScrollActiveProfileTabIntoView,
   ])
-
-  const overflowRef = useRef<HTMLDivElement | null>(null)
 
   const handleMouseWheel = (event: React.WheelEvent) => {
     if (overflowRef.current === null) return
@@ -191,8 +197,6 @@ const ProjectPanel = () => {
     navigate("/home")
   }
 
-  const overflow = useOverflowDetector(overflowRef)
-
   // Hover timer ref
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const activeProfileTabRef = useRef<HTMLDivElement | null>(null)
@@ -260,7 +264,7 @@ const ProjectPanel = () => {
 
       <div className="border-muted-foreground/50 flex w-0 flex-col items-center gap-1 border-b py-0.5"></div>
 
-      <div className="relative h-full grow min-h-10" role="tablist">
+      <div className="relative h-full min-h-10 grow" role="tablist">
         <div
           className="no-scrollbar absolute inset-0 overflow-x-auto overflow-y-hidden"
           ref={overflowRef}
@@ -285,6 +289,7 @@ const ProjectPanel = () => {
                   index={index}
                   totalCount={configFiles.length}
                   selectActiveFile={selectActiveFile}
+                  resizeCallback={checkOverflow}
                 />
               )
             })}
@@ -302,11 +307,17 @@ const ProjectPanel = () => {
         </div>
         {/* Left shadow */}
         {overflow.left && (
-          <div data-testid="tab-overflow-indicator-left" className="from-foreground/20 dark:from-background/50 pointer-events-none absolute top-0 bottom-0 left-0 z-20 w-2 rounded-tl-sm bg-linear-to-r to-transparent pb-1 dark:bottom-0.5 dark:w-3" />
+          <div
+            data-testid="tab-overflow-indicator-left"
+            className="from-foreground/20 dark:from-background/50 pointer-events-none absolute top-0 bottom-0 left-0 z-20 w-2 rounded-tl-sm bg-linear-to-r to-transparent pb-1 dark:bottom-0.5 dark:w-3"
+          />
         )}
         {/* Right shadow */}
         {overflow.right && (
-          <div data-testid="tab-overflow-indicator-right" className="from-foreground/20 dark:from-background/50 pointer-events-none absolute top-0 right-0 bottom-0 z-200 w-2 bg-linear-to-l to-transparent pb-1" />
+          <div
+            data-testid="tab-overflow-indicator-right"
+            className="from-foreground/20 dark:from-background/50 pointer-events-none absolute top-0 right-0 bottom-0 z-200 w-2 bg-linear-to-l to-transparent pb-1"
+          />
         )}
       </div>
       {overflow.right && (

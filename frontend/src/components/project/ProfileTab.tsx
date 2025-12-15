@@ -16,6 +16,7 @@ export interface ProfileTabProps extends VariantProps<typeof buttonVariants> {
   index: number
   totalCount: number
   selectActiveFile: (index: number) => void
+  resizeCallback?: () => void
 }
 
 export const ProfileTab = forwardRef<HTMLDivElement, ProfileTabProps>(({
@@ -24,9 +25,12 @@ export const ProfileTab = forwardRef<HTMLDivElement, ProfileTabProps>(({
   variant,
   totalCount,
   selectActiveFile: onSelectActiveFile,
+  resizeCallback
 }: ProfileTabProps, ref) => {
   const { publish } = publishOnMessageExchange()
   const inlineEditRef = useRef<InlineEditLabelRef>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+
   const label = file.Label ?? file.FileName
   const [ optimisticLabel, setOptimisticLabel ] = useState(label)
 
@@ -89,6 +93,23 @@ export const ProfileTab = forwardRef<HTMLDivElement, ProfileTabProps>(({
     else if (ref) ref.current = node
   }, [ref, setNodeRef])
 
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(() => {
+      resizeCallback?.()
+    })
+
+    const button = buttonRef.current
+    if (button) {
+      resizeObserver.observe(button)
+    }
+
+    return () => {
+      if (button) {
+        resizeObserver.unobserve(button)
+      }
+    }
+  }, [resizeCallback])
+
   return (
     <div
       className={`group flex flex-row justify-center border-b`}
@@ -98,6 +119,7 @@ export const ProfileTab = forwardRef<HTMLDivElement, ProfileTabProps>(({
       title={optimisticLabel}
     >
       <Button      
+        ref={buttonRef}
         variant={variant}
         value={optimisticLabel}
         className={cn(
