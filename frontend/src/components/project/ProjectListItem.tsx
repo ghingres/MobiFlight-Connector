@@ -59,25 +59,28 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
                 </div>
               </div>
             </div>
-            <div className="flex flex-row items-center justify-between gap-2">
+            <div className="flex flex-row items-center justify-between gap-2 h-7">
               <div
                 title={summary.FilePath}
                 className="text-muted-foreground truncate text-sm"
               >
                 {summary.FilePath}
               </div>
-              <Button
-                title={t("Project.File.Action.Remove")}
-                variant="ghost"
-                className="text-muted-foreground/50 hover:text-foreground h-7 w-auto gap-0 p-1 opacity-0 transition-opacity duration-300 group-hover:opacity-100 [&_svg]:size-6"
-                size="icon"
-                onClick={(event) => {
-                  event.stopPropagation()
-                  onClickRemove()
-                }}
-              >
-                <IconTrash />
-              </Button>
+              {!active && (
+                <Button
+                  disabled={active}
+                  title={t("Project.File.Action.Remove")}
+                  variant="ghost"
+                  className="text-muted-foreground/50 hover:text-foreground h-7 w-auto gap-0 p-1 opacity-0 transition-opacity duration-300 group-hover:opacity-100 [&_svg]:size-6"
+                  size="icon"
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    onClickRemove()
+                  }}
+                >
+                  <IconTrash />
+                </Button>
+              )}
             </div>
           </div>
         </div>
