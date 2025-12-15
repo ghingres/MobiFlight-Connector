@@ -13,7 +13,6 @@ import ProfileTabContextMenu from "@/components/project/ProfileTab/ProfileTabCon
 export interface ProfileTabProps extends VariantProps<typeof buttonVariants> {
   file: ConfigFile
   index: number
-  totalCount: number
   selectActiveFile: (index: number) => void
   resizeCallback?: () => void
 }
@@ -24,7 +23,6 @@ export const ProfileTab = forwardRef<HTMLDivElement, ProfileTabProps>(
       file,
       index,
       variant,
-      totalCount,
       selectActiveFile: onSelectActiveFile,
       resizeCallback,
     }: ProfileTabProps,
