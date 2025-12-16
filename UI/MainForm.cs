@@ -410,7 +410,7 @@ namespace MobiFlight.UI
             RestoreWindowsPositionAndZoomLevel();
         }
 
-        private void MainForm_Shown(object sender, EventArgs e)
+        private async void MainForm_Shown(object sender, EventArgs e)
         {
             // Check for updates before loading anything else
 #if (!DEBUG)
@@ -466,7 +466,60 @@ namespace MobiFlight.UI
             Refresh();
 
             PublishSettings();
+
+            await CleanRecentFilesAsync().ConfigureAwait(false);
             PublishRecentProjectList();
+        }
+
+        // Remove non-existing recent files asynchronously but return only after UI changes persisted.
+        // Caller can await to guarantee the settings are updated before using RecentFiles.
+        private async Task CleanRecentFilesAsync()
+        {
+            var recentSnapshot = Properties.Settings.Default.RecentFiles.Cast<string>().ToList();
+
+            var missingFiles = await Task.Run(() =>
+            {
+                var list = new List<string>();
+                foreach (var f in recentSnapshot)
+                {
+                    try
+                    {
+                        if (!File.Exists(f)) list.Add(f);
+                    }
+                    catch
+                    {
+                        // treat IO errors as missing
+                        list.Add(f);
+                    }
+                }
+                return list;
+            }).ConfigureAwait(false);
+
+            if (missingFiles.Count == 0) return;
+
+            // Handle require to invoke settings update on UI thread
+            if (!IsHandleCreated) return;
+
+            var tcs = new TaskCompletionSource<bool>();
+            BeginInvoke((Action)(() =>
+            {
+                var changed = false;
+                foreach (var f in missingFiles)
+                {
+                    if (Properties.Settings.Default.RecentFiles.Contains(f))
+                    {
+                        Properties.Settings.Default.RecentFiles.Remove(f);
+                        Log.Instance.log($"Recent Project List - File doesn't exist: '{f}' removed.", LogSeverity.Info);
+                        changed = true;
+                    }
+                }
+                if (changed)
+                {
+                    Properties.Settings.Default.Save();
+                }
+                tcs.SetResult(true);
+            }));
+            await tcs.Task.ConfigureAwait(false);
         }
 
         private void PublishRecentProjectList()
