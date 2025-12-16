@@ -247,6 +247,11 @@ namespace MobiFlight
                     }
                     js = new VKBDevice(diJoystick, GetDefinitionByInstanceName(productName.Trim()));
                 }
+                else if (d.InstanceName.Trim() == "AuthentiKit")
+                {
+                    var authentikitDefinition = GetDefinitionByInstanceName(d.InstanceName.Trim());
+                    js = new Authentikit(diJoystick, authentikitDefinition);
+                }
                 else if (HidControllerFactory.CanCreate(d.InstanceName)) {
                     // skip, it will be handled later
                     continue;

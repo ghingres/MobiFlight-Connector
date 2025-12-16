@@ -9,7 +9,6 @@ namespace MobiFlight.Joysticks
             switch (InstanceName.Trim())
             {
                 case "FCU Cube":
-                case "AuthentiKit":
                     return true;
                 default:
                     return false;
@@ -22,10 +21,6 @@ namespace MobiFlight.Joysticks
             {
                 case "FCU Cube":
                     result = new WingFlex.FcuCube(definition);
-                    break;
-
-                case "AuthentiKit":
-                    result = new Authentikit(definition);
                     break;
             }
 

@@ -1,31 +1,34 @@
-﻿using Device.Net;
-using Hid.Net;
-using Hid.Net.Windows;
+﻿using HidSharp;
+using HidSharp.Reports;
+using HidSharp.Reports.Input;
+using SharpDX.DirectInput;
 using System;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace MobiFlight.Joysticks
 {
     internal class Authentikit : Joystick
     {
         /// <summary>
-        /// Used for reading HID reports in a background thread.
-        /// </summary>
-        bool DoReadHidReports = false;
-
-        /// <summary>
-        /// The thread that reads HID reports.
-        /// </summary>
-        private Thread readThread;
-
-        /// <summary>
         /// The specific HID device instance.
-        /// This is using the Device.Net library for HID communication.
-        /// It provides improved performance compared to HidSharp
+        /// Using HidSharp for HID communication.
         /// </summary>
-        IHidDevice Device { get; set; }
+        private HidDevice Device { get; set; }
+
+        /// <summary>
+        /// The HID stream for reading reports.
+        /// </summary>
+        private HidStream Stream { get; set; }
+
+        /// <summary>
+        /// HidSharp input receiver for event-driven report reading.
+        /// </summary>
+        protected HidDeviceInputReceiver inputReceiver;
+
+        /// <summary>
+        /// HID report descriptor for parsing device capabilities.
+        /// </summary>
+        protected ReportDescriptor reportDescriptor;
 
         /// <summary>
         /// The report implementation.
@@ -34,7 +37,7 @@ namespace MobiFlight.Joysticks
 
         /// <summary>
         /// Provide same instance name as defined in the definition file.
-        /// Also works if Defintion file is not set yet.
+        /// Also works if Definition file is not set yet.
         /// </summary>
         public override string Name
         {
@@ -43,112 +46,145 @@ namespace MobiFlight.Joysticks
 
         /// <summary>
         /// Provides Serial including prefix.
-        /// Serial information is provided through Device.Net
+        /// Serial information is provided through HidSharp
         /// </summary>
         public override string Serial
         {
-            get { return $"{Joystick.SerialPrefix}{Device?.ConnectedDeviceDefinition?.SerialNumber ?? "Authentikit"}"; }
+            get { return $"{Joystick.SerialPrefix}{Device?.GetSerialNumber() ?? "Authentikit"}"; }
         }
 
         /// <summary>
         /// The constructor.
         /// </summary>
         /// <param name="definition">joystick definition file.</param>
-        public Authentikit(JoystickDefinition definition) : base(null, definition)
+        public Authentikit(SharpDX.DirectInput.Joystick joystick, JoystickDefinition definition) : base(joystick, definition)
         {
         }
 
         /// <summary>
-        /// This creates a connection to the HID device using the Device.Net library.
+        /// This creates a connection to the HID device using HidSharp.
         /// </summary>
-        /// <returns></returns>
-        protected async Task<bool> Connect()
+        protected void Connect()
         {
-            var VendorId = Definition.VendorId;
-            var ProductId = Definition.ProductId;
-
-            var hidFactory = new FilterDeviceDefinition(vendorId: (uint)VendorId, productId: (uint)ProductId).CreateWindowsHidDeviceFactory(writeBufferSize: 1);
-            var deviceDefinitions = (await hidFactory.GetConnectedDeviceDefinitionsAsync().ConfigureAwait(false)).ToList();
-
-            if (deviceDefinitions.Count == 0)
+            // Prevent reentry and parallel execution by multiple threads
+            lock (this)
             {
-                Log.Instance.log($"no AuthentiKit found with VID:{VendorId.ToString("X4")} and PID:{ProductId.ToString("X4")}", LogSeverity.Info);
-                return false;
-            }
+                var VendorId = Definition.VendorId;
+                var ProductId = Definition.ProductId;
 
-            var deviceDefinition = deviceDefinitions.First();
-
-            Device = (IHidDevice)await hidFactory.GetDeviceAsync(deviceDefinitions.First()).ConfigureAwait(false);
-
-            try
-            {
-                await Device.InitializeAsync().ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                Log.Instance.log($"Failed to open AuthentiKit device: {ex.Message}", LogSeverity.Error);
-                return false;
-            }
-
-            DoReadHidReports = true;
-
-            readThread = new Thread(ReadHidReportsLoop)
-            {
-                IsBackground = true,
-                Name = "Authentikit-HID-Reader"
-            };
-            readThread.Start();
-
-            return true;
-        }
-
-        /// <summary>
-        /// Method called by read thread
-        /// </summary>
-        private void ReadHidReportsLoop()
-        {
-            while (DoReadHidReports)
-            {
-                try
+                if (Device == null)
                 {
-                    var HidReport = Device.ReadReportAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-                    var data = HidReport.TransferResult.Data;
-                    ProcessInputReportBuffer(HidReport.ReportId, data);
+                    Device = DeviceList.Local.GetHidDeviceOrNull(vendorID: VendorId, productID: ProductId);
+                    if (Device == null)
+                    {
+                        Log.Instance.log($"no AuthentiKit found with VID:{VendorId.ToString("X4")} and PID:{ProductId.ToString("X4")}", LogSeverity.Info);
+                        return;
+                    }
                 }
-                catch
+
+                if (Stream == null)
                 {
-                    // Exception when disconnecting while mobiflight is running.
-                    Shutdown();
-                    break;
+                    try
+                    {
+                        Stream = Device.Open();
+                        Stream.ReadTimeout = System.Threading.Timeout.Infinite;
+                        reportDescriptor = Device.GetReportDescriptor();
+
+                        Log.Instance.log($"Found AuthentiKit device: VID:{Device.VendorID:X4} PID:{Device.ProductID:X4}", LogSeverity.Info);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Instance.log($"Failed to open AuthentiKit device: {ex.Message}", LogSeverity.Error);
+                        return;
+                    }
+
+                    LogAvailableAxes();
+                }
+
+                if (inputReceiver == null)
+                {
+                    inputReceiver = reportDescriptor.CreateHidDeviceInputReceiver();
+                    inputReceiver.Received += InputReceiver_Received;
+                    inputReceiver.Start(Stream);
                 }
             }
         }
 
         /// <summary>
-        /// Update is called by the base class
-        /// It is currently needed to ensure that the hid device is correctly initialized.
+        /// Logs available axes from the HID report descriptor.
+        /// </summary>
+        private void LogAvailableAxes()
+        {
+            var inputReports = reportDescriptor.InputReports;
+            foreach (var inputReport in inputReports)
+            {
+                foreach (var dataItem in inputReport.DataItems)
+                {
+                    if (dataItem.IsArray == false && dataItem.Usages.Count > 0)
+                    {
+                        var usage = dataItem.Usages.GetValuesFromIndex(0).First();
+                        // Extract just the Usage ID (lower 16 bits)
+                        var usageId = (int)(usage & 0xFFFF);
+
+                        // ignore the pointer information
+                        if (usageId == 1) continue;
+
+                        try
+                        {
+                            var axisName = GetAxisNameForUsage(usageId);
+                            if (!string.IsNullOrEmpty(axisName))
+                            {
+                                Log.Instance.log($"  Available axis: {axisName} (Usage: 0x{usage:X2})", LogSeverity.Debug);
+                            }
+                        }
+                        catch (ArgumentOutOfRangeException)
+                        {
+                            Log.Instance.log($"  Unknown axis (Usage: 0x{usage:X}, ID: {usageId})", LogSeverity.Error);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Event handler for received HID reports.
+        /// </summary>
+        private void InputReceiver_Received(object sender, EventArgs e)
+        {
+            var inputReceiver = sender as HidDeviceInputReceiver;
+            byte[] inputReportBuffer = new byte[Device.GetMaxInputReportLength()];
+
+            while (inputReceiver.TryRead(inputReportBuffer, 0, out _))
+            {
+                // First byte is report ID, remaining bytes are the data
+                byte reportId = inputReportBuffer[0];
+                byte[] data = new byte[inputReportBuffer.Length - 1];
+                Array.Copy(inputReportBuffer, 1, data, 0, data.Length);
+
+                ProcessInputReportBuffer(reportId, data);
+            }
+        }
+
+        /// <summary>
+        /// Update is called by the base class.
+        /// It ensures that the HID device is correctly initialized.
         /// </summary>
         public override void Update()
         {
-            if (Device == null || !Device.IsInitialized)
+            if (Stream == null || inputReceiver == null)
             {
-                var connected = Connect().GetAwaiter().GetResult();
-                if (!connected) return;
+                Connect();
             }
         }
 
         /// <summary>
-        /// This processes the input report buffer, triggers button events and stores the state
-        /// 
+        /// This processes the input report buffer, triggers button events and stores the state.
         /// </summary>
-        /// <remarks>
-        /// This could be done in the base class.
-        /// </remarks>
-        /// <param name="reportId"></param>
-        /// <param name="inputReportBuffer"></param>
+        /// <param name="reportId">The HID report ID</param>
+        /// <param name="inputReportBuffer">The report data buffer</param>
         protected void ProcessInputReportBuffer(byte reportId, byte[] inputReportBuffer)
         {
-            var newState = report.Parse(inputReportBuffer).ToJoystickState();
+            var newState = report.Parse(inputReportBuffer).ToJoystickState(Axes);
             UpdateButtons(newState);
             UpdateAxis(newState);
             // Finally store the new state as last state
@@ -159,41 +195,58 @@ namespace MobiFlight.Joysticks
         /// Enumerates and categorizes joystick devices based on their type.
         /// </summary>
         /// <remarks>This method processes the joystick device definitions and categorizes them into 
-        /// analog inputs, buttons, or POV controls. Devices are added to their respective  collections based on their
+        /// analog inputs, buttons, or POV controls. Devices are added to their respective collections based on their
         /// type.</remarks>
         protected override void EnumerateDevices()
         {
-            Definition.Inputs.ForEach(d =>
-            {
-                var device = new JoystickDevice() { Name = d.Name, Label = d.Label, JoystickDeviceType = d.Type };
-                switch (d.Type)
-                {
-                    case JoystickDeviceType.Axis:
-                        device.Type = DeviceType.AnalogInput;
-                        Axes.Add(device);
-                        break;
-                    case JoystickDeviceType.Button:
-                        device.Type = DeviceType.Button;
-                        Buttons.Add(device);
-                        break;
-                    case JoystickDeviceType.POV:
-                        device.Type = DeviceType.Button;
-                        POV.Add(device);
-                        break;
-                }
-            });
+            base.EnumerateDevices();
         }
 
         /// <summary>
-        /// Cleans up any specific resources, e.g. thread and device connection.
+        /// Cleans up any specific resources.
         /// </summary>
         public override void Shutdown()
         {
-            DoReadHidReports = false;
-            readThread?.Join(1000);
-            Device?.Dispose();
+            if (Stream != null)
+            {
+                Stream.Close();
+                Stream = null;
+            }
+
+            if (inputReceiver != null)
+            {
+                inputReceiver.Received -= InputReceiver_Received;
+                inputReceiver = null;
+            }
 
             base.Shutdown();
+        }
+
+        protected override void UpdateAxis(JoystickState newState)
+        {
+            for (int CurrentAxis = 0; CurrentAxis != Axes.Count; CurrentAxis++)
+            {
+
+                int oldValue = 0;
+                if (StateExists())
+                {
+                    oldValue = GetValueForAxisFromState(CurrentAxis, State);
+                }
+
+                int newValue = GetValueForAxisFromState(CurrentAxis, newState);
+
+                if (StateExists() && Math.Abs(oldValue - newValue) < 2) continue;
+
+                TriggerButtonPressed(this, new InputEventArgs()
+                {
+                    Name = Name,
+                    DeviceId = Axes[CurrentAxis].Name,
+                    DeviceLabel = Axes[CurrentAxis].Label,
+                    Serial = Serial,
+                    Type = DeviceType.AnalogInput,
+                    Value = newValue
+                });
+            }
         }
     }
 }
