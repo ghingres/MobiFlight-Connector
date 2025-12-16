@@ -476,24 +476,8 @@ namespace MobiFlight.UI
         private async Task CleanRecentFilesAsync()
         {
             var recentSnapshot = Properties.Settings.Default.RecentFiles.Cast<string>().ToList();
-
-            var missingFiles = await Task.Run(() =>
-            {
-                var list = new List<string>();
-                foreach (var f in recentSnapshot)
-                {
-                    try
-                    {
-                        if (!File.Exists(f)) list.Add(f);
-                    }
-                    catch
-                    {
-                        // treat IO errors as missing
-                        list.Add(f);
-                    }
-                }
-                return list;
-            }).ConfigureAwait(false);
+            
+            var missingFiles = await Task.Run(() => CheckForMissingFiles(recentSnapshot)).ConfigureAwait(false);
 
             if (missingFiles.Count == 0) return;
 
@@ -503,23 +487,61 @@ namespace MobiFlight.UI
             var tcs = new TaskCompletionSource<bool>();
             BeginInvoke((Action)(() =>
             {
-                var changed = false;
-                foreach (var f in missingFiles)
+                try
                 {
-                    if (Properties.Settings.Default.RecentFiles.Contains(f))
-                    {
-                        Properties.Settings.Default.RecentFiles.Remove(f);
-                        Log.Instance.log($"Recent Project List - File doesn't exist: '{f}' removed.", LogSeverity.Info);
-                        changed = true;
-                    }
+                    RemoveMissingFilesFromSettings(missingFiles);
+                    tcs.SetResult(true);
                 }
-                if (changed)
+                catch (Exception ex)
                 {
-                    Properties.Settings.Default.Save();
+                    tcs.SetException(ex);
                 }
-                tcs.SetResult(true);
             }));
             await tcs.Task.ConfigureAwait(false);
+        }
+
+        internal static List<string> CheckForMissingFiles(IEnumerable<string> recentFiles)
+        {
+            var missing = new List<string>();
+            if (recentFiles == null) return missing;
+
+            foreach (var f in recentFiles)
+            {
+                try
+                {
+                    if (string.IsNullOrWhiteSpace(f) || !File.Exists(f))
+                        missing.Add(f);
+                }
+                catch
+                {
+                    // Treat IO errors as missing; keep scanning
+                    missing.Add(f);
+                }
+            }
+
+            return missing;
+        }
+
+        internal void RemoveMissingFilesFromSettings(IEnumerable<string> missingFiles)
+        {
+            if (missingFiles == null) return;
+
+            var changed = false;
+            foreach (var f in missingFiles)
+            {
+                if (string.IsNullOrWhiteSpace(f)) continue;
+                if (Properties.Settings.Default.RecentFiles.Contains(f))
+                {
+                    Properties.Settings.Default.RecentFiles.Remove(f);
+                    Log.Instance.log($"Recent Project List - File doesn't exist: '{f}' removed.", LogSeverity.Info);
+                    changed = true;
+                }
+            }
+
+            if (changed)
+            {
+                Properties.Settings.Default.Save();
+            }
         }
 
         private void PublishRecentProjectList()
