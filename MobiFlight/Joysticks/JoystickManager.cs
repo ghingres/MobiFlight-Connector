@@ -250,7 +250,7 @@ namespace MobiFlight
                 else if (d.InstanceName.Trim() == "AuthentiKit")
                 {
                     var authentikitDefinition = GetDefinitionByInstanceName(d.InstanceName.Trim());
-                    js = new Authentikit(diJoystick, authentikitDefinition);
+                    js = new AuthentiKit(diJoystick, authentikitDefinition);
                 }
                 else if (HidControllerFactory.CanCreate(d.InstanceName)) {
                     // skip, it will be handled later

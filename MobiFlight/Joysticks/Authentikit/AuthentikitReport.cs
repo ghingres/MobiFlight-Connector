@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace MobiFlight.Joysticks
 {
-    internal class AuthentikitReport
+    internal class AuthentiKitReport
     {
         private byte[] LastInputBufferState = new byte[5];
 
@@ -17,9 +17,9 @@ namespace MobiFlight.Joysticks
             LastInputBufferState = (byte[])inputBuffer.Clone();
         }
 
-        public AuthentikitReport Parse(byte[] inputBuffer)
+        public AuthentiKitReport Parse(byte[] inputBuffer)
         {
-            var result = new AuthentikitReport();
+            var result = new AuthentiKitReport();
             result.CopyFromInputBuffer(inputBuffer);
 
             return result;

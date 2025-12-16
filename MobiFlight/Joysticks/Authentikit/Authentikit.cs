@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace MobiFlight.Joysticks
 {
-    internal class Authentikit : Joystick
+    internal class AuthentiKit : Joystick
     {
         /// <summary>
         /// The specific HID device instance.
@@ -33,7 +33,7 @@ namespace MobiFlight.Joysticks
         /// <summary>
         /// The report implementation.
         /// </summary>
-        private readonly AuthentikitReport report = new AuthentikitReport();
+        private readonly AuthentiKitReport report = new AuthentiKitReport();
 
         /// <summary>
         /// Provide same instance name as defined in the definition file.
@@ -41,7 +41,7 @@ namespace MobiFlight.Joysticks
         /// </summary>
         public override string Name
         {
-            get { return Definition?.InstanceName ?? "Authentikit"; }
+            get { return Definition?.InstanceName.Trim() ?? "AuthentiKit"; }
         }
 
         /// <summary>
@@ -50,14 +50,14 @@ namespace MobiFlight.Joysticks
         /// </summary>
         public override string Serial
         {
-            get { return $"{Joystick.SerialPrefix}{Device?.GetSerialNumber() ?? "Authentikit"}"; }
+            get { return $"{Joystick.SerialPrefix}{DIJoystick.Information.InstanceGuid}"; }
         }
 
         /// <summary>
         /// The constructor.
         /// </summary>
         /// <param name="definition">joystick definition file.</param>
-        public Authentikit(SharpDX.DirectInput.Joystick joystick, JoystickDefinition definition) : base(joystick, definition)
+        public AuthentiKit(SharpDX.DirectInput.Joystick joystick, JoystickDefinition definition) : base(joystick, definition)
         {
         }
 
