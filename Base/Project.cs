@@ -18,7 +18,7 @@ namespace MobiFlight.Base
     {
         public string Name { get; set; }
         public string Sim { get; set; }
-        public bool UseFsuipc { get; set; }
+        public bool UseFsuipc { get; set; } = false;
         public List<string> Aircraft { get; set; }
         public List<string> Controllers { get; set; }
         public string FilePath { get; set; }
