@@ -904,7 +904,7 @@ test.describe("Responsiveness: Full Screen", () => {
     await configListPage.gotoPage()
     await configListPage.mobiFlightPage.initWithTestData()
 
-    const visibleHeaders = [
+    const columnHeaders = [
       { name: "Active", visible: true },
       { name: "Name", visible: true },
       { name: "Controller", visible: true },
@@ -915,7 +915,7 @@ test.describe("Responsiveness: Full Screen", () => {
       { name: "Actions", visible: true },
     ]
 
-    for (const header of visibleHeaders) {
+    for (const header of columnHeaders) {
       const column = page
         .getByRole("columnheader", { name: header.name })
         .first()
@@ -938,7 +938,7 @@ test.describe("Responsiveness: Medium Screen", () => {
     await configListPage.gotoPage()
     await configListPage.mobiFlightPage.initWithTestData()
 
-    const visibleHeaders = [
+    const columnHeaders = [
       { name: "Active", visible: true },
       { name: "Name", visible: true },
       { name: "Controller", visible: false },
@@ -949,7 +949,7 @@ test.describe("Responsiveness: Medium Screen", () => {
       { name: "Actions", visible: true },
     ]
 
-    for (const header of visibleHeaders) {
+    for (const header of columnHeaders) {
       const column = page
         .getByRole("columnheader", { name: header.name })
         .first()
@@ -972,7 +972,7 @@ test.describe("Responsiveness: Small Screen", () => {
     await configListPage.gotoPage()
     await configListPage.mobiFlightPage.initWithTestData()
 
-    const visibleHeaders = [
+    const columnHeaders = [
       { name: "Active", visible: true },
       { name: "Name", visible: true },
       { name: "Controller", visible: false },
@@ -983,7 +983,7 @@ test.describe("Responsiveness: Small Screen", () => {
       { name: "Actions", visible: true },
     ]
 
-    for (const header of visibleHeaders) {
+    for (const header of columnHeaders) {
       const column = page
         .getByRole("columnheader", { name: header.name })
         .first()
