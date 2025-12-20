@@ -40,6 +40,10 @@ const ProjectForm = ({
 
   const { t } = useTranslation()
 
+  const FsuipcOptionIsDefaultForSimulator = (simulator: string) => {
+    return simulator === "fsx" || simulator === "p3d"
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const trimmedName = name.trim()
@@ -53,7 +57,7 @@ const ProjectForm = ({
     onSave({
       Name: trimmedName,
       Sim: simulator,
-      UseFsuipc: useFsuipc,
+      UseFsuipc: useFsuipc || FsuipcOptionIsDefaultForSimulator(simulator),
     })
   }
 

@@ -133,11 +133,12 @@ test.describe("Project settings modal features", () => {
     })
 
     const projectOptions = [
-      { name: "MSFS no FSUIPC", value: "msfs", useFsuipc: false },
-      { name: "MSFS with FSUIPC", value: "msfs", useFsuipc: true },
-      { name: "X-Plane", value: "xplane", useFsuipc: false },
-      { name: "Prepar3D", value: "p3d", useFsuipc: false },
-      { name: "ProSim", value: "prosim", useFsuipc: false },
+      { name: "MSFS no FSUIPC", value: "msfs", clickFsuipc: false, useFsuipc: false },
+      { name: "MSFS with FSUIPC", value: "msfs", clickFsuipc: true, useFsuipc: true },
+      { name: "X-Plane", value: "xplane", clickFsuipc: false, useFsuipc: false },
+      { name: "Prepar3D", value: "p3d", clickFsuipc: false, useFsuipc: true },
+      { name: "FSX / FS2004", value: "fsx", clickFsuipc: false, useFsuipc: true },
+      { name: "ProSim", value: "prosim", clickFsuipc: false, useFsuipc: false },
     ]
 
     for (const option of projectOptions) {
@@ -153,7 +154,7 @@ test.describe("Project settings modal features", () => {
       const simOption = createProjectDialog.locator(simOptionLocator)
 
       await simOption.check()
-      if (option.useFsuipc) {
+      if (option.clickFsuipc) {
         await fsuipcCheckbox.check()
       }
 

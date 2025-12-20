@@ -5,7 +5,7 @@ export interface Project {
   FilePath: string
   ConfigFiles: ConfigFile[]
   Thumbnail?: string
-  Sim: string
+  Sim: "msfs" | "xplane" | "p3d" | "prosim" | "fsx" | "none"
   UseFsuipc: boolean
   Controllers?: string[]
 
