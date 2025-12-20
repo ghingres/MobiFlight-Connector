@@ -74,11 +74,11 @@ namespace MobiFlight.UI.Panels.Config
                 ActionTypeComboBox.Items.Add(InputConfig.LuaMacroInputAction.Label);
             }
 
-            if (showAllOptions || sim == "msfs")
+            if (showAllOptions || sim == "prosim")
             {
                 ActionTypeComboBox.Items.Add(InputConfig.ProSimInputAction.Label);
             }
-
+             
             ActionTypeComboBox.SelectedIndex = 0;
             ActionTypeComboBox.SelectedIndexChanged += new EventHandler(ActionTypeComboBox_SelectedIndexChanged);
         }

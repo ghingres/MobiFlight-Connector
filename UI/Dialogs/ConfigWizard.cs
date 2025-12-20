@@ -146,7 +146,7 @@ namespace MobiFlight.UI.Dialogs
             xplaneDataRefPanel1.ModifyTabLink += ConfigPanel_ModifyTabLink;
 
             // PROSIM DATAREF PANEL
-            OffsetTypeProSimRadioButton.Visible = (sim == "msfs");
+            OffsetTypeProSimRadioButton.Visible = (sim == "prosim");
             proSimDatarefPanel1.ModifyTabLink += ConfigPanel_ModifyTabLink;
             proSimDatarefPanel1.Init(_execManager);
         }
