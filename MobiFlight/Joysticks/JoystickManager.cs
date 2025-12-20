@@ -115,7 +115,14 @@ namespace MobiFlight
                 {
                     foreach (Joystick js in Joysticks.Values)
                     {
-                        js?.Update();
+                        try
+                        {
+                            js?.Update();
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Instance.log($"An exception occured during joystick update for {js.Name}: {ex.Message}", LogSeverity.Error);
+                        }
                     }
                 }
             }
