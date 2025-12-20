@@ -113,4 +113,25 @@ namespace MobiFlight.Base
                 this.ProSimDataRef.Equals((obj as ProSimSource).ProSimDataRef);
         }
     }
+
+    public static class SourceFactory
+    {
+        public static Source Create(string sim)
+        {
+            switch (sim)
+            {
+                case "msfs":
+                    return new SimConnectSource();
+                case "xplane":
+                    return new XplaneSource();
+                case "prosim":
+                    return new ProSimSource();
+                case "p3d":
+                case "fsuipc":
+                    return new FsuipcSource();
+            }
+
+            return null;
+        }
+    }
 }
