@@ -114,6 +114,10 @@ namespace MobiFlight.Base
         }
     }
 
+    /// <summary>
+    /// Creates Source instances based on sim type strings.
+    /// </summary>
+    /// <returns>Source instance corresponding to the specified sim type. Returns null for unknown sim names.</returns>
     public static class SourceFactory
     {
         public static Source Create(string sim)
@@ -131,7 +135,9 @@ namespace MobiFlight.Base
                     return new FsuipcSource();
             }
 
-            return null;
+            Log.Instance.log($"SourceFactory: Unknown sim '{sim}', returning null", LogSeverity.Error);
+            // use this as a default fallback
+            return new SimConnectSource();
         }
     }
 }
