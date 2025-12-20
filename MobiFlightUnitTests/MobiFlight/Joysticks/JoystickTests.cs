@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 
 namespace MobiFlight.Tests
@@ -41,16 +42,7 @@ namespace MobiFlight.Tests
 
             invalidUsageIds.ForEach(id =>
             {
-                var throws = false;
-                try
-                {
-                    var name = Joystick.GetAxisNameForUsage(id);
-                }
-                catch
-                {
-                    throws = true;
-                }
-                Assert.IsTrue(throws);
+                Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => Joystick.GetAxisNameForUsage(id));
             });
         }
 

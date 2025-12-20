@@ -121,7 +121,7 @@ namespace MobiFlight
                         }
                         catch (Exception ex)
                         {
-                            Log.Instance.log($"An exception occured during joystick update for {js.Name}: {ex.Message}", LogSeverity.Error);
+                            Log.Instance.log($"An exception occurred during joystick update for {js.Name}: {ex.Message}", LogSeverity.Error);
                         }
                     }
                 }
@@ -133,7 +133,7 @@ namespace MobiFlight
             catch (Exception ex)
             {
                 // something else has happened
-                Log.Instance.log($"An exception occured during update {ex.Message}", LogSeverity.Error);
+                Log.Instance.log($"An exception occurred during update {ex.Message}", LogSeverity.Error);
             }
         }
 
