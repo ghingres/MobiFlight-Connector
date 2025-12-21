@@ -64,7 +64,7 @@ namespace MobiFlight.UI.Panels.Config
             ActionTypeComboBox.Items.Add(InputConfig.KeyInputAction.Label);
             ActionTypeComboBox.Items.Add(InputConfig.VJoyInputAction.Label);
 
-            if (showAllOptions || (projectInfo?.UseFsuipc ?? false) || sim == "fsx" || sim == "p3d")
+            if (showAllOptions || (projectInfo?.Features?.FSUIPC ?? false) || sim == "fsx" || sim == "p3d")
             {
                 // --FSUIPC
                 ActionTypeComboBox.Items.Add(InputConfig.FsuipcOffsetInputAction.Label);
@@ -74,7 +74,7 @@ namespace MobiFlight.UI.Panels.Config
                 ActionTypeComboBox.Items.Add(InputConfig.LuaMacroInputAction.Label);
             }
 
-            if (showAllOptions || sim == "prosim")
+            if (showAllOptions || (projectInfo?.Features?.ProSim ?? false))
             {
                 ActionTypeComboBox.Items.Add(InputConfig.ProSimInputAction.Label);
             }

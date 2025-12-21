@@ -124,7 +124,8 @@ namespace MobiFlight.UI.Dialogs
         private void ShowSourceOptionsBasedOnProjectInfo(ProjectInfo projectInfo)
         {
             var sim = projectInfo.Sim.Trim().ToLower();
-            var useFsuipc = (projectInfo?.UseFsuipc ?? false) || sim == "p3d" || sim == "fsx";
+            var useFsuipc = (projectInfo?.Features?.FSUIPC ?? false) || sim == "p3d" || sim == "fsx";
+            var useProSim = (projectInfo?.Features?.ProSim ?? false);
 
             // VARIABLE PANEL
             variablePanel1.SetVariableReferences(_execManager.GetAvailableVariables());
@@ -147,7 +148,7 @@ namespace MobiFlight.UI.Dialogs
             xplaneDataRefPanel1.ModifyTabLink += ConfigPanel_ModifyTabLink;
 
             // PROSIM DATAREF PANEL
-            OffsetTypeProSimRadioButton.Visible = (sim == "prosim");
+            OffsetTypeProSimRadioButton.Visible = useProSim;
             proSimDatarefPanel1.ModifyTabLink += ConfigPanel_ModifyTabLink;
             proSimDatarefPanel1.Init(_execManager);
         }

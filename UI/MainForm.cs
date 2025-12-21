@@ -2997,7 +2997,7 @@ namespace MobiFlight.UI
         {
             execManager.Project.Name = project.Name;
             execManager.Project.Sim = project.Sim;
-            execManager.Project.UseFsuipc = project.UseFsuipc;
+            execManager.Project.Features = project.Features;
             execManager.Project.Aircraft = project.Aircraft;
             saveToolStripButton_Click(null, null);
         }

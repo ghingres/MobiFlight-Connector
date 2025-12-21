@@ -110,7 +110,8 @@
       "Simulator": {
         "Label": "Flugsimulator",
         "HelpText": "Wähle den primären Simulator für dieses Projekt aus.",
-        "UseFsuipc": "Verwende FSUIPC"
+        "UseFsuipc": "Verwende FSUIPC",
+        "UseProSim": "Verwende ProSim"
       },
       "Aircraft": {
         "Label": "Flugzeug",

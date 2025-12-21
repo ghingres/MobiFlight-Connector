@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useState } from "react"
-import { ProjectInfo } from "@/types/project"
+import { ProjectFeatures, ProjectInfo } from "@/types/project"
 import { useLocation } from "react-router"
 import { useTranslation } from "react-i18next"
 
@@ -21,7 +21,7 @@ type ProjectFormProps = {
   project: ProjectInfo
   isOpen: boolean
   onOpenChange: (open: boolean) => void
-  onSave: (values: { Name: string; Sim: string; UseFsuipc: boolean }) => void
+  onSave: (values: { Name: string; Sim: string; Features: ProjectFeatures }) => void
 }
 
 const ProjectForm = ({
@@ -32,7 +32,8 @@ const ProjectForm = ({
 }: ProjectFormProps) => {
   const [name, setName] = useState(project?.Name ?? "")
   const [simulator, setSimulator] = useState<string>(project?.Sim ?? "msfs")
-  const [useFsuipc, setUseFsuipc] = useState(project?.UseFsuipc ?? false)
+  const [useFsuipc, setUseFsuipc] = useState(project?.Features?.FSUIPC ?? false)
+  const [useProsim, setUseProsim] = useState(project?.Features?.ProSim ?? false)
   const [hasError, setHasError] = useState(false)
 
   const location = useLocation()
@@ -42,6 +43,10 @@ const ProjectForm = ({
 
   const FsuipcOptionIsDefaultForSimulator = (simulator: string) => {
     return simulator === "fsx" || simulator === "p3d"
+  }
+
+  const ProSimFeatureIsSupportedBySimulator =(simulator: string) => {
+    return simulator === "msfs" || simulator === "p3d"
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -57,7 +62,10 @@ const ProjectForm = ({
     onSave({
       Name: trimmedName,
       Sim: simulator,
-      UseFsuipc: useFsuipc || FsuipcOptionIsDefaultForSimulator(simulator),
+      Features: {
+        FSUIPC: useFsuipc || FsuipcOptionIsDefaultForSimulator(simulator),
+        ProSim: useProsim && ProSimFeatureIsSupportedBySimulator(simulator),
+      },
     })
   }
 
@@ -122,6 +130,7 @@ const ProjectForm = ({
               onValueChange={(value) => {
                 setSimulator(value)
                 setUseFsuipc(false) // Reset FSUIPC when changing simulator
+                setUseProsim(false) // Reset ProSim when changing simulator
               }}
             >
               <div className="flex items-center space-x-2">
@@ -145,16 +154,25 @@ const ProjectForm = ({
                   </Label>
                 </div>
               )}
+              {/* ProSim Option (MSFS & P3D) */}
+              {simulator === "msfs" && (
+                <div className="flex items-center space-x-2 pl-6">
+                  <Checkbox
+                    id="prosim"
+                    checked={useProsim}
+                    onCheckedChange={(checked) =>
+                      setUseProsim(Boolean(checked))
+                    }
+                  />
+                  <Label htmlFor="prosim" className="font-normal">
+                    {t("Project.Form.Simulator.UseProSim")}
+                  </Label>
+                </div>
+              )}
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="xplane" id="xplane" />
                 <Label htmlFor="xplane" className="font-normal">
                   {t("Project.Simulator.xplane")}
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="prosim" id="prosim" />
-                <Label htmlFor="prosim" className="font-normal">
-                  {t("Project.Simulator.prosim")}
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
@@ -163,6 +181,21 @@ const ProjectForm = ({
                   {t("Project.Simulator.p3d")}
                 </Label>
               </div>
+               {/* ProSim Option (MSFS & P3D) */}
+              {simulator === "p3d" && (
+                <div className="flex items-center space-x-2 pl-6">
+                  <Checkbox
+                    id="prosim"
+                    checked={useProsim}
+                    onCheckedChange={(checked) =>
+                      setUseProsim(Boolean(checked))
+                    }
+                  />
+                  <Label htmlFor="prosim" className="font-normal">
+                    {t("Project.Simulator.prosim")}
+                  </Label>
+                </div>
+              )}
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="fsx" id="fsx" />
                 <Label htmlFor="fsx" className="font-normal">
