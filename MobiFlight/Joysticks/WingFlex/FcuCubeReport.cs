@@ -138,30 +138,25 @@ namespace MobiFlight.Joysticks.WingFlex
                     if (lcdDisplay == null) return;
 
                     var byteIndex = lcdDisplay.Byte;
+                    UInt16 value = 0;
+                    bool parsed;
 
                     if (lcdDisplay.Name != "VS.value")
                     {
-                        if (!UInt16.TryParse(lcdDisplay.Text, out var value))
-                        {
-                            if (lcdDisplay.Text.Trim().Length != 0) return;
-                            value = 0;
-                        }
-                        // Copy High 8 bit from value
-                        LastOutputBufferState[byteIndex] = (byte)(value >> 8);
-                        // Copy Low 8 bit from value  
-                        LastOutputBufferState[byteIndex + 1] = (byte)(value & 0xFF);
+                        parsed = UInt16.TryParse(lcdDisplay.Text, out value);
                     } else
                     {
-                        if (!Int16.TryParse(lcdDisplay.Text, out var value))
-                        {
-                            if (lcdDisplay.Text.Trim().Length != 0) return;
-                            value = 0;
-                        }
-                        // Copy High 8 bit from value
-                        LastOutputBufferState[byteIndex] = (byte)(value >> 8);
-                        // Copy Low 8 bit from value  
-                        LastOutputBufferState[byteIndex + 1] = (byte)(value & 0xFF);
+                        parsed = Int16.TryParse(lcdDisplay.Text, out var signedValue);
+                        if (parsed) value = (UInt16)signedValue;
                     }
+
+                    // Skip invalid text
+                    if (!parsed) return;
+
+                    // Copy High 8 bit from value
+                    LastOutputBufferState[byteIndex] = (byte)(value >> 8);
+                    // Copy Low 8 bit from value  
+                    LastOutputBufferState[byteIndex + 1] = (byte)(value & 0xFF);
 
                     return;
                 }
