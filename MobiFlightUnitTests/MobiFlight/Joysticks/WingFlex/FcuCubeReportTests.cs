@@ -333,6 +333,7 @@ namespace MobiFlight.Joysticks.WingFlex.Tests
             // Arrange
             var lcdDisplay = new JoystickOutputDisplay
             {
+                Name = "SPD.value",
                 Type = DeviceType.LcdDisplay,
                 Byte = 15,
                 Text = "ABC" // Non-numeric
