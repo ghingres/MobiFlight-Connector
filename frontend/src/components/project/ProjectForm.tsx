@@ -138,6 +138,8 @@ const ProjectForm = ({
           <div className="flex flex-row gap-4">
             {["msfs", "xplane", "p3d", "fsx"].map((sim) => (
               <div
+                role="radio"
+                aria-checked={simulator === sim}
                 key={sim}
                 className={cn(
                   "inline-block h-48 flex-1 cursor-pointer rounded-lg transition-all duration-200 hover:scale-110",
@@ -145,7 +147,11 @@ const ProjectForm = ({
                     ? "drop-shadow-primary/50 ring-primary ring-3 drop-shadow-lg"
                     : "opacity-50 hover:opacity-100",
                 )}
-                onClick={() => setSimulator(sim)}
+                onClick={() => {
+                  setUseFsuipc(false)
+                  setUseProsim(false)
+                  setSimulator(sim)
+                }}
               >
                 <img
                   src={`/sim/${sim.toLowerCase()}.jpg`}

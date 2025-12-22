@@ -123,7 +123,7 @@ test.describe("Project settings modal features", () => {
     const createProjectDialog = page.getByRole("dialog", {
       name: "Create New Project",
     })
-    const fsuipcCheckbox = createProjectDialog.getByLabel("Use FSUIPC")
+    const fsuipcCheckbox = createProjectDialog.getByLabel("FSUIPC")
     const prosimCheckbox = createProjectDialog.getByLabel("ProSim")
     const projectNameInput = createProjectDialog.getByLabel("Project Name")
     const createButton = createProjectDialog.getByRole("button", {
@@ -171,17 +171,15 @@ test.describe("Project settings modal features", () => {
 
     for (const option of projectOptions) {
       await dashboardPage.gotoPage()
-
       await dashboardPage.mobiFlightPage.trackCommand("CommandMainMenu")
 
       await createProjectButton.click()
 
       await projectNameInput.fill(option.name)
 
-      const simOptionLocator = `[role="radio"][value="${option.value}"]`
-      const simOption = createProjectDialog.locator(simOptionLocator)
+      const simOption = createProjectDialog.getByRole("radio", { name: option.value })
 
-      await simOption.check()
+      await simOption.click()
       if (option.fsuipc.click) {
         await fsuipcCheckbox.check()
       }
@@ -218,7 +216,7 @@ test.describe("Project settings modal features", () => {
     const createProjectDialog = page.getByRole("dialog", {
       name: "Create New Project",
     })
-    const fsuipcCheckbox = createProjectDialog.getByLabel("Use FSUIPC")
+    const fsuipcCheckbox = createProjectDialog.getByLabel("FSUIPC")
     const prosimCheckbox = createProjectDialog.getByLabel("ProSim")
     const projectNameInput = createProjectDialog.getByLabel("Project Name")
 
@@ -226,10 +224,10 @@ test.describe("Project settings modal features", () => {
     await projectNameInput.fill("Test Reset Features")
 
     // Select MSFS and enable both features
-    const msfsOption = createProjectDialog.locator(
-      `[role="radio"][value="msfs"]`,
-    )
-    await msfsOption.check()
+    const msfsOption = createProjectDialog.getByRole("radio", {
+      name: "msfs",
+    })
+    await msfsOption.click()
     await fsuipcCheckbox.check()
     await prosimCheckbox.check()
 
@@ -237,14 +235,14 @@ test.describe("Project settings modal features", () => {
     expect(await prosimCheckbox.isChecked()).toBeTruthy()
 
     // Change to X-Plane and verify both features are disabled
-    const p3dOption = createProjectDialog.locator(
-      `[role="radio"][value="p3d"]`,
-    )
-    await p3dOption.check()
+    const p3dOption = createProjectDialog.getByRole("radio", {
+      name: "p3d",
+    })
+    await p3dOption.click()
     expect(await prosimCheckbox.isChecked()).toBeFalsy()
 
     // Change back to MSFS and verify both features are disabled
-    await msfsOption.check()
+    await msfsOption.click()
     expect(await fsuipcCheckbox.isChecked()).toBeFalsy()
     expect(await prosimCheckbox.isChecked()).toBeFalsy()
   })
