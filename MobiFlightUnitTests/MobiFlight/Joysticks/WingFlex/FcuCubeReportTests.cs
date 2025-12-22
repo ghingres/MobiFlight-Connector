@@ -195,14 +195,15 @@ namespace MobiFlight.Joysticks.WingFlex.Tests
         }
 
         [TestMethod]
-        public void FromOutputDeviceState_LcdDisplay_HandlesMaxValue()
+        public void FromOutputDeviceState_LcdDisplay_NonVS_HandlesMaxValue()
         {
             // Arrange
             var lcdDisplay = new JoystickOutputDisplay
             {
+                Name = "ALT.value",
                 Type = DeviceType.LcdDisplay,
                 Byte = 17,
-                Text = "32767" // Max Int16 (since code uses Int16.TryParse)
+                Text = UInt16.MaxValue.ToString() // Max UInt16 (since code uses UInt16.TryParse)
             };
             var devices = new List<JoystickOutputDevice> { lcdDisplay };
 
@@ -210,9 +211,77 @@ namespace MobiFlight.Joysticks.WingFlex.Tests
             var result = _report.FromOutputDeviceState(devices);
 
             // Assert
-            // 32767 = 0x7FFF
-            Assert.AreEqual(0x7F, result[17], "High byte should be 0x7F");
+            // 65535 = 0xFFFF
+            Assert.AreEqual(0xFF, result[17], "High byte should be 0xFF");
             Assert.AreEqual(0xFF, result[18], "Low byte should be 0xFF");
+        }
+
+        [TestMethod]
+        public void FromOutputDeviceState_LcdDisplay_VS_HandlesMaxValue()
+        {
+            // Arrange
+            var lcdDisplay = new JoystickOutputDisplay
+            {
+                Name = "VS.value",
+                Type = DeviceType.LcdDisplay,
+                Byte = 21,
+                Text = Int16.MaxValue.ToString() // Max Int16 (since code uses Int16.TryParse)
+            };
+
+            var devices = new List<JoystickOutputDevice> { lcdDisplay };
+
+            // Act
+            var result = _report.FromOutputDeviceState(devices);
+
+            // Assert
+            // 32767 = 0x7FFF
+            Assert.AreEqual(0x7F, result[21], "High byte should be 0x7F");
+            Assert.AreEqual(0xFF, result[22], "Low byte should be 0xFF");
+        }
+
+        [TestMethod]
+        public void FromOutputDeviceState_LcdDisplay_HandlesNegativeValue()
+        {
+            // Arrange
+            var lcdDisplay = new JoystickOutputDisplay
+            {
+                Name = "VS.value",  // FIXED: Must be VS.value to use Int16.TryParse which supports negative values
+                Type = DeviceType.LcdDisplay,
+                Byte = 21,  // CHANGED: Use VS byte range (21-22)
+                Text = "-1"
+            };
+            var devices = new List<JoystickOutputDevice> { lcdDisplay };
+
+            // Act
+            var result = _report.FromOutputDeviceState(devices);
+
+            // Assert
+            // -1 = 0xFFFF in two's complement
+            Assert.AreEqual(0xFF, result[21], "High byte should be 0xFF");
+            Assert.AreEqual(0xFF, result[22], "Low byte should be 0xFF");
+        }
+
+        [TestMethod]
+        public void FromOutputDeviceState_LcdDisplay_VS_HandlesMinValue()
+        {
+            // Arrange
+            var lcdDisplay = new JoystickOutputDisplay
+            {
+                Name = "VS.value",
+                Type = DeviceType.LcdDisplay,
+                Byte = 21,
+                Text = Int16.MinValue.ToString() // -32768 - Min for Int16 (VS display uses Int16.TryParse)
+            };
+
+            var devices = new List<JoystickOutputDevice> { lcdDisplay };
+
+            // Act
+            var result = _report.FromOutputDeviceState(devices);
+
+            // Assert
+            // -32768 = 0x8000 in two's complement
+            Assert.AreEqual(0x80, result[21], "High byte should be 0x80");
+            Assert.AreEqual(0x00, result[22], "Low byte should be 0x00");
         }
 
         [TestMethod]
@@ -233,27 +302,6 @@ namespace MobiFlight.Joysticks.WingFlex.Tests
             // Assert
             Assert.AreEqual(0x00, result[19], "High byte should be 0x00");
             Assert.AreEqual(0x00, result[20], "Low byte should be 0x00");
-        }
-
-        [TestMethod]
-        public void FromOutputDeviceState_LcdDisplay_HandlesNegativeValue()
-        {
-            // Arrange
-            var lcdDisplay = new JoystickOutputDisplay
-            {
-                Type = DeviceType.LcdDisplay,
-                Byte = 15,
-                Text = "-1"
-            };
-            var devices = new List<JoystickOutputDevice> { lcdDisplay };
-
-            // Act
-            var result = _report.FromOutputDeviceState(devices);
-
-            // Assert
-            // -1 = 0xFFFF in two's complement
-            Assert.AreEqual(0xFF, result[15], "High byte should be 0xFF");
-            Assert.AreEqual(0xFF, result[16], "Low byte should be 0xFF");
         }
 
         [TestMethod]

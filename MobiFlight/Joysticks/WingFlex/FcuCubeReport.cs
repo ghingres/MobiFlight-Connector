@@ -137,17 +137,31 @@ namespace MobiFlight.Joysticks.WingFlex
                     var lcdDisplay = item as JoystickOutputDisplay;
                     if (lcdDisplay == null) return;
 
-                    if (!Int16.TryParse(lcdDisplay.Text, out var value)) {
-                        if (lcdDisplay.Text.Trim().Length != 0) return;
-                        value = 0;
-                    }
-                    
                     var byteIndex = lcdDisplay.Byte;
 
-                    // Copy High 8 bit from value
-                    LastOutputBufferState[byteIndex] = (byte)(value >> 8);
-                    // Copy Low 8 bit from value  
-                    LastOutputBufferState[byteIndex + 1] = (byte)(value & 0xFF);
+                    if (lcdDisplay.Name != "VS.value")
+                    {
+                        if (!UInt16.TryParse(lcdDisplay.Text, out var value))
+                        {
+                            if (lcdDisplay.Text.Trim().Length != 0) return;
+                            value = 0;
+                        }
+                        // Copy High 8 bit from value
+                        LastOutputBufferState[byteIndex] = (byte)(value >> 8);
+                        // Copy Low 8 bit from value  
+                        LastOutputBufferState[byteIndex + 1] = (byte)(value & 0xFF);
+                    } else
+                    {
+                        if (!Int16.TryParse(lcdDisplay.Text, out var value))
+                        {
+                            if (lcdDisplay.Text.Trim().Length != 0) return;
+                            value = 0;
+                        }
+                        // Copy High 8 bit from value
+                        LastOutputBufferState[byteIndex] = (byte)(value >> 8);
+                        // Copy Low 8 bit from value  
+                        LastOutputBufferState[byteIndex + 1] = (byte)(value & 0xFF);
+                    }
 
                     return;
                 }
