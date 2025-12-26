@@ -27,7 +27,8 @@ namespace MobiFlight.Joysticks.Winwing
                    WinwingConstants.AIRBUS_THROTTLE_PRODUCTIDS.Contains(productId) ||
                    WinwingConstants.AIRBUS_STICK_PRODUCTIDS.Contains(productId) ||
                    WinwingConstants.PDC3_PRODUCTIDS.Contains(productId) ||
-                   productId == WinwingConstants.PRODUCT_ID_ECAM;
+                   productId == WinwingConstants.PRODUCT_ID_ECAM ||
+                   productId == WinwingConstants.PRODUCT_ID_AGP;
         }
 
         /// <summary>
@@ -72,6 +73,10 @@ namespace MobiFlight.Joysticks.Winwing
             else if (productId == WinwingConstants.PRODUCT_ID_ECAM)
             {
                 return new WinwingEcam(diJoystick, definition, productId, wsServer);
+            }
+            else if (productId == WinwingConstants.PRODUCT_ID_AGP)
+            {
+                return new WinwingAgp(diJoystick, definition, productId, wsServer);
             }
 
             return null;
