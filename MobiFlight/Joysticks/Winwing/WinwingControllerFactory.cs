@@ -16,14 +16,6 @@ namespace MobiFlight.Joysticks.Winwing
         /// </summary>
         public static bool CanCreate(int vendorId, int productId)
         {
-            return IsWinwingDevice(vendorId, productId);
-        }
-
-        /// <summary>
-        /// Checks if a device is a Winwing device based on vendor ID and product ID.
-        /// </summary>
-        private static bool IsWinwingDevice(int vendorId, int productId)
-        {
             if (vendorId != WINWING_VENDOR_ID)
             {
                 return false;
