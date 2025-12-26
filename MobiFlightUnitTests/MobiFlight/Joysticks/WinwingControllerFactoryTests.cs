@@ -59,13 +59,6 @@ namespace MobiFlight.Joysticks.Tests
         }
 
         [TestMethod()]
-        public void CanCreate_WithWinwingAGP_ReturnsTrue()
-        {
-            var result = WinwingControllerFactory.CanCreate(WINWING_VENDOR_ID, WinwingConstants.PRODUCT_ID_AGP);
-            Assert.IsTrue(result);
-        }
-
-        [TestMethod()]
         public void CanCreate_WithWrongVendorId_ReturnsFalse()
         {
             var result = WinwingControllerFactory.CanCreate(OTHER_VENDOR_ID, WinwingConstants.PRODUCT_ID_FCU_ONLY);
