@@ -1,8 +1,8 @@
 import * as React from "react"
 import * as MenubarPrimitive from "@radix-ui/react-menubar"
+import { IconCheck as Check, IconChevronRight as ChevronRight, IconCircle as Circle } from "@tabler/icons-react"
 
 import { cn } from "@/lib/utils"
-import { IconCheck as Check, IconChevronRight as ChevronRight, IconCircle as Circle } from "@tabler/icons-react"
 
 function MenubarMenu({
   ...props

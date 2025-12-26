@@ -1,8 +1,8 @@
 import * as React from "react"
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
+import { IconCircle } from "@tabler/icons-react"
 
 import { cn } from "@/lib/utils"
-import { IconCircle } from "@tabler/icons-react"
 
 const RadioGroup = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Root>,

@@ -1,9 +1,9 @@
 import * as React from "react"
+import { IconChevronLeft as ChevronLeft, IconChevronRight as ChevronRight, IconDots as MoreHorizontal } from "@tabler/icons-react"
 
 import { cn } from "@/lib/utils"
 import { ButtonProps } from "./button"
 import { buttonVariants } from "./variants"
-import { IconChevronLeft as ChevronLeft, IconChevronRight as ChevronRight, IconDots as MoreHorizontal } from "@tabler/icons-react"
 
 const Pagination = ({ className, ...props }: React.ComponentProps<"nav">) => (
   <nav
