@@ -14,8 +14,6 @@ namespace MobiFlight.Joysticks
     /// </summary>
     internal static class ControllerFactory
     {
-        private const int VKB_VENDOR_ID = 0x231D;
-
         /// <summary>
         /// Checks if a device can be created by this factory (returns true for specialized controllers).
         /// </summary>
@@ -30,13 +28,13 @@ namespace MobiFlight.Joysticks
             }
 
             // Check for Winwing devices
-            if (WinwingControllerFactory.IsWinwingDevice(vendorId, productId))
+            if (WinwingControllerFactory.CanCreate(vendorId, productId))
             {
                 return true;
             }
 
             // Check for VKB devices
-            if (vendorId == VKB_VENDOR_ID)
+            if (vendorId == VKBDevice.VKB_VENDOR_ID)
             {
                 return true;
             }
@@ -58,7 +56,7 @@ namespace MobiFlight.Joysticks
             var instanceName = deviceInstance.InstanceName;
 
             // VKB devices: get product name from HID device
-            if (vendorId == VKB_VENDOR_ID)
+            if (vendorId == VKBDevice.VKB_VENDOR_ID)
             {
                 // VKB devices are highly configurable. DirectInput names can have old values cached in the registry, 
                 // but HID names seem to be immune to that. Also trim the extraneous whitespaces on VKB device names.
@@ -93,13 +91,13 @@ namespace MobiFlight.Joysticks
             }
 
             // Handle Winwing devices by vendor/product ID
-            if (WinwingControllerFactory.IsWinwingDevice(vendorId, productId))
+            if (WinwingControllerFactory.CanCreate(vendorId, productId))
             {
                 return WinwingControllerFactory.Create(diJoystick, definition, vendorId, productId, wsServer);
             }
 
             // Handle VKB devices by vendor ID
-            if (vendorId == VKB_VENDOR_ID)
+            if (vendorId == VKBDevice.VKB_VENDOR_ID)
             {
                 return new VKBDevice(diJoystick, definition);
             }

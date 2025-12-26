@@ -214,17 +214,7 @@ namespace MobiFlight
                 string productName = ControllerFactory.GetProductName(d, diJoystick, vendorId);
 
                 // Get the appropriate definition for this device
-                JoystickDefinition definition = null;
-                if (d.InstanceName == "Octavi" || d.InstanceName == "IFR1")
-                {
-                    // Statically set this to Octavi until we might support (Octavi|IFR1) or similar
-                    definition = GetDefinitionByInstanceName("Octavi");
-                }
-                else
-                {
-                    // Try to get definition by product name first, then by product ID
-                    definition = GetDefinitionByInstanceName(productName) ?? GetDefinitionByProductId(vendorId, productId);
-                }
+                JoystickDefinition definition = GetJoystickDefinition(d.InstanceName, productName, vendorId, productId);
 
                 // Use factory to create appropriate controller instance
                 var js = ControllerFactory.Create(d, diJoystick, vendorId, productId, definition, WSServer);
@@ -263,6 +253,21 @@ namespace MobiFlight
             {
                 Connected?.Invoke(this, null);
             }
+        }
+
+        /// <summary>
+        /// Gets the appropriate JoystickDefinition for a device.
+        /// </summary>
+        private JoystickDefinition GetJoystickDefinition(string instanceName, string productName, int vendorId, int productId)
+        {
+            // Octavi/IFR1 devices: statically set to Octavi
+            if (instanceName == "Octavi" || instanceName == "IFR1")
+            {
+                return GetDefinitionByInstanceName("Octavi");
+            }
+
+            // Try to get definition by product name first, then by product ID
+            return GetDefinitionByInstanceName(productName) ?? GetDefinitionByProductId(vendorId, productId);
         }
 
         private void ConnectHidController()

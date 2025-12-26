@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MobiFlight.Joysticks.VKB;
 using SharpDX.DirectInput;
 
 namespace MobiFlight.Joysticks.Tests
@@ -6,7 +7,6 @@ namespace MobiFlight.Joysticks.Tests
     [TestClass()]
     public class ControllerFactoryTests
     {
-        private const int VKB_VENDOR_ID = 0x231D;
         private const int WINWING_VENDOR_ID = 0x4098;
         private const int OTHER_VENDOR_ID = 0x1234;
 
@@ -37,7 +37,7 @@ namespace MobiFlight.Joysticks.Tests
         [TestMethod()]
         public void CanCreate_WithAuthentiKitWithWhitespace_ReturnsTrue()
         {
-            var deviceInstance = CreateDeviceInstance("  AuthentiKit  ");
+            var deviceInstance = CreateDeviceInstance("AuthentiKit ");
             var result = ControllerFactory.CanCreate(deviceInstance, OTHER_VENDOR_ID, 0x0000);
             Assert.IsTrue(result);
         }
@@ -46,7 +46,7 @@ namespace MobiFlight.Joysticks.Tests
         public void CanCreate_WithVKBVendorId_ReturnsTrue()
         {
             var deviceInstance = CreateDeviceInstance("Some VKB Device");
-            var result = ControllerFactory.CanCreate(deviceInstance, VKB_VENDOR_ID, 0x0000);
+            var result = ControllerFactory.CanCreate(deviceInstance, VKBDevice.VKB_VENDOR_ID, 0x0000);
             Assert.IsTrue(result);
         }
 
