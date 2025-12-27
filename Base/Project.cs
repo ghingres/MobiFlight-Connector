@@ -1,4 +1,5 @@
 ﻿using MobiFlight.Base.Migration;
+using MobiFlight.Controllers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -23,6 +24,13 @@ namespace MobiFlight.Base
         public List<string> Controllers { get; set; }
         public string FilePath { get; set; }
         public bool Favorite { get; set; } = false;
+        /// <summary>
+        /// Binding status for controllers in this project
+        /// Key: ModuleSerial, Value: ControllerBindingStatus
+        /// Only populated when analyzing binding status
+        /// </summary>
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public Dictionary<string, (ControllerBindingStatus, string)> ControllerBindings { get; set; }
     }
 
 
@@ -281,7 +289,7 @@ namespace MobiFlight.Base
             Name = "New MobiFlight Project";
         }
 
-        public ProjectInfo ToProjectInfo()
+        public ProjectInfo ToProjectInfo(ControllerBindingService bindingService = null)
         {
             if (string.IsNullOrEmpty(Sim))
             {
@@ -297,6 +305,12 @@ namespace MobiFlight.Base
                 Controllers = Controllers?.ToList() ?? new List<string>(),
                 FilePath = FilePath
             };
+
+            // Optional: Analyze binding status if service provided
+            if (bindingService != null)
+            {
+                projectInfo.ControllerBindings = bindingService.AnalyzeProjectBindings(this);
+            }
 
             return projectInfo;
         }
