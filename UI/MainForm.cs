@@ -26,6 +26,7 @@ using MobiFlight.BrowserMessages.Outgoing;
 using System.Drawing;
 using MobiFlight.BrowserMessages.Incoming.Handler;
 using System.ComponentModel;
+using MobiFlight.Controllers;
 
 namespace MobiFlight.UI
 {
@@ -108,6 +109,8 @@ namespace MobiFlight.UI
                 );
             }
         }
+
+        public ControllerBindingService controllerBindingService { get; private set; }
 
         private void InitializeLogging()
         {
@@ -435,6 +438,8 @@ namespace MobiFlight.UI
             cmdLineParams = new CmdLineParams(Environment.GetCommandLineArgs());
             InitializeExecutionManager();
 
+            controllerBindingService = new ControllerBindingService(execManager);
+
             connectedDevicesToolStripDropDownButton.DropDownDirection = ToolStripDropDownDirection.AboveRight;
             simStatusToolStripDropDownButton1.DropDownDirection = ToolStripDropDownDirection.AboveRight;
             toolStripAircraftDropDownButton.DropDownDirection = ToolStripDropDownDirection.AboveRight;
@@ -485,7 +490,7 @@ namespace MobiFlight.UI
         private async Task CleanRecentFilesAsync()
         {
             var recentSnapshot = Properties.Settings.Default.RecentFiles.Cast<string>().ToList();
-            
+
             var missingFiles = await Task.Run(() => CheckForMissingFiles(recentSnapshot)).ConfigureAwait(false);
 
             if (missingFiles.Count == 0) return;
@@ -565,6 +570,8 @@ namespace MobiFlight.UI
                         p.FilePath = project;
                         p.OpenFile(suppressMigrationLogging: true);
                         p.DetermineProjectInfos();
+
+                        controllerBindingService.PerformAutoBinding(p);
 
                         recentProjects.Add(p.ToProjectInfo());
                     }
@@ -2009,6 +2016,8 @@ namespace MobiFlight.UI
                 {
                     execManager.Project.MergeFromProjectFile(fileName);
                 }
+
+                controllerBindingService.PerformAutoBinding(execManager.Project);
 
                 execManager.Project.ConfigFiles.ToList().ForEach(configFile =>
                 {
