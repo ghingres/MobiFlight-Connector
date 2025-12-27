@@ -62,6 +62,7 @@ namespace MobiFlight.Controllers
 
             // Update project metadata with new controller serials
             project.DetermineProjectInfos();
+            project.ControllerBindings = allResults;
 
             return allResults;
         }

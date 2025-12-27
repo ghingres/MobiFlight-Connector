@@ -570,7 +570,6 @@ namespace MobiFlight.UI
                         p.FilePath = project;
                         p.OpenFile(suppressMigrationLogging: true);
                         p.DetermineProjectInfos();
-
                         controllerBindingService.PerformAutoBinding(p);
 
                         recentProjects.Add(p.ToProjectInfo());

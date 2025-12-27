@@ -281,6 +281,14 @@ namespace MobiFlight.Base
         }
 
         /// <summary>
+        /// Binding status for controllers in this project
+        /// Key: ModuleSerial, Value: ControllerBindingStatus
+        /// Only populated when analyzing binding status
+        /// </summary>
+        [JsonIgnore]
+        public Dictionary<string, (ControllerBindingStatus, string)> ControllerBindings { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Project"/> class with default values.
         /// </summary>
         public Project()
@@ -289,7 +297,7 @@ namespace MobiFlight.Base
             Name = "New MobiFlight Project";
         }
 
-        public ProjectInfo ToProjectInfo(ControllerBindingService bindingService = null)
+        public ProjectInfo ToProjectInfo()
         {
             if (string.IsNullOrEmpty(Sim))
             {
@@ -303,14 +311,9 @@ namespace MobiFlight.Base
                 Features = Features,
                 Aircraft = Aircraft?.ToList() ?? new List<string>(),
                 Controllers = Controllers?.ToList() ?? new List<string>(),
-                FilePath = FilePath
+                FilePath = FilePath,
+                ControllerBindings = ControllerBindings
             };
-
-            // Optional: Analyze binding status if service provided
-            if (bindingService != null)
-            {
-                projectInfo.ControllerBindings = bindingService.AnalyzeProjectBindings(this);
-            }
 
             return projectInfo;
         }
