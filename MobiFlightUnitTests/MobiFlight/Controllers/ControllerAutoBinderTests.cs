@@ -21,9 +21,10 @@ namespace MobiFlight.Tests.Controllers
                 CreateConfigItem("MyBoard # / SN-1234567890")
             };
             var binder = new ControllerAutoBinder(connectedControllers);
+            var existingBindings = new Dictionary<string, string>();
 
             // Act
-            var results = binder.AnalyzeBindings(configItems);
+            var results = binder.AnalyzeBindings(configItems, existingBindings);
             var serialMappings = binder.ApplyAutoBinding(configItems, results);
 
             // Assert
@@ -45,9 +46,10 @@ namespace MobiFlight.Tests.Controllers
                 CreateConfigItem("X1-Pro # / SN-OLD123")
             };
             var binder = new ControllerAutoBinder(connectedControllers);
+            var existingBindings = new Dictionary<string, string>();
 
             // Act
-            var results = binder.AnalyzeBindings(configItems);
+            var results = binder.AnalyzeBindings(configItems, existingBindings);
             var serialMappings = binder.ApplyAutoBinding(configItems, results);
 
             // Assert
@@ -69,9 +71,10 @@ namespace MobiFlight.Tests.Controllers
                 CreateConfigItem("OldBoardName # / SN-1234567890")
             };
             var binder = new ControllerAutoBinder(connectedControllers);
+            var existingBindings = new Dictionary<string, string>();
 
             // Act
-            var results = binder.AnalyzeBindings(configItems);
+            var results = binder.AnalyzeBindings(configItems, existingBindings);
             var serialMappings = binder.ApplyAutoBinding(configItems, results);
 
             // Assert
@@ -93,9 +96,10 @@ namespace MobiFlight.Tests.Controllers
                 CreateConfigItem("X1-Pro # / SN-1234")
             };
             var binder = new ControllerAutoBinder(connectedControllers);
+            var existingBindings = new Dictionary<string, string>();
 
             // Act
-            var results = binder.AnalyzeBindings(configItems);
+            var results = binder.AnalyzeBindings(configItems, existingBindings);
             var serialMappings = binder.ApplyAutoBinding(configItems, results);
 
             // Assert
@@ -120,9 +124,10 @@ namespace MobiFlight.Tests.Controllers
                 CreateConfigItem("Joystick X #/JS-999999")
             };
             var binder = new ControllerAutoBinder(connectedControllers);
+            var existingBindings = new Dictionary<string, string>();
 
             // Act
-            var results = binder.AnalyzeBindings(configItems);
+            var results = binder.AnalyzeBindings(configItems, existingBindings);
             var serialMappings = binder.ApplyAutoBinding(configItems, results);
 
             // Assert
@@ -153,9 +158,10 @@ namespace MobiFlight.Tests.Controllers
                 CreateConfigItem("Board3 # / SN-333")
             };
             var binder = new ControllerAutoBinder(connectedControllers);
+            var existingBindings = new Dictionary<string, string>();
 
             // Act
-            var results = binder.AnalyzeBindings(configItems);
+            var results = binder.AnalyzeBindings(configItems, existingBindings);
 
             // Assert
             Assert.HasCount(3, results);
@@ -183,8 +189,10 @@ namespace MobiFlight.Tests.Controllers
                 CreateConfigItem("Board2 # / SN-OLD"),
                 CreateConfigItem("Board3 # / SN-333")
             };
+            var existingBindings = new Dictionary<string, string>();
+
             var binder = new ControllerAutoBinder(connectedControllers);
-            var bindingStatus = binder.AnalyzeBindings(configItems);
+            var bindingStatus = binder.AnalyzeBindings(configItems, existingBindings);
 
             // Act
             var serialMappings = binder.ApplyAutoBinding(configItems, bindingStatus);
@@ -209,8 +217,9 @@ namespace MobiFlight.Tests.Controllers
                 CreateConfigItem("Board1 # / SN-111"),
                 CreateConfigItem("Board1 # / SN-OTHER")
             };
+            var existingBindings = new Dictionary<string, string>();
             var binder = new ControllerAutoBinder(connectedControllers);
-            var bindingStatus = binder.AnalyzeBindings(configItems);
+            var bindingStatus = binder.AnalyzeBindings(configItems, existingBindings);
 
             // Act
             var serialMappings = binder.ApplyAutoBinding(configItems, bindingStatus);
@@ -221,6 +230,7 @@ namespace MobiFlight.Tests.Controllers
             Assert.AreEqual("Board1 # / SN-OTHER", configItems[1].ModuleSerial, "Missing unchanged");
         }
 
+        [TestMethod]
         public void ApplyAutoBinding_MultipleConfigItems_IgnoreMissingMatchAndOrder()
         {
             // Arrange
@@ -233,16 +243,93 @@ namespace MobiFlight.Tests.Controllers
                 CreateConfigItem("Board1 # / SN-OTHER"),
                 CreateConfigItem("Board1 # / SN-111")
             };
+            var existingBindings = new Dictionary<string, string>();
             var binder = new ControllerAutoBinder(connectedControllers);
-            var bindingStatus = binder.AnalyzeBindings(configItems);
+            var bindingStatus = binder.AnalyzeBindings(configItems, existingBindings);
 
             // Act
             var serialMappings = binder.ApplyAutoBinding(configItems, bindingStatus);
 
             // Assert
+            Assert.HasCount(0, serialMappings);
+            Assert.AreEqual("Board1 # / SN-OTHER", configItems[0].ModuleSerial, "Exact match unchanged");
+            Assert.AreEqual("Board1 # / SN-111", configItems[1].ModuleSerial, "Missing unchanged");
+        }
+
+        [TestMethod]
+        public void ApplyAutoBinding_MultipleConfigItems_UseExistingBindingsInformation_OrderTest()
+        {
+            // Arrange
+            var connectedControllers = new List<string>
+            {
+                "Board1 # / SN-111",
+            };
+            var configItems = new List<IConfigItem>
+            {
+                CreateConfigItem("Board1 # / SN-222"),
+                CreateConfigItem("Board1 # / SN-333")
+            };
+            var existingBindings = new Dictionary<string, string>()
+            {
+                { "Board1 # / SN-333", "Board1 # / SN-111" }
+            };
+            var binder = new ControllerAutoBinder(connectedControllers);
+            var bindingStatus = binder.AnalyzeBindings(configItems, existingBindings);
+
+            // Act
+            var serialMappings = binder.ApplyAutoBinding(configItems, bindingStatus);
+
+            // Assert
+            var (status1, _) = bindingStatus["Board1 # / SN-222"];
+            var (status2, _) = bindingStatus["Board1 # / SN-333"];
+
+            Assert.AreEqual(ControllerBindingStatus.Missing, status1);
+            Assert.AreEqual(ControllerBindingStatus.AutoBind, status2);
+
             Assert.HasCount(1, serialMappings);
-            Assert.AreEqual("Board1 # / SN-111", configItems[0].ModuleSerial, "Exact match unchanged");
-            Assert.AreEqual("Board1 # / SN-OTHER", configItems[1].ModuleSerial, "Missing unchanged");
+            Assert.AreEqual("Board1 # / SN-222", configItems[0].ModuleSerial, "Missing unchanged");
+            Assert.AreEqual("Board1 # / SN-111", configItems[1].ModuleSerial, "Auto-bind changed");
+        }
+
+        [TestMethod]
+        public void ApplyAutoBinding_MultipleConfigItems_UseExistingBindingsInformation_AutoBindFresh()
+        {
+            // in the last file we did auto bind to SN-444
+            // but in the current profile, SN-444 is not referenced
+            // so we can do a fresh auto-bind to SN-111
+
+            // Arrange
+            var connectedControllers = new List<string>
+            {
+                "Board1 # / SN-111",
+            };
+            var configItems = new List<IConfigItem>
+            {
+                CreateConfigItem("Board1 # / SN-222"),
+                CreateConfigItem("Board1 # / SN-333")
+            };
+
+            var existingBindings = new Dictionary<string, string>()
+            {
+                { "Board1 # / SN-444", "Board1 # / SN-111" }
+            };
+
+            var binder = new ControllerAutoBinder(connectedControllers);
+            var bindingStatus = binder.AnalyzeBindings(configItems, existingBindings);
+
+            // Act
+            var serialMappings = binder.ApplyAutoBinding(configItems, bindingStatus);
+
+            // Assert
+            var (status1, _) = bindingStatus["Board1 # / SN-222"];
+            var (status2, _) = bindingStatus["Board1 # / SN-333"];
+
+            Assert.AreEqual(ControllerBindingStatus.AutoBind, status1);
+            Assert.AreEqual(ControllerBindingStatus.Missing, status2);
+
+            Assert.HasCount(1, serialMappings);
+            Assert.AreEqual("Board1 # / SN-111", configItems[0].ModuleSerial, "Missing unchanged");
+            Assert.AreEqual("Board1 # / SN-333", configItems[1].ModuleSerial, "Auto-bind changed");
         }
 
         #endregion
@@ -260,10 +347,11 @@ namespace MobiFlight.Tests.Controllers
                 CreateConfigItem("Board # / SN-OLD"),  // Duplicate
                 CreateConfigItem("Board # / SN-OLD")   // Duplicate
             };
+            var existingBindings = new Dictionary<string, string>();
             var binder = new ControllerAutoBinder(connectedControllers);
 
             // Act
-            var results = binder.AnalyzeBindings(configItems);
+            var results = binder.AnalyzeBindings(configItems, existingBindings);
 
             // Assert
             Assert.HasCount(1, results, "Should only analyze unique serials");
@@ -282,8 +370,9 @@ namespace MobiFlight.Tests.Controllers
                 CreateConfigItem("Board # / SN-OLD"),
                 CreateConfigItem("Board # / SN-OLD")
             };
+            var existingBindings = new Dictionary<string, string>();
             var binder = new ControllerAutoBinder(connectedControllers);
-            var bindingStatus = binder.AnalyzeBindings(configItems);
+            var bindingStatus = binder.AnalyzeBindings(configItems, existingBindings);
 
             // Act
             binder.ApplyAutoBinding(configItems, bindingStatus);
@@ -303,10 +392,12 @@ namespace MobiFlight.Tests.Controllers
             // Arrange
             var connectedControllers = new List<string> { "Board # / SN-123" };
             var configItems = new List<IConfigItem>();
+            var existingBindings = new Dictionary<string, string>();
+
             var binder = new ControllerAutoBinder(connectedControllers);
 
             // Act
-            var results = binder.AnalyzeBindings(configItems);
+            var results = binder.AnalyzeBindings(configItems, existingBindings);
 
             // Assert
             Assert.IsEmpty(results);
@@ -324,10 +415,11 @@ namespace MobiFlight.Tests.Controllers
                 CreateConfigItem(null),
                 CreateConfigItem("Board # / SN-123")
             };
+            var existingBindings = new Dictionary<string, string>();
             var binder = new ControllerAutoBinder(connectedControllers);
 
             // Act
-            var results = binder.AnalyzeBindings(configItems);
+            var results = binder.AnalyzeBindings(configItems, existingBindings);
 
             // Assert
             Assert.HasCount(1, results);
@@ -340,9 +432,10 @@ namespace MobiFlight.Tests.Controllers
             // Arrange & Act
             var binder = new ControllerAutoBinder(null);
             var configItems = new List<IConfigItem> { CreateConfigItem("Board # / SN-123") };
+            var existingBindings = new Dictionary<string, string>();
 
             // Act
-            var results = binder.AnalyzeBindings(configItems);
+            var results = binder.AnalyzeBindings(configItems, existingBindings);
 
             // Assert
             Assert.HasCount(1, results);

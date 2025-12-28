@@ -45,19 +45,39 @@ namespace MobiFlight.Controllers
         /// Analyzes binding status for all config items without modifying them
         /// Returns a dictionary mapping original serial -> binding status
         /// </summary>
-        public Dictionary<string, (ControllerBindingStatus, string)> AnalyzeBindings(List<IConfigItem> configItems)
+        public Dictionary<string, (ControllerBindingStatus, string)> AnalyzeBindings(List<IConfigItem> configItems, Dictionary<string, string> existingBindings)
         {
             var results = new Dictionary<string, (ControllerBindingStatus, string)>();
+            var availableControllers = new List<string>(_connectedControllers);
+
             var uniqueSerials = configItems
                 .Where(c => !string.IsNullOrEmpty(c.ModuleSerial) && c.ModuleSerial != "-")
                 .Select(c => c.ModuleSerial)
                 .Distinct()
+                .OrderByDescending(serial => availableControllers.Contains(serial) || (existingBindings?.ContainsKey(serial) ?? false))
                 .ToList();
-
-            var availableControllers = new List<string>(_connectedControllers);
 
             foreach (var serial in uniqueSerials)
             {
+                // Check if this serial was already bound in a previous config file
+                if (existingBindings != null && existingBindings.ContainsKey(serial))
+                {
+                    var previouslyBoundController = existingBindings[serial];
+
+                    // Check if the previously bound controller is still available
+                    if (!availableControllers.Contains(previouslyBoundController)) continue;
+
+                    // Reuse the same binding
+                    // Reuse the same binding
+                    var previousStatus = previouslyBoundController == serial
+                        ? ControllerBindingStatus.Match
+                        : ControllerBindingStatus.AutoBind;
+
+                    results[serial] = (previousStatus, previouslyBoundController);
+                    availableControllers.Remove(previouslyBoundController);
+                    continue;
+                }
+
                 var (status, boundController) = AnalyzeSingleBinding(serial, availableControllers);
 
                 results[serial] = (status, boundController);

@@ -25,13 +25,18 @@ namespace MobiFlight.Controllers
             var binder = new ControllerAutoBinder(connectedControllers);
 
             var allResults = new Dictionary<string, (ControllerBindingStatus, string)>();
+            var appliedBindingMappings = new Dictionary<string, string>();
 
             foreach (var configFile in project.ConfigFiles)
             {
-                var results = binder.AnalyzeBindings(configFile.ConfigItems);
+                var results = binder.AnalyzeBindings(configFile.ConfigItems, appliedBindingMappings);
                 foreach (var kvp in results)
                 {
+                    var status = kvp.Value.Item1;
                     allResults[kvp.Key] = kvp.Value;
+                    if (status != ControllerBindingStatus.AutoBind) continue;
+
+                    appliedBindingMappings[kvp.Key] = kvp.Value.Item2;
                 }
             }
 
@@ -48,15 +53,26 @@ namespace MobiFlight.Controllers
             var binder = new ControllerAutoBinder(connectedControllers);
 
             var allResults = new Dictionary<string, (ControllerBindingStatus, string)>();
+            var appliedBindingMappings = new Dictionary<string, string>();
 
             foreach (var configFile in project.ConfigFiles)
             {
-                var results = binder.AnalyzeBindings(configFile.ConfigItems);
+                var results = binder.AnalyzeBindings(configFile.ConfigItems, appliedBindingMappings);
                 var serialMappings = binder.ApplyAutoBinding(configFile.ConfigItems, results);
 
                 foreach (var kvp in results)
                 {
-                    allResults[kvp.Key] = kvp.Value;
+                    // Only add if not already present (first occurrence wins)
+                    if (!allResults.ContainsKey(kvp.Key))
+                    {
+                        allResults[kvp.Key] = kvp.Value;
+                    }
+                }
+
+                // Update binding mappings for next config file
+                foreach (var mapping in serialMappings)
+                {
+                    appliedBindingMappings[mapping.Key] = mapping.Value;
                 }
             }
 
