@@ -84,20 +84,11 @@ namespace MobiFlight.Controllers
             List<IConfigItem> configItems,
             Dictionary<string, (ControllerBindingStatus, string)> bindingStatus)
         {
-            var serialMappings = new Dictionary<string, string>();
+            var serialMappings = bindingStatus.Where((status) => status.Value.Item1 == ControllerBindingStatus.AutoBind)
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Item2);
 
-            // First, determine which serials need to be updated
-            foreach (var kvp in bindingStatus)
-            {
-                var (status, boundController) = kvp.Value;
-                if (status == ControllerBindingStatus.AutoBind)
-                {
-                    var originalSerial = kvp.Key;
-                    var newSerial = boundController;
-                    serialMappings[originalSerial] = newSerial;
-                }
-            }
-
+            if (serialMappings.Count == 0) return serialMappings;
+            
             // Apply the mappings to config items
             foreach (var item in configItems)
             {
