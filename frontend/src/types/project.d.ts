@@ -25,7 +25,7 @@ export interface ProjectInfo {
   Favorite?: boolean
   Features: ProjectFeatures
   Controllers?: string[]
-
+  ControllerBindings?: Record<string, { Item1: string; Item2: string }>[]
   Aircraft?: {
     Name: string
     Filter: string
