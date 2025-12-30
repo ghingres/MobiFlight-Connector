@@ -2016,7 +2016,7 @@ namespace MobiFlight.UI
                     execManager.Project.MergeFromProjectFile(fileName);
                 }
 
-                controllerBindingService.PerformAutoBinding(execManager.Project);
+                var bindingStatus = controllerBindingService.PerformAutoBinding(execManager.Project);
 
                 execManager.Project.ConfigFiles.ToList().ForEach(configFile =>
                 {
@@ -2055,13 +2055,6 @@ namespace MobiFlight.UI
                 ProjectOrConfigFileHasChanged();
             }
 
-            // always put this after "normal" initialization
-            // savetoolstripbutton may be set to "enabled"
-            // if user has changed something
-            _checkForOrphanedBoards(false);
-            _checkForOrphanedJoysticks(false);
-            _checkForOrphanedMidiBoards(false);
-
             // Track config loaded event
             AppTelemetry.Instance.ProjectLoaded(execManager.Project);
             AppTelemetry.Instance.TrackBoardStatistics(execManager);
@@ -2074,76 +2067,6 @@ namespace MobiFlight.UI
         {
             ProjectHasUnsavedChanges = false;
             SetProjectNameInTitle();
-        }
-
-        private void CheckForOrphanedControllers(List<string> connectedSerials, string serialPrefix, string type, bool showNotNecessaryMessage, string noNotConnectedMessageKey)
-        {
-            if (execManager.Project == null) return;
-
-            var allConfigItems = execManager.Project.ConfigFiles.SelectMany(file => file.ConfigItems).ToList();
-            List<string> notConnected = new List<string>();
-
-            foreach (IConfigItem item in allConfigItems)
-            {
-                if (item.ModuleSerial.Contains(serialPrefix) &&
-                    !connectedSerials.Contains(item.ModuleSerial) &&
-                    !notConnected.Contains(item.ModuleSerial))
-                {
-                    notConnected.Add(item.ModuleSerial);
-                }
-            }
-
-            if (notConnected.Count > 0)
-            {
-                MessageExchange.Instance.Publish(new Notification()
-                {
-                    Event = "MissingControllerDetected",
-                    Context = new Dictionary<string, string>() {
-                        { "Type", type },
-                        { "Serials" , string.Join(", ", notConnected) }
-                    }
-                });
-            }
-            else if (showNotNecessaryMessage)
-            {
-                TimeoutMessageDialog.Show(i18n._tr(noNotConnectedMessageKey), i18n._tr("Hint"), MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-        }
-
-        private void _checkForOrphanedBoards(bool showNotNecessaryMessage)
-        {
-            List<string> serials = new List<string>();
-
-            foreach (IModuleInfo moduleInfo in execManager.GetAllConnectedModulesInfo())
-            {
-                serials.Add($"{moduleInfo.Name}{SerialNumber.SerialSeparator}{moduleInfo.Serial}");
-            }
-
-            CheckForOrphanedControllers(serials, MobiFlightModule.SerialPrefix, "Board", showNotNecessaryMessage, "uiMessageNoOrphanedSerialsFound");
-        }
-
-        private void _checkForOrphanedJoysticks(bool showNotNecessaryMessage)
-        {
-            List<string> serials = new List<string>();
-
-            foreach (Joystick j in execManager.GetJoystickManager().GetJoysticks())
-            {
-                serials.Add($"{j.Name} {SerialNumber.SerialSeparator}{j.Serial}");
-            }
-
-            CheckForOrphanedControllers(serials, Joystick.SerialPrefix, "Joystick", showNotNecessaryMessage, "uiMessageNoNotConnectedJoysticksInConfigFound");
-        }
-
-        private void _checkForOrphanedMidiBoards(bool showNotNecessaryMessage)
-        {
-            List<string> serials = new List<string>();
-
-            foreach (MidiBoard mb in execManager.GetMidiBoardManager().GetMidiBoards())
-            {
-                serials.Add($"{mb.Name} {SerialNumber.SerialSeparator}{mb.Serial}");
-            }
-
-            CheckForOrphanedControllers(serials, MidiBoard.SerialPrefix, "MidiBoard", showNotNecessaryMessage, "uiMessageNoNotConnectedMidiBoardsInConfigFound");
         }
 
         private void showMissingControllersDialog()
