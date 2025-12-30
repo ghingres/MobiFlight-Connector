@@ -101,8 +101,7 @@ namespace MobiFlight.Joysticks.Tests
             // We only need to set the InstanceName for our tests
             return new DeviceInstance
             {
-                InstanceName = instanceName,
-                Type = SharpDX.DirectInput.DeviceType.Joystick
+                InstanceName = instanceName
             };
         }
     }
