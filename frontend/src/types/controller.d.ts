@@ -11,3 +11,5 @@ export type Controller = {
   certified: boolean
   firmwareUpdate?: boolean
 }
+
+export type ControllerBindingStatus = "Match" | "AutoBind" | "Missing" | "RequiresManualBind"

@@ -1,3 +1,4 @@
+import { ControllerBindingStatus } from "@/types/controller"
 import { ConfigFile } from "./config"
 
 export interface Project {
@@ -25,7 +26,7 @@ export interface ProjectInfo {
   Favorite?: boolean
   Features: ProjectFeatures
   Controllers?: string[]
-  ControllerBindings?: Record<string, { Item1: string; Item2: string }>[]
+  ControllerBindings: Record<string, { Item1: ControllerBindingStatus; Item2: string }>
   Aircraft?: {
     Name: string
     Filter: string
