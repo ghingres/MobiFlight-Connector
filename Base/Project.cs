@@ -374,6 +374,13 @@ namespace MobiFlight.Base
                     Log.Instance.log("Project could not be loaded", LogSeverity.Error);
                     throw new InvalidDataException("Failed to deserialize project file.");
                 }
+
+                // Set FilePath so that CopyFrom keeps it
+                project.FilePath = FilePath;
+
+                // Set OriginalSchemaVersion so that CopyFrom keeps it
+                project.OriginalSchemaVersion = OriginalSchemaVersion;
+
                 this.CopyFrom(project);
 
                 foreach (var configFile in ConfigFiles)
