@@ -423,6 +423,7 @@ namespace MobiFlight.UI
             if (bindings == null) return;
 
             var autoBoundControllers = bindings.Where(b => b.Status == ControllerBindingStatus.AutoBind).ToList();
+            var manualRebindRequiredControllers = bindings.Where(b => b.Status == ControllerBindingStatus.RequiresManualBind).ToList();
 
             if (autoBoundControllers.Count > 0)
             {
@@ -433,6 +434,19 @@ namespace MobiFlight.UI
                     {
                         { "Count", autoBoundControllers.Count.ToString() },
                         { "Controllers", string.Join(", ", autoBoundControllers.Select(c => SerialNumber.ExtractDeviceName(c.BoundController))) }
+                    }
+                });
+            }
+
+            if (manualRebindRequiredControllers.Count > 0)
+            {
+                MessageExchange.Instance.Publish(new Notification()
+                {
+                    Event = "ControllerManualBindRequired",
+                    Context = new Dictionary<string, string>()
+                    {
+                        { "Count", manualRebindRequiredControllers.Count.ToString() },
+                        { "Controllers", string.Join(", ", manualRebindRequiredControllers.Select(c => SerialNumber.ExtractDeviceName(c.OriginalController)).Distinct()) }
                     }
                 });
             }

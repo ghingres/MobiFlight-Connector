@@ -83,6 +83,29 @@ test.describe("Generic Notifications tests", () => {
     await expect(toastAutoBindControllerSuccessful).toBeVisible()
   })
 
+  test("Confirm Manual Binding Required Notification shows correctly", async ({
+    configListPage,
+    page,
+  }) => {
+    await configListPage.gotoPage()
+    await configListPage.mobiFlightPage.initWithTestData()
+
+    const toastManualBindingRequired  = page.getByTestId(
+      "toast-manual-binding-required",
+    )
+    await expect(toastManualBindingRequired).not.toBeVisible()
+
+    await configListPage.mobiFlightPage.publishMessage({
+      key: "Notification",
+      payload: {
+        Event: "ManualBindingRequired",
+        Context: { Count: "2", Controllers: "Alpha Flight Controls"},
+      },
+    })
+
+    await expect(toastManualBindingRequired).toBeVisible()
+  })
+
   test("Confirm Project File Extension Migrated Notification shows correctly", async ({
     configListPage,
     page,
