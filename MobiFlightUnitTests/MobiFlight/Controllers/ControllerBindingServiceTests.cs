@@ -91,7 +91,7 @@ namespace MobiFlight.Tests.Controllers
             // Assert
             Assert.HasCount(1, result);
             var binding = result.Find(b => b.OriginalController == "X1-Pro/ SN-OLD123");
-            Assert.AreEqual(ControllerBindingStatus.Match, binding.Status);
+            Assert.AreEqual(ControllerBindingStatus.AutoBind, binding.Status);
             Assert.AreEqual("X1-Pro/ SN-NEW456", binding.BoundController);
             Assert.AreEqual("X1-Pro/ SN-OLD123", binding.OriginalController);
         }

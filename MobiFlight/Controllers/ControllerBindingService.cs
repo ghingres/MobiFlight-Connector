@@ -63,18 +63,17 @@ namespace MobiFlight.Controllers
 
                 foreach (var binding in results)
                 {
-                    var bindingExists = allResults.FirstOrDefault(b => b.BoundController == binding.BoundController);
+                    var bindingExists = allResults.FirstOrDefault(b => b.OriginalController == binding.OriginalController);
                     // Only add if not already present (first occurrence wins)
                     if (bindingExists != null) continue;
                     
                     allResults.Add(binding);
-                    break;
                 }
 
                 // Update binding mappings for next config file
                 foreach (var mapping in serialMappings)
                 {
-                    if (appliedBindingMappings.First(b => b.BoundController == mapping.BoundController) != null) continue;
+                    if (appliedBindingMappings.FirstOrDefault(b => b.BoundController == mapping.BoundController) != null) continue;
 
                     appliedBindingMappings.Add(mapping);
                 }
