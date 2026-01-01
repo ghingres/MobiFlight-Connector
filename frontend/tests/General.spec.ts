@@ -98,7 +98,7 @@ test.describe("Generic Notifications tests", () => {
     await configListPage.mobiFlightPage.publishMessage({
       key: "Notification",
       payload: {
-        Event: "ManualBindingRequired",
+        Event: "ControllerManualBindRequired",
         Context: { Count: "2", Controllers: "Alpha Flight Controls"},
       },
     })
