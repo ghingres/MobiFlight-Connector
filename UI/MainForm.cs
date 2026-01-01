@@ -419,6 +419,9 @@ namespace MobiFlight.UI
         private void CreateBindingStatusNotification(Project project)
         {
             var bindings = project.ControllerBindings;
+
+            if (bindings == null) return;
+
             var autoBoundControllers = bindings.Where(b => b.Status == ControllerBindingStatus.AutoBind).ToList();
 
             if (autoBoundControllers.Count > 0)
