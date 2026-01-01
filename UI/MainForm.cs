@@ -110,7 +110,7 @@ namespace MobiFlight.UI
             }
         }
 
-        public ControllerBindingService controllerBindingService { get; private set; }
+        public ControllerBindingService ControllerBindingService { get; private set; }
 
         private void InitializeLogging()
         {
@@ -475,7 +475,7 @@ namespace MobiFlight.UI
             cmdLineParams = new CmdLineParams(Environment.GetCommandLineArgs());
             InitializeExecutionManager();
 
-            controllerBindingService = new ControllerBindingService(execManager);
+            ControllerBindingService = new ControllerBindingService(execManager);
 
             connectedDevicesToolStripDropDownButton.DropDownDirection = ToolStripDropDownDirection.AboveRight;
             simStatusToolStripDropDownButton1.DropDownDirection = ToolStripDropDownDirection.AboveRight;
@@ -607,7 +607,7 @@ namespace MobiFlight.UI
                         p.FilePath = project;
                         p.OpenFile(suppressMigrationLogging: true);
                         p.DetermineProjectInfos();
-                        controllerBindingService.PerformAutoBinding(p);
+                        ControllerBindingService.PerformAutoBinding(p);
 
                         recentProjects.Add(p.ToProjectInfo());
                     }
@@ -2053,7 +2053,7 @@ namespace MobiFlight.UI
                     execManager.Project.MergeFromProjectFile(fileName);
                 }
 
-                controllerBindingService.PerformAutoBinding(execManager.Project);
+                ControllerBindingService.PerformAutoBinding(execManager.Project);
 
                 execManager.Project.ConfigFiles.ToList().ForEach(configFile =>
                 {

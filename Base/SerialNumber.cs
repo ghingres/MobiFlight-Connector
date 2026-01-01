@@ -34,10 +34,10 @@ namespace MobiFlight.Base
         }
 
         /// <summary>
-        /// Extracts the device type prefix from a serial number (e.g., "SN", "JS", "MI")
+        /// Extracts the device type prefix from a serial number (e.g., "SN-", "JS-", "MI-")
         /// If no match - returns null
         /// </summary>
-        /// <returns>Device type prefix from a serial number (e.g., "SN", "JS", "MI") or null if no match</returns>
+        /// <returns>Device type prefix from a serial number (e.g., "SN-", "JS-", "MI-") or null if no match</returns>
         public static string ExtractPrefix(string fullString)
         {
             var serial = ExtractSerial(fullString);

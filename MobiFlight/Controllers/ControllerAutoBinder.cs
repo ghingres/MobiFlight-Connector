@@ -20,8 +20,6 @@ namespace MobiFlight.Controllers
             // Count controllers by type:name
             foreach (var controllerSerial in _connectedControllers)
             {
-                var deviceName = SerialNumber.ExtractDeviceName(controllerSerial);
-                var deviceSerialPrefix = SerialNumber.ExtractPrefix(controllerSerial);
                 var deviceIdentifier = GetDeviceIdentifier(controllerSerial);
 
                 if (!_controllerTypeCount.ContainsKey(deviceIdentifier))
@@ -68,12 +66,16 @@ namespace MobiFlight.Controllers
                     if (!availableControllers.Contains(previouslyBoundController.BoundController)) continue;
 
                     // Reuse the same binding
-                    // Reuse the same binding
                     var previousStatus = previouslyBoundController.BoundController == serial
                         ? ControllerBindingStatus.Match
                         : ControllerBindingStatus.AutoBind;
 
-                    results.Add(new ControllerBinding() { Status = previousStatus, BoundController = previouslyBoundController.BoundController, OriginalController = serial });
+                    results.Add(new ControllerBinding() { 
+                        Status = previousStatus, 
+                        BoundController = previouslyBoundController.BoundController, 
+                        OriginalController = serial 
+                    });
+
                     availableControllers.Remove(previouslyBoundController.BoundController);
                     continue;
                 }

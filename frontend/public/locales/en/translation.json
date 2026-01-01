@@ -240,7 +240,7 @@
   "Notifications": {
     "ControllerAutoBindSuccessful": {
       "Title": "Great news!",
-      "Description": "We've updated your project to work with ‘{{controllerName}}’ — everything’s ready to go!."
+      "Description": "We've updated your project to work with ‘{{controllerName}}’ — everything’s ready to go!"
     },
     "ControllerManualBindRequired": {
       "Title": "Your input is needed!",
