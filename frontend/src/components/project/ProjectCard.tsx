@@ -200,7 +200,7 @@ const ProjectCard = ({
                         <ControllerIcon
                           className="transition-all ease-in-out"
                           key={`${controllerBinding.BoundController}-${index}`}
-                          serial={controllerBinding.BoundController || controllerBinding.OriginalController || ""}
+                          controllerBinding={controllerBinding}
                         />
                       )
                     },

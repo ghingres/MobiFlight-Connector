@@ -78,6 +78,12 @@
       "prosim": "ProSim",
       "none": "No simulator"
     },
+    "BindingStatus": {
+      "Match": "Controller connected",
+      "AutoBind": "Auto-bound controller",
+      "Missing": "Controller missing",
+      "RequiresManualBind": "Manual binding required"
+    },
     "Card": {
       "Main": {
         "Title": "My Projects",

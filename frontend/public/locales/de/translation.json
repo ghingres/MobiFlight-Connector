@@ -114,6 +114,12 @@
         "UseProSim": "ProSim - Schnittstelle für ProSim Flugzeuge",
         "Feature": "Zusätzliche Funktionen"
       },
+      "BindingStatus": {
+        "Match": "Controller angeschlossen",
+        "AutoBind": "Automatisch gebundener Controller",
+        "Missing": "Controller fehlt",
+        "RequiresManualBind": "Manuelle Bindung erforderlich"
+      },
       "Aircraft": {
         "Label": "Flugzeug",
         "HelpText": "Wähle das Flugzeug für dieses Projekt aus."
