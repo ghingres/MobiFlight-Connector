@@ -26,7 +26,7 @@ namespace MobiFlightUnitTests.MobiFlight.BrowserMessages.Incoming.Handler
             _handler = new CommandMainMenuHandler(_mainForm);
 
             // Create a temp file for testing
-            _tempFilePath = Path.Combine(Path.GetTempPath(), $"test_project_{Guid.NewGuid()}.mfproj");
+            _tempFilePath = Path.Combine(Path.GetTempPath(), $"commandmainmenuhandler_tests_project_{Guid.NewGuid()}.mfproj");
         }
 
         [TestCleanup]
