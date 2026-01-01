@@ -53,7 +53,7 @@ export const ToastNotificationHandler = () => {
         break
 
       default:
-        console.log("Unhandled notification event:", notification.Event)
+        console.error("Unhandled notification event:", notification.Event)
         break
     }
   })
