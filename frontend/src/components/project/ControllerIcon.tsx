@@ -58,7 +58,6 @@ const ControllerIconPath = {
 }
 
 const FindControllerIconPath = (controllerType: string, deviceName: string) => {
-  console.log(`FindControllerIconPath: ${controllerType} > ${deviceName}`)
   const controllerIconPathSection =
     ControllerIconPath[controllerType as keyof typeof ControllerIconPath]
 
@@ -98,7 +97,6 @@ const ControllerIcon = ({
   const status = controllerBinding.Status
   const { t } = useTranslation()
 
-  console.log("ControllerIcon serial:", serial)
   const controllerType = serial.includes("SN-")
     ? "mobiflight"
     : serial.includes("JS-")

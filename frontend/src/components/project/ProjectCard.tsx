@@ -88,7 +88,7 @@ export const ProjectCardImage = ({
   className,
 }: HtmlHTMLAttributes<HTMLDivElement> & { summary: ProjectInfo }) => {
   const imageUrl = summary.Thumbnail || `/sim/${summary.Sim?.toLowerCase()}.jpg`
-  console.log("ProjectCardImage imageUrl:", imageUrl, import.meta.url)
+
   return summary.Sim ? (
     <div className={cn("bg-accent rounded-lg", className)}>
       <img
@@ -195,7 +195,6 @@ const ProjectCard = ({
                 >
                   {summary.ControllerBindings?.map(
                     (controllerBinding, index) => {
-                      console.log("Rendering ControllerIcon for binding:", controllerBinding)
                       return controllerBinding.BoundController != "-" && (
                         <ControllerIcon
                           className="transition-all ease-in-out"
