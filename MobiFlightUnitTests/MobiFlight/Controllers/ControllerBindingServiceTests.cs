@@ -70,7 +70,7 @@ namespace MobiFlight.Tests.Controllers
             // Assert
             var binding = result.Find(b => b.OriginalController == "MyBoard/ SN-1234567890");
             Assert.AreEqual(ControllerBindingStatus.Match, binding.Status);
-            Assert.AreEqual(originalSerial, project.ConfigFiles[0].ConfigItems[0].ModuleSerial, 
+            Assert.AreEqual(originalSerial, project.ConfigFiles[0].ConfigItems[0].ModuleSerial,
                 "Serial should not change for exact match");
         }
 
@@ -242,7 +242,7 @@ namespace MobiFlight.Tests.Controllers
         #region Scenario 6: Multiple Profiles - One Connected Tests
 
         [TestMethod]
-        public void AnalyzeProjectBindings_Scenario6_MultipleProfiles_OneConnected_AutoBindsBoth()
+        public void AnalyzeProjectBindings_Scenario6_OneProfile_TwoController_OneConnected_ManualRebindRequired()
         {
             // Arrange
             var project = CreateProjectWithControllers(new[]
@@ -259,13 +259,74 @@ namespace MobiFlight.Tests.Controllers
             Assert.HasCount(2, result);
             var binding1 = result.Find(b => b.OriginalController == "X1-Pro/ SN-1111111111");
             var binding2 = result.Find(b => b.OriginalController == "X1-Pro/ SN-2222222222");
+            Assert.AreEqual(ControllerBindingStatus.RequiresManualBind, binding1.Status);
+            Assert.AreEqual(ControllerBindingStatus.RequiresManualBind, binding2.Status);
+
+            // Act
+            var bindingResult = service.PerformAutoBinding(project);
+            Assert.HasCount(2, bindingResult);
+            Assert.AreEqual("X1-Pro/ SN-1111111111", project.ConfigFiles[0].ConfigItems[0].ModuleSerial);
+            Assert.AreEqual("X1-Pro/ SN-2222222222", project.ConfigFiles[0].ConfigItems[1].ModuleSerial);
+        }
+
+        [TestMethod]
+        public void AnalyzeProjectBindings_Scenario6_TwoProfiles_TwoController_OneConnected_AutoBindsBoth()
+        {
+            // Arrange
+            var project = CreateProjectWithControllers(new[]
+            {
+                "X1-Pro/ SN-1111111111"
+            });
+
+            project.ConfigFiles.Add(CreateConfigFileWithControllers(new[]
+            {
+                "X1-Pro/ SN-2222222222"
+            }));
+            SetupConnectedController("X1-Pro", "SN-9876543210");
+
+            // Act
+            var result = service.AnalyzeProjectBindings(project);
+
+            // Assert
+            Assert.HasCount(2, result);
+            var binding1 = result.Find(b => b.OriginalController == "X1-Pro/ SN-1111111111");
+            var binding2 = result.Find(b => b.OriginalController == "X1-Pro/ SN-2222222222");
             Assert.AreEqual(ControllerBindingStatus.AutoBind, binding1.Status);
-            Assert.AreEqual(ControllerBindingStatus.Missing, binding2.Status);
+            Assert.AreEqual(ControllerBindingStatus.AutoBind, binding2.Status);
 
             // Act
             var bindingResult = service.PerformAutoBinding(project);
             Assert.HasCount(2, bindingResult);
             Assert.AreEqual("X1-Pro/ SN-9876543210", project.ConfigFiles[0].ConfigItems[0].ModuleSerial);
+            Assert.AreEqual("X1-Pro/ SN-9876543210", project.ConfigFiles[1].ConfigItems[0].ModuleSerial);
+        }
+
+        [TestMethod]
+        public void AnalyzeProjectBindings_Scenario6_OneProfile_TwoController_TwoConnected_AutoBindsNone()
+        {
+            // Arrange
+            var project = CreateProjectWithControllers(new[]
+            {
+                "X1-Pro/ SN-1111111111",
+                "X1-Pro/ SN-2222222222"
+            });
+            SetupConnectedController("X1-Pro", "SN-9876543210");
+            SetupConnectedController("X1-Pro", "SN-0123456789");
+
+            // Act
+            var result = service.AnalyzeProjectBindings(project);
+
+            // Assert
+            Assert.HasCount(2, result);
+            var binding1 = result.Find(b => b.OriginalController == "X1-Pro/ SN-1111111111");
+            var binding2 = result.Find(b => b.OriginalController == "X1-Pro/ SN-2222222222");
+            Assert.AreEqual(ControllerBindingStatus.RequiresManualBind, binding1.Status);
+            Assert.AreEqual(ControllerBindingStatus.RequiresManualBind, binding2.Status);
+
+            // Act
+            var bindingResult = service.PerformAutoBinding(project);
+            Assert.HasCount(2, bindingResult);
+            Assert.AreEqual("X1-Pro/ SN-1111111111", project.ConfigFiles[0].ConfigItems[0].ModuleSerial);
             Assert.AreEqual("X1-Pro/ SN-2222222222", project.ConfigFiles[0].ConfigItems[1].ModuleSerial);
         }
 
@@ -307,7 +368,7 @@ namespace MobiFlight.Tests.Controllers
             SetupConnectedController("X1-Pro", "SN-1111111111");
 
             // Act
-            var result = service.PerformAutoBinding(project);
+            service.PerformAutoBinding(project);
 
             // Assert
             Assert.AreEqual("X1-Pro/ SN-1111111111", project.ConfigFiles[0].ConfigItems[0].ModuleSerial,
@@ -327,7 +388,7 @@ namespace MobiFlight.Tests.Controllers
             var project = new Project();
             project.ConfigFiles.Add(CreateConfigFileWithController("Board1/ SN-111"));
             project.ConfigFiles.Add(CreateConfigFileWithController("Board2/ SN-222"));
-            
+
             SetupConnectedControllers(new[]
             {
                 ("Board1", "SN-111"),
@@ -352,7 +413,7 @@ namespace MobiFlight.Tests.Controllers
             var project = new Project();
             project.ConfigFiles.Add(CreateConfigFileWithController("Board1/ SN-111"));
             project.ConfigFiles.Add(CreateConfigFileWithController("Board2/ SN-222"));
-            
+
             SetupConnectedControllers(new[]
             {
                 ("Board1", "SN-111"),
@@ -449,7 +510,7 @@ namespace MobiFlight.Tests.Controllers
             joystick.Setup(j => j.Name).Returns("Joystick X");
             joystick.Setup(j => j.Serial).Returns("JS-222");
 
-            var midiBoard = new Mock<MidiBoard>(null, null, "MIDI Controller", new MidiBoardDefinition() { InstanceName = "MIDI Controller"});
+            var midiBoard = new Mock<MidiBoard>(null, null, "MIDI Controller", new MidiBoardDefinition() { InstanceName = "MIDI Controller" });
             midiBoard.Setup(m => m.Name).Returns("MIDI Controller");
             midiBoard.Setup(m => m.Serial).Returns("MI-333");
 

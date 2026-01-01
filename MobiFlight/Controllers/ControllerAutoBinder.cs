@@ -154,7 +154,7 @@ namespace MobiFlight.Controllers
                 return new ControllerBinding() { Status = ControllerBindingStatus.RequiresManualBind, BoundController = null, OriginalController = configSerial };
             }
 
-            // Senario 7: Multiple configs exist for same type:name, need user selection
+            // Senario 6: Multiple configs exist in same profile for same type:name, need user selection
             var configsWithTypeNameMatch = uniqueSerials
                 .Where(s => GetDeviceIdentifier(s) == deviceTypeName);
             if (configsWithTypeNameMatch.Count() > 1)
@@ -162,10 +162,9 @@ namespace MobiFlight.Controllers
                 return new ControllerBinding() { Status = ControllerBindingStatus.RequiresManualBind, BoundController = null, OriginalController = configSerial };
             }
 
-            // Scenarios 2, 3, 6: Auto-bind
+            // Scenarios 2, 3: Auto-bind
             // - Scenario 2: Serial differs but device name/type match (single match)
-            // - Scenario 3: Name differs but serial matches (single match)  
-            // - Scenario 6: Multiple matches exist, but multiple configs also exist (1:1 mapping)
+            // - Scenario 3: Name differs but serial matches (single match)
             if (potentialTypeNameMatches.Count == 1 || potentialSerialMatches.Count == 1)
             {
                 var autoBindSerial = potentialTypeNameMatches.Count == 1 ? potentialTypeNameMatches.First() : potentialSerialMatches.First();

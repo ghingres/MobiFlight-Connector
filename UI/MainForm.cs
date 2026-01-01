@@ -2053,7 +2053,7 @@ namespace MobiFlight.UI
                     execManager.Project.MergeFromProjectFile(fileName);
                 }
 
-                var bindingStatus = controllerBindingService.PerformAutoBinding(execManager.Project);
+                controllerBindingService.PerformAutoBinding(execManager.Project);
 
                 execManager.Project.ConfigFiles.ToList().ForEach(configFile =>
                 {
