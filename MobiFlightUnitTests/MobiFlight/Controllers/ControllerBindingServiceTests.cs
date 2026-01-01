@@ -270,7 +270,36 @@ namespace MobiFlight.Tests.Controllers
         }
 
         [TestMethod]
-        public void AnalyzeProjectBindings_Scenario6_TwoProfiles_TwoController_OneConnected_AutoBindsBoth()
+        public void AnalyzeProjectBindings_Scenario6_OneProfile_TwoController_TwoConnected_RequiresManualBind()
+        {
+            // Arrange
+            var project = CreateProjectWithControllers(new[]
+            {
+                "X1-Pro/ SN-1111111111",
+                "X1-Pro/ SN-2222222222"
+            });
+            SetupConnectedController("X1-Pro", "SN-9876543210");
+            SetupConnectedController("X1-Pro", "SN-0123456789");
+
+            // Act
+            var result = service.AnalyzeProjectBindings(project);
+
+            // Assert
+            Assert.HasCount(2, result);
+            var binding1 = result.Find(b => b.OriginalController == "X1-Pro/ SN-1111111111");
+            var binding2 = result.Find(b => b.OriginalController == "X1-Pro/ SN-2222222222");
+            Assert.AreEqual(ControllerBindingStatus.RequiresManualBind, binding1.Status);
+            Assert.AreEqual(ControllerBindingStatus.RequiresManualBind, binding2.Status);
+
+            // Act
+            var bindingResult = service.PerformAutoBinding(project);
+            Assert.HasCount(2, bindingResult);
+            Assert.AreEqual("X1-Pro/ SN-1111111111", project.ConfigFiles[0].ConfigItems[0].ModuleSerial);
+            Assert.AreEqual("X1-Pro/ SN-2222222222", project.ConfigFiles[0].ConfigItems[1].ModuleSerial);
+        }
+
+        [TestMethod]
+        public void AnalyzeProjectBindings_Scenario6_TwoProfiles_OneController_OneConnected_AutoBindsBoth()
         {
             // Arrange
             var project = CreateProjectWithControllers(new[]
