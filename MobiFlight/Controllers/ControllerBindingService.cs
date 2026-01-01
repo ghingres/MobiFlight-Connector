@@ -34,7 +34,7 @@ namespace MobiFlight.Controllers
                 results.ForEach(b =>
                 {
                     // Only add if not already present (first occurrence wins)
-                    if (!allResults.Any(existing => existing.BoundController == b.BoundController))
+                    if (!allResults.Any(existing => existing.OriginalController == b.OriginalController))
                     {
                         allResults.Add(b);
                     }

@@ -54,7 +54,7 @@ namespace MobiFlight.Controllers
                 .Where(c => !string.IsNullOrEmpty(c.ModuleSerial) && c.ModuleSerial != "-")
                 .Select(c => c.ModuleSerial)
                 .Distinct()
-                .OrderByDescending(serial => availableControllers.Contains(serial) || (existingBindings?.First(b => b.OriginalController == serial) != null))
+                .OrderByDescending(serial => availableControllers.Contains(serial) || (existingBindings?.FirstOrDefault(b => b.OriginalController == serial) != null))
                 .ToList();
 
             foreach (var serial in uniqueSerials)

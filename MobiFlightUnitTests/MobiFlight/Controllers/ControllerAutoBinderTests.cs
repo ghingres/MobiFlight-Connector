@@ -55,7 +55,7 @@ namespace MobiFlight.Tests.Controllers
 
             // Assert
             Assert.HasCount(1, results);
-            var binding = results.Find(b => b.OriginalController == "X1-Pro # / SN-NEW456");
+            var binding = results.Find(b => b.OriginalController == "X1-Pro # / SN-OLD123");
             Assert.AreEqual(ControllerBindingStatus.AutoBind, binding.Status);
             Assert.HasCount(1, serialMappings);
             Assert.AreEqual("X1-Pro # / SN-OLD123", serialMappings[0].OriginalController);
@@ -274,7 +274,7 @@ namespace MobiFlight.Tests.Controllers
             {
                 new ControllerBinding()
                 {
-                    OriginalController = "Board1 # / SN-222", BoundController = "Board1 # / SN-111", Status = ControllerBindingStatus.AutoBind
+                    OriginalController = "Board1 # / SN-333", BoundController = "Board1 # / SN-111", Status = ControllerBindingStatus.AutoBind
                 }
             };
             var binder = new ControllerAutoBinder(connectedControllers);
