@@ -122,9 +122,9 @@
       },
       "BindingStatus": {
         "Match": "Controller angeschlossen",
-        "AutoBind": "Automatisch gebundener Controller",
+        "AutoBind": "Automatisch zugeordneter Controller",
         "Missing": "Controller fehlt",
-        "RequiresManualBind": "Manuelle Bindung erforderlich"
+        "RequiresManualBind": "Manuelle Zuordnung erforderlich"
       },
       "Aircraft": {
         "Label": "Flugzeug",
