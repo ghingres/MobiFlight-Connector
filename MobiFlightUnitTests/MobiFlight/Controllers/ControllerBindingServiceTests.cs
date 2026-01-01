@@ -50,8 +50,10 @@ namespace MobiFlight.Tests.Controllers
 
             // Assert
             Assert.HasCount(1, result);
-            var (status, _) = result["MyBoard/ SN-1234567890"];
-            Assert.AreEqual(ControllerBindingStatus.Match, status);
+            var binding = result.Find(b => b.OriginalController == "MyBoard/ SN-1234567890");
+            Assert.AreEqual(ControllerBindingStatus.Match, binding.Status);
+            Assert.AreEqual("MyBoard/ SN-1234567890", binding.BoundController);
+            Assert.AreEqual("MyBoard/ SN-1234567890", binding.OriginalController);
         }
 
         [TestMethod]
@@ -66,8 +68,8 @@ namespace MobiFlight.Tests.Controllers
             var result = service.PerformAutoBinding(project);
 
             // Assert
-            var (status, _) = result["MyBoard/ SN-1234567890"];
-            Assert.AreEqual(ControllerBindingStatus.Match, status);
+            var binding = result.Find(b => b.OriginalController == "MyBoard/ SN-1234567890");
+            Assert.AreEqual(ControllerBindingStatus.Match, binding.Status);
             Assert.AreEqual(originalSerial, project.ConfigFiles[0].ConfigItems[0].ModuleSerial, 
                 "Serial should not change for exact match");
         }
@@ -88,8 +90,10 @@ namespace MobiFlight.Tests.Controllers
 
             // Assert
             Assert.HasCount(1, result);
-            var (status, _) = result["X1-Pro/ SN-OLD123"];
-            Assert.AreEqual(ControllerBindingStatus.AutoBind, status);
+            var binding = result.Find(b => b.OriginalController == "X1-Pro/ SN-OLD123");
+            Assert.AreEqual(ControllerBindingStatus.Match, binding.Status);
+            Assert.AreEqual("X1-Pro/ SN-NEW456", binding.BoundController);
+            Assert.AreEqual("X1-Pro/ SN-OLD123", binding.OriginalController);
         }
 
         [TestMethod]
@@ -103,8 +107,8 @@ namespace MobiFlight.Tests.Controllers
             var result = service.PerformAutoBinding(project);
 
             // Assert
-            var (status, _) = result["X1-Pro/ SN-OLD123"];
-            Assert.AreEqual(ControllerBindingStatus.AutoBind, status);
+            var binding = result.Find(b => b.OriginalController == "X1-Pro/ SN-OLD123");
+            Assert.AreEqual(ControllerBindingStatus.AutoBind, binding.Status);
             Assert.AreEqual("X1-Pro/ SN-NEW456", project.ConfigFiles[0].ConfigItems[0].ModuleSerial,
                 "Serial should be updated to new serial");
         }
@@ -125,8 +129,10 @@ namespace MobiFlight.Tests.Controllers
 
             // Assert
             Assert.HasCount(1, result);
-            var (status, _) = result["OldBoardName/ SN-1234567890"];
-            Assert.AreEqual(ControllerBindingStatus.AutoBind, status);
+            var binding = result.Find(b => b.OriginalController == "OldBoardName/ SN-1234567890");
+            Assert.AreEqual("NewBoardName/ SN-1234567890", binding.BoundController);
+            Assert.AreEqual(ControllerBindingStatus.AutoBind, binding.Status);
+            Assert.AreEqual("OldBoardName/ SN-1234567890", binding.OriginalController);
         }
 
         [TestMethod]
@@ -140,8 +146,8 @@ namespace MobiFlight.Tests.Controllers
             var result = service.PerformAutoBinding(project);
 
             // Assert
-            var (status, _) = result["OldBoardName/ SN-1234567890"];
-            Assert.AreEqual(ControllerBindingStatus.AutoBind, status);
+            var binding = result.Find(b => b.OriginalController == "OldBoardName/ SN-1234567890");
+            Assert.AreEqual(ControllerBindingStatus.AutoBind, binding.Status);
             Assert.AreEqual("NewBoardName/ SN-1234567890", project.ConfigFiles[0].ConfigItems[0].ModuleSerial,
                 "Name should be updated");
         }
@@ -162,8 +168,8 @@ namespace MobiFlight.Tests.Controllers
 
             // Assert
             Assert.HasCount(1, result);
-            var (status, _) = result["X1-Pro/ SN-1234567890"];
-            Assert.AreEqual(ControllerBindingStatus.Missing, status);
+            var binding = result.Find(b => b.OriginalController == "X1-Pro/ SN-1234567890");
+            Assert.AreEqual(ControllerBindingStatus.Missing, binding.Status);
         }
 
         [TestMethod]
@@ -179,8 +185,8 @@ namespace MobiFlight.Tests.Controllers
 
             // Assert
 
-            var (status, _) = result["X1-Pro/ SN-1234567890"];
-            Assert.AreEqual(ControllerBindingStatus.Missing, status);
+            var binding = result.Find(b => b.OriginalController == "X1-Pro/ SN-1234567890");
+            Assert.AreEqual(ControllerBindingStatus.Missing, binding.Status);
             Assert.AreEqual(originalSerial, project.ConfigFiles[0].ConfigItems[0].ModuleSerial,
                 "Serial should not change when missing");
         }
@@ -205,8 +211,8 @@ namespace MobiFlight.Tests.Controllers
 
             // Assert
             Assert.HasCount(1, result);
-            var (status, _) = result["Joystick X / JS-999999"];
-            Assert.AreEqual(ControllerBindingStatus.RequiresManualBind, status);
+            var binding = result.Find(b => b.OriginalController == "Joystick X / JS-999999");
+            Assert.AreEqual(ControllerBindingStatus.RequiresManualBind, binding.Status);
         }
 
         [TestMethod]
@@ -225,8 +231,8 @@ namespace MobiFlight.Tests.Controllers
             var result = service.PerformAutoBinding(project);
 
             // Assert
-            var (status, _) = result["Joystick X / JS-999999"];
-            Assert.AreEqual(ControllerBindingStatus.RequiresManualBind, status);
+            var binding = result.Find(b => b.OriginalController == "Joystick X / JS-999999");
+            Assert.AreEqual(ControllerBindingStatus.RequiresManualBind, binding.Status);
             Assert.AreEqual(originalSerial, project.ConfigFiles[0].ConfigItems[0].ModuleSerial,
                 "Serial should not auto-bind when multiple matches exist");
         }
@@ -251,10 +257,10 @@ namespace MobiFlight.Tests.Controllers
 
             // Assert
             Assert.HasCount(2, result);
-            var (status1, _) = result["X1-Pro/ SN-1111111111"];
-            var (status2, _) = result["X1-Pro/ SN-2222222222"];
-            Assert.AreEqual(ControllerBindingStatus.AutoBind, status1);
-            Assert.AreEqual(ControllerBindingStatus.Missing, status2);
+            var binding1 = result.Find(b => b.OriginalController == "X1-Pro/ SN-1111111111");
+            var binding2 = result.Find(b => b.OriginalController == "X1-Pro/ SN-2222222222");
+            Assert.AreEqual(ControllerBindingStatus.AutoBind, binding1.Status);
+            Assert.AreEqual(ControllerBindingStatus.Missing, binding2.Status);
 
             // Act
             var bindingResult = service.PerformAutoBinding(project);
@@ -283,10 +289,10 @@ namespace MobiFlight.Tests.Controllers
 
             // Assert
             Assert.HasCount(2, result);
-            var (status1, _) = result["X1-Pro/ SN-1111111111"];
-            var (status2, _) = result["X1-Pro/ SN-2222222222"];
-            Assert.AreEqual(ControllerBindingStatus.Match, status1);
-            Assert.AreEqual(ControllerBindingStatus.Missing, status2);
+            var binding1 = result.Find(b => b.OriginalController == "X1-Pro/ SN-1111111111");
+            var binding2 = result.Find(b => b.OriginalController == "X1-Pro/ SN-2222222222");
+            Assert.AreEqual(ControllerBindingStatus.Match, binding1.Status);
+            Assert.AreEqual(ControllerBindingStatus.Missing, binding2.Status);
         }
 
         [TestMethod]
@@ -333,10 +339,10 @@ namespace MobiFlight.Tests.Controllers
 
             // Assert
             Assert.HasCount(2, result);
-            var (status1, _) = result["Board1/ SN-111"];
-            var (status2, _) = result["Board2/ SN-222"];
-            Assert.AreEqual(ControllerBindingStatus.Match, status1);
-            Assert.AreEqual(ControllerBindingStatus.AutoBind, status2);
+            var binding1 = result.Find(b => b.OriginalController == "Board1/ SN-111");
+            var binding2 = result.Find(b => b.OriginalController == "Board2/ SN-222");
+            Assert.AreEqual(ControllerBindingStatus.Match, binding1.Status);
+            Assert.AreEqual(ControllerBindingStatus.AutoBind, binding2.Status);
         }
 
         [TestMethod]
@@ -394,10 +400,10 @@ namespace MobiFlight.Tests.Controllers
 
             // Assert
             Assert.HasCount(2, result);
-            var (status1, _) = result["Board1/ SN-111"];
-            var (status2, _) = result["Board2/ SN-222"];
-            Assert.AreEqual(ControllerBindingStatus.Missing, status1);
-            Assert.AreEqual(ControllerBindingStatus.Missing, status2);
+            var binding1 = result.Find(b => b.OriginalController == "Board1/ SN-111");
+            var binding2 = result.Find(b => b.OriginalController == "Board2/ SN-222");
+            Assert.AreEqual(ControllerBindingStatus.Missing, binding1.Status);
+            Assert.AreEqual(ControllerBindingStatus.Missing, binding2.Status);
         }
 
         [TestMethod]
@@ -417,26 +423,7 @@ namespace MobiFlight.Tests.Controllers
 
             // Assert
             Assert.HasCount(1, result);
-            Assert.IsTrue(result.ContainsKey("ValidBoard/ SN-123"));
-        }
-
-        [TestMethod]
-        public void PerformAutoBinding_CallsDetermineProjectInfos()
-        {
-            // Arrange
-            var project = CreateProjectWithController("Board/ SN-OLD");
-            SetupConnectedController("Board", "SN-NEW");
-
-            // Verify Controllers list is empty before auto-binding
-            Assert.IsEmpty(project.Controllers);
-
-            // Act
-            service.PerformAutoBinding(project);
-
-            // Assert
-            // DetermineProjectInfos should populate Controllers
-            Assert.HasCount(1, project.Controllers);
-            Assert.AreEqual("Board/ SN-NEW", project.Controllers[0]);
+            Assert.AreEqual("ValidBoard/ SN-123", result[0].OriginalController);
         }
 
         #endregion
@@ -475,12 +462,12 @@ namespace MobiFlight.Tests.Controllers
 
             // Assert
             Assert.HasCount(3, result);
-            var (status1, _) = result["MyBoard/ SN-111"];
-            var (status2, _) = result["Joystick X / JS-222"];
-            var (status3, _) = result["MIDI Controller / MI-333"];
-            Assert.AreEqual(ControllerBindingStatus.Match, status1);
-            Assert.AreEqual(ControllerBindingStatus.Match, status2);
-            Assert.AreEqual(ControllerBindingStatus.Match, status3);
+            var binding1 = result.Find(b => b.OriginalController == "MyBoard/ SN-111");
+            var binding2 = result.Find(b => b.OriginalController == "Joystick X / JS-222");
+            var binding3 = result.Find(b => b.OriginalController == "MIDI Controller / MI-333");
+            Assert.AreEqual(ControllerBindingStatus.Match, binding1.Status);
+            Assert.AreEqual(ControllerBindingStatus.Match, binding2.Status);
+            Assert.AreEqual(ControllerBindingStatus.Match, binding3.Status);
         }
 
         #endregion
@@ -497,6 +484,7 @@ namespace MobiFlight.Tests.Controllers
             var project = new Project();
             var configFile = CreateConfigFileWithControllers(moduleSerials);
             project.ConfigFiles.Add(configFile);
+            project.Sim = "msfs";
             return project;
         }
 

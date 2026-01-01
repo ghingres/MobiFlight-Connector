@@ -8,8 +8,7 @@ export interface Project {
   Thumbnail?: string
   Sim: "msfs" | "xplane" | "p3d" | "fsx" | "none"
   Features: ProjectFeatures
-  Controllers?: string[]
-
+  ControllerBindings: Record<string, { Item1: ControllerBindingStatus; Item2: string }>
   Aircraft?: {
     Name: string
     Filter: string
@@ -25,7 +24,6 @@ export interface ProjectInfo {
   Sim: string
   Favorite?: boolean
   Features: ProjectFeatures
-  Controllers?: string[]
   ControllerBindings: Record<string, { Item1: ControllerBindingStatus; Item2: string }>
   Aircraft?: {
     Name: string

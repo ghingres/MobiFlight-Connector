@@ -21,7 +21,6 @@ namespace MobiFlight.Base
         public string Sim { get; set; }
         public ProjectFeatures Features { get; set; }
         public List<string> Aircraft { get; set; }
-        public List<string> Controllers { get; set; }
         public string FilePath { get; set; }
         public bool Favorite { get; set; } = false;
         /// <summary>
@@ -30,7 +29,7 @@ namespace MobiFlight.Base
         /// Only populated when analyzing binding status
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public Dictionary<string, (ControllerBindingStatus, string)> ControllerBindings { get; set; }
+        public List<ControllerBinding> ControllerBindings { get; set; }
     }
 
 
@@ -219,35 +218,6 @@ namespace MobiFlight.Base
             }
         }
 
-        private ObservableCollection<string> _controllers = new ObservableCollection<string>();
-        /// <summary>
-        /// Gets or sets the name of the project.
-        /// </summary>
-        public ObservableCollection<string> Controllers
-        {
-            get => _controllers;
-            set
-            {
-                if (_aircraft != value)
-                {
-                    if (_controllers != null)
-                    {
-                        _controllers.CollectionChanged -= CollectionChanged;
-                    }
-
-                    _controllers = value;
-
-                    if (_controllers != null)
-                    {
-                        _controllers.CollectionChanged += CollectionChanged;
-                    }
-
-                    OnPropertyChanged(nameof(Controllers));
-                    OnProjectChanged();
-                }
-            }
-        }
-
         private ProjectFeatures _features = new ProjectFeatures();
 
         /// <summary>
@@ -285,7 +255,7 @@ namespace MobiFlight.Base
         /// Key: ModuleSerial, Value: ControllerBindingStatus
         /// Only populated when analyzing binding status
         /// </summary>
-        public virtual Dictionary<string, (ControllerBindingStatus, string)> ControllerBindings { get; set; }
+        public virtual List<ControllerBinding> ControllerBindings { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Project"/> class with default values.
@@ -314,7 +284,6 @@ namespace MobiFlight.Base
                 Sim = Sim,
                 Features = Features,
                 Aircraft = Aircraft?.ToList() ?? new List<string>(),
-                Controllers = Controllers?.ToList() ?? new List<string>(),
                 FilePath = FilePath,
                 ControllerBindings = ControllerBindings
             };
@@ -347,13 +316,6 @@ namespace MobiFlight.Base
 
                 item.GetIUniqueControllerSerials().ForEach(c => controllerSerials.Add(c));
             }
-
-            Controllers.Clear();
-
-            controllerSerials.Distinct().ToList().ForEach(c =>
-            {
-                Controllers.Add(c);
-            });
         }
 
         /// <summary>
@@ -461,9 +423,7 @@ namespace MobiFlight.Base
                 ConfigFiles.CollectionChanged -= CollectionChanged;
             if (Aircraft != null)
                 Aircraft.CollectionChanged -= CollectionChanged;
-            if (Controllers != null)
-                Controllers.CollectionChanged -= CollectionChanged;
-
+            
             this.Name = project.Name;
             this.FilePath = project.FilePath;
             this.OriginalSchemaVersion = project.OriginalSchemaVersion;
@@ -472,17 +432,14 @@ namespace MobiFlight.Base
             this.Features = project.Features.Clone();
             this.Aircraft = project.Aircraft != null ?
                                 new ObservableCollection<string>(project.Aircraft) :
-                                new ObservableCollection<string>();
+                                null;
 
             this.ConfigFiles = project.ConfigFiles != null ?
                                 new ObservableCollection<ConfigFile>(project.ConfigFiles) :
-                                new ObservableCollection<ConfigFile>();
-            this.Controllers = project.Controllers != null ?
-                                new ObservableCollection<string>(project.Controllers) :
-                                new ObservableCollection<string>();
+                                null;
             this.ControllerBindings = project.ControllerBindings != null ?
-                                        new Dictionary<string, (ControllerBindingStatus, string)>(project.ControllerBindings) :
-                                        new Dictionary<string, (ControllerBindingStatus, string)>();
+                                        new List<ControllerBinding>(project.ControllerBindings) :
+                                        null;
         }
 
         /// <summary>
@@ -700,7 +657,7 @@ namespace MobiFlight.Base
     public class PersistedProject : Project
     {
         [JsonIgnore]
-        public override Dictionary<string, (ControllerBindingStatus, string)> ControllerBindings { get; set; }
+        public override List<ControllerBinding> ControllerBindings { get; set; }
 
         public PersistedProject(Project project) : base(project) { }
     }

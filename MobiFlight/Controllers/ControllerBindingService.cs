@@ -1,5 +1,6 @@
 ﻿using MobiFlight.Base;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MobiFlight.Controllers
 {
@@ -17,27 +18,27 @@ namespace MobiFlight.Controllers
 
         /// <summary>
         /// Analyzes binding status WITHOUT modifying the project
-        /// Returns: Dictionary mapping ModuleSerial -> ControllerBindingStatus
+        /// Returns: list of ControllerBindings for the entire project
         /// </summary>
-        public Dictionary<string, (ControllerBindingStatus, string)> AnalyzeProjectBindings(Project project)
+        public List<ControllerBinding> AnalyzeProjectBindings(Project project)
         {
             var connectedControllers = GetAllConnectedControllers();
             var binder = new ControllerAutoBinder(connectedControllers);
 
-            var allResults = new Dictionary<string, (ControllerBindingStatus, string)>();
-            var appliedBindingMappings = new Dictionary<string, string>();
+            var allResults = new List<ControllerBinding>();
+            var appliedBindingMappings = new List<ControllerBinding>();
 
             foreach (var configFile in project.ConfigFiles)
             {
                 var results = binder.AnalyzeBindings(configFile.ConfigItems, appliedBindingMappings);
-                foreach (var kvp in results)
+                results.ForEach(b =>
                 {
-                    var status = kvp.Value.Item1;
-                    allResults[kvp.Key] = kvp.Value;
-                    if (status != ControllerBindingStatus.AutoBind) continue;
-
-                    appliedBindingMappings[kvp.Key] = kvp.Value.Item2;
-                }
+                    // Only add if not already present (first occurrence wins)
+                    if (!allResults.Any(existing => existing.BoundController == b.BoundController))
+                    {
+                        allResults.Add(b);
+                    }
+                });
             }
 
             return allResults;
@@ -47,37 +48,38 @@ namespace MobiFlight.Controllers
         /// Performs auto-binding and modifies config items
         /// Returns: Dictionary mapping ModuleSerial -> ControllerBindingStatus
         /// </summary>
-        public Dictionary<string, (ControllerBindingStatus, string)> PerformAutoBinding(Project project)
+        public List<ControllerBinding> PerformAutoBinding(Project project)
         {
             var connectedControllers = GetAllConnectedControllers();
             var binder = new ControllerAutoBinder(connectedControllers);
 
-            var allResults = new Dictionary<string, (ControllerBindingStatus, string)>();
-            var appliedBindingMappings = new Dictionary<string, string>();
+            var allResults = new List<ControllerBinding>();
+            var appliedBindingMappings = new List<ControllerBinding>();
 
             foreach (var configFile in project.ConfigFiles)
             {
                 var results = binder.AnalyzeBindings(configFile.ConfigItems, appliedBindingMappings);
                 var serialMappings = binder.ApplyAutoBinding(configFile.ConfigItems, results);
 
-                foreach (var kvp in results)
+                foreach (var binding in results)
                 {
+                    var bindingExists = allResults.FirstOrDefault(b => b.BoundController == binding.BoundController);
                     // Only add if not already present (first occurrence wins)
-                    if (!allResults.ContainsKey(kvp.Key))
-                    {
-                        allResults[kvp.Key] = kvp.Value;
-                    }
+                    if (bindingExists != null) continue;
+                    
+                    allResults.Add(binding);
+                    break;
                 }
 
                 // Update binding mappings for next config file
                 foreach (var mapping in serialMappings)
                 {
-                    appliedBindingMappings[mapping.Key] = mapping.Value;
+                    if (appliedBindingMappings.First(b => b.BoundController == mapping.BoundController) != null) continue;
+
+                    appliedBindingMappings.Add(mapping);
                 }
             }
 
-            // Update project metadata with new controller serials
-            project.DetermineProjectInfos();
             project.ControllerBindings = allResults;
 
             return allResults;

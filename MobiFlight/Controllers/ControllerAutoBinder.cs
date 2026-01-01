@@ -45,51 +45,51 @@ namespace MobiFlight.Controllers
         /// Analyzes binding status for all config items without modifying them
         /// Returns a dictionary mapping original serial -> binding status
         /// </summary>
-        public Dictionary<string, (ControllerBindingStatus, string)> AnalyzeBindings(List<IConfigItem> configItems, Dictionary<string, string> existingBindings)
+        public List<ControllerBinding> AnalyzeBindings(List<IConfigItem> configItems, List<ControllerBinding> existingBindings)
         {
-            var results = new Dictionary<string, (ControllerBindingStatus, string)>();
+            var results = new List<ControllerBinding>();
             var availableControllers = new List<string>(_connectedControllers);
 
             var uniqueSerials = configItems
                 .Where(c => !string.IsNullOrEmpty(c.ModuleSerial) && c.ModuleSerial != "-")
                 .Select(c => c.ModuleSerial)
                 .Distinct()
-                .OrderByDescending(serial => availableControllers.Contains(serial) || (existingBindings?.ContainsKey(serial) ?? false))
+                .OrderByDescending(serial => availableControllers.Contains(serial) || (existingBindings?.First(b => b.OriginalController == serial) != null))
                 .ToList();
 
             foreach (var serial in uniqueSerials)
             {
                 // Check if this serial was already bound in a previous config file
-                if (existingBindings != null && existingBindings.ContainsKey(serial))
+                var previouslyBoundController = existingBindings?.FirstOrDefault(b => b.OriginalController == serial);
+                var alreadyBoundInPreviousConfigFile = previouslyBoundController != null;
+                if (alreadyBoundInPreviousConfigFile)
                 {
-                    var previouslyBoundController = existingBindings[serial];
-
                     // Check if the previously bound controller is still available
-                    if (!availableControllers.Contains(previouslyBoundController)) continue;
+                    if (!availableControllers.Contains(previouslyBoundController.BoundController)) continue;
 
                     // Reuse the same binding
                     // Reuse the same binding
-                    var previousStatus = previouslyBoundController == serial
+                    var previousStatus = previouslyBoundController.BoundController == serial
                         ? ControllerBindingStatus.Match
                         : ControllerBindingStatus.AutoBind;
 
-                    results[serial] = (previousStatus, previouslyBoundController);
-                    availableControllers.Remove(previouslyBoundController);
+                    results.Add(new ControllerBinding() { Status = previousStatus, BoundController = previouslyBoundController.BoundController, OriginalController = serial });
+                    availableControllers.Remove(previouslyBoundController.BoundController);
                     continue;
                 }
 
-                var (status, boundController) = AnalyzeSingleBinding(serial, availableControllers);
+                var controllerBinding = AnalyzeSingleBinding(serial, availableControllers);
 
-                results[serial] = (status, boundController);
-                if (status == ControllerBindingStatus.Match)
+                results.Add(controllerBinding);
+                if (controllerBinding.Status == ControllerBindingStatus.Match)
                 {
                     // Remove from available controllers to prevent multiple bindings
-                    availableControllers.Remove(serial);
+                    availableControllers.Remove(controllerBinding.BoundController);
                 }
 
-                if (status == ControllerBindingStatus.AutoBind)
+                if (controllerBinding.Status == ControllerBindingStatus.AutoBind)
                 {
-                    availableControllers.Remove(boundController);
+                    availableControllers.Remove(controllerBinding.BoundController);
                 }
             }
 
@@ -100,14 +100,13 @@ namespace MobiFlight.Controllers
         /// Applies auto-binding updates to config items based on analysis results
         /// </summary>
         /// <returns>Dictionary mapping original serial -> new serial (only for AutoBound items)</returns>
-        public Dictionary<string, string> ApplyAutoBinding(
+        public List<ControllerBinding> ApplyAutoBinding(
             List<IConfigItem> configItems,
-            Dictionary<string, (ControllerBindingStatus, string)> bindingStatus)
+            List<ControllerBinding> bindingStatus)
         {
-            var serialMappings = bindingStatus.Where((status) => status.Value.Item1 == ControllerBindingStatus.AutoBind)
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Item2);
+            var serialMappings = bindingStatus.Where((status) => status.Status == ControllerBindingStatus.AutoBind);
 
-            if (serialMappings.Count == 0) return serialMappings;
+            if (serialMappings.Count() == 0) return serialMappings.ToList();
             
             // Apply the mappings to config items
             foreach (var item in configItems)
@@ -115,21 +114,21 @@ namespace MobiFlight.Controllers
                 if (string.IsNullOrEmpty(item.ModuleSerial) || item.ModuleSerial == "-")
                     continue;
 
-                if (serialMappings.ContainsKey(item.ModuleSerial))
-                {
-                    item.ModuleSerial = serialMappings[item.ModuleSerial];
-                }
+                var mapping = serialMappings.FirstOrDefault(m => m.OriginalController == item.ModuleSerial);
+                if (mapping == null) continue;
+                
+                item.ModuleSerial = mapping.BoundController;
             }
 
-            return serialMappings;
+            return serialMappings.ToList();
         }
 
-        private (ControllerBindingStatus status, string claimedController) AnalyzeSingleBinding(string configSerial, List<string> availableControllers)
+        private ControllerBinding AnalyzeSingleBinding(string configSerial, List<string> availableControllers)
         {
             // Scenario 1: Exact match
             if (availableControllers.Contains(configSerial))
             {
-                return (ControllerBindingStatus.Match, configSerial);
+                return new ControllerBinding() { Status = ControllerBindingStatus.Match, BoundController = configSerial, OriginalController = configSerial };
             }
 
             var deviceTypeName = GetDeviceIdentifier(configSerial);
@@ -145,7 +144,7 @@ namespace MobiFlight.Controllers
             // Scenario 4: Missing
             if (potentialTypeNameMatches.Count == 0 && potentialSerialMatches.Count == 0)
             {
-                return (ControllerBindingStatus.Missing, null);
+                return new ControllerBinding() { Status = ControllerBindingStatus.Missing, BoundController = null, OriginalController = configSerial };
             }
 
             var configsWithSameIdentifier = availableControllers
@@ -155,7 +154,7 @@ namespace MobiFlight.Controllers
             // Scenario 5: Multiple matches, need user selection
             if (potentialTypeNameMatches.Count > 1)
             {
-                return (ControllerBindingStatus.RequiresManualBind, null);
+                return new ControllerBinding() { Status = ControllerBindingStatus.RequiresManualBind, BoundController = null, OriginalController = configSerial };
             }
 
             // Scenarios 2, 3, 6: Auto-bind
@@ -165,11 +164,11 @@ namespace MobiFlight.Controllers
             if (potentialTypeNameMatches.Count == 1 || potentialSerialMatches.Count == 1)
             {
                 var autoBindSerial = potentialTypeNameMatches.Count == 1 ? potentialTypeNameMatches.First() : potentialSerialMatches.First();
-                return (ControllerBindingStatus.AutoBind, autoBindSerial);
+                return new ControllerBinding() { Status = ControllerBindingStatus.AutoBind, BoundController = autoBindSerial, OriginalController = configSerial };
             }
 
             // Fallback
-            return (ControllerBindingStatus.Missing, null);
+            return new ControllerBinding() { Status = ControllerBindingStatus.Missing, BoundController = null, OriginalController = configSerial };
         }
 
         private string FindNewSerial(string originalSerial)
