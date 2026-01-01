@@ -26,7 +26,7 @@ namespace MobiFlight.Controllers
 
                 if (!_controllerTypeCount.ContainsKey(deviceIdentifier))
                     _controllerTypeCount[deviceIdentifier] = 0;
- 
+
                 _controllerTypeCount[deviceIdentifier]++;
             }
         }
@@ -78,7 +78,7 @@ namespace MobiFlight.Controllers
                     continue;
                 }
 
-                var controllerBinding = AnalyzeSingleBinding(serial, availableControllers);
+                var controllerBinding = AnalyzeSingleBinding(serial, uniqueSerials, availableControllers);
 
                 results.Add(controllerBinding);
                 if (controllerBinding.Status == ControllerBindingStatus.Match)
@@ -107,7 +107,7 @@ namespace MobiFlight.Controllers
             var serialMappings = bindingStatus.Where((status) => status.Status == ControllerBindingStatus.AutoBind);
 
             if (serialMappings.Count() == 0) return serialMappings.ToList();
-            
+
             // Apply the mappings to config items
             foreach (var item in configItems)
             {
@@ -116,14 +116,14 @@ namespace MobiFlight.Controllers
 
                 var mapping = serialMappings.FirstOrDefault(m => m.OriginalController == item.ModuleSerial);
                 if (mapping == null) continue;
-                
+
                 item.ModuleSerial = mapping.BoundController;
             }
 
             return serialMappings.ToList();
         }
 
-        private ControllerBinding AnalyzeSingleBinding(string configSerial, List<string> availableControllers)
+        private ControllerBinding AnalyzeSingleBinding(string configSerial, List<string> uniqueSerials, List<string> availableControllers)
         {
             // Scenario 1: Exact match
             if (availableControllers.Contains(configSerial))
@@ -147,12 +147,17 @@ namespace MobiFlight.Controllers
                 return new ControllerBinding() { Status = ControllerBindingStatus.Missing, BoundController = null, OriginalController = configSerial };
             }
 
-            var configsWithSameIdentifier = availableControllers
-                .Where(s => GetDeviceIdentifier(s) == deviceTypeName)
-                .Count();
 
-            // Scenario 5: Multiple matches, need user selection
+            // Scenario 5: Multiple connected controller match, need user selection
             if (potentialTypeNameMatches.Count > 1)
+            {
+                return new ControllerBinding() { Status = ControllerBindingStatus.RequiresManualBind, BoundController = null, OriginalController = configSerial };
+            }
+
+            // Senario 7: Multiple configs exist for same type:name, need user selection
+            var configsWithTypeNameMatch = uniqueSerials
+                .Where(s => GetDeviceIdentifier(s) == deviceTypeName);
+            if (configsWithTypeNameMatch.Count() > 1)
             {
                 return new ControllerBinding() { Status = ControllerBindingStatus.RequiresManualBind, BoundController = null, OriginalController = configSerial };
             }

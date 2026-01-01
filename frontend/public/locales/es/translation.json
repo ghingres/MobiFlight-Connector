@@ -247,6 +247,11 @@
     "ControllerAutoBindSuccessful": {
       "Title": "¡Buenas noticias!",
       "Description": "Hemos actualizado el proyecto para funcionar con ‘{{controllerName}}’ — está listo para usar."
+    },
+    "ControllerManualBindRequired": {
+      "Title": "¡Necesitamos tu ayuda!",
+      "Description": "{{controllerName}} usado en este perfil requiere una vinculación manual para que tu proyecto funcione correctamente.",
+      "Action": "Vincular controladores"
     }
   },
   "Feed": {

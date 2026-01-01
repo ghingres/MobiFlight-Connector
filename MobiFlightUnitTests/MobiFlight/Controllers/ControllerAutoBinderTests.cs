@@ -112,17 +112,17 @@ namespace MobiFlight.Tests.Controllers
         }
 
         [TestMethod]
-        public void Scenario5_MultipleMatches_RequiresManualBindAndNoChanges()
+        public void Scenario5_MultipleControllerMatches_RequiresManualBindAndNoChanges()
         {
             // Arrange
             var connectedControllers = new List<string>
             {
-                "Joystick X #/JS-111111",
-                "Joystick X #/JS-222222"
+                "Joystick X # / JS-111111",
+                "Joystick X # / JS-222222"
             };
             var configItems = new List<IConfigItem>
             {
-                CreateConfigItem("Joystick X #/JS-999999")
+                CreateConfigItem("Joystick X # / JS-999999")
             };
             var binder = new ControllerAutoBinder(connectedControllers);
             var existingBindings = new List<ControllerBinding>();
@@ -133,10 +133,43 @@ namespace MobiFlight.Tests.Controllers
 
             // Assert
             Assert.HasCount(1, results);
-            var binding = results.Find(b => b.OriginalController == "Joystick X #/JS-999999");
+            var binding = results.Find(b => b.OriginalController == "Joystick X # / JS-999999");
             Assert.AreEqual(ControllerBindingStatus.RequiresManualBind, binding.Status);
             Assert.IsEmpty(serialMappings);
-            Assert.AreEqual("Joystick X #/JS-999999", configItems[0].ModuleSerial);
+            Assert.AreEqual("Joystick X # / JS-999999", configItems[0].ModuleSerial);
+        }
+
+        [TestMethod]
+        public void Scenario5_MultipleConfigMatches_RequiresManualBindAndNoChanges()
+        {
+            // Arrange
+            var connectedControllers = new List<string>
+            {
+                "Joystick X # / JS-111111"
+            };
+            var configItems = new List<IConfigItem>
+            {
+                CreateConfigItem("Joystick X # / JS-222222"),
+                CreateConfigItem("Joystick X # / JS-333333")
+            };
+            var binder = new ControllerAutoBinder(connectedControllers);
+            var existingBindings = new List<ControllerBinding>();
+
+            // Act
+            var results = binder.AnalyzeBindings(configItems, existingBindings);
+            var serialMappings = binder.ApplyAutoBinding(configItems, results);
+
+            // Assert
+            Assert.HasCount(2, results);
+            var binding = results.Find(b => b.OriginalController == "Joystick X # / JS-222222");
+            Assert.AreEqual(ControllerBindingStatus.RequiresManualBind, binding.Status);
+            Assert.IsEmpty(serialMappings);
+            Assert.AreEqual("Joystick X # / JS-222222", configItems[0].ModuleSerial);
+            
+            binding = results.Find(b => b.OriginalController == "Joystick X # / JS-333333");
+            Assert.AreEqual(ControllerBindingStatus.RequiresManualBind, binding.Status);
+            Assert.IsEmpty(serialMappings);
+            Assert.AreEqual("Joystick X # / JS-333333", configItems[1].ModuleSerial);
         }
 
         #endregion
@@ -309,7 +342,7 @@ namespace MobiFlight.Tests.Controllers
             var configItems = new List<IConfigItem>
             {
                 CreateConfigItem("Board1 # / SN-222"),
-                CreateConfigItem("Board1 # / SN-333")
+                CreateConfigItem("Board2 # / SN-333")
             };
 
             var existingBindings = new List<ControllerBinding>()
@@ -328,13 +361,13 @@ namespace MobiFlight.Tests.Controllers
 
             // Assert
             var binding1 = bindingStatus.Find(b => b.OriginalController == "Board1 # / SN-222");
-            var binding2 = bindingStatus.Find(b => b.OriginalController == "Board1 # / SN-333");
+            var binding2 = bindingStatus.Find(b => b.OriginalController == "Board2 # / SN-333");
 
             Assert.AreEqual(ControllerBindingStatus.AutoBind, binding1.Status);
             Assert.AreEqual(ControllerBindingStatus.Missing, binding2.Status);
             Assert.HasCount(1, serialMappings);
             Assert.AreEqual("Board1 # / SN-111", configItems[0].ModuleSerial, "Missing unchanged");
-            Assert.AreEqual("Board1 # / SN-333", configItems[1].ModuleSerial, "Auto-bind changed");
+            Assert.AreEqual("Board2 # / SN-333", configItems[1].ModuleSerial, "Auto-bind changed");
         }
 
         #endregion

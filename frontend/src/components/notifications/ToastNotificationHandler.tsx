@@ -24,15 +24,15 @@ export const ToastNotificationHandler = () => {
         break
       }
 
-      case "ManualBindingRequired": {
+      case "ControllerManualBindRequired": {
         const controllerName =
           notification?.Context?.Controllers ?? "Unknown Controller"
         toast({
           id: "manual-binding-required",
-          title: "Your input is needed!",
-          description: `${controllerName} used in this profile require manual binding to make them work.`,
+          title: t("Notifications.ControllerManualBindRequired.Title"),
+          description: t("Notifications.ControllerManualBindRequired.Description", { controllerName }),
           button: {
-            label: `Rebind now`,
+            label: t("Notifications.ControllerManualBindRequired.Action"),
             onClick: () => {
               publish({
                 key: "CommandMainMenu",
