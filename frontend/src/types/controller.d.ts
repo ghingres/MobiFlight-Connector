@@ -12,4 +12,10 @@ export type Controller = {
   firmwareUpdate?: boolean
 }
 
+export type ControllerBinding = {
+  BoundController: string
+  Status: ControllerBindingStatus
+  OriginalController: string | null
+}
+
 export type ControllerBindingStatus = "Match" | "AutoBind" | "Missing" | "RequiresManualBind"
