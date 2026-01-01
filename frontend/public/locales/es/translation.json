@@ -78,6 +78,12 @@
       "prosim": "ProSim",
       "none": "Ningún simulador"
     },
+    "BindingStatus": {
+      "Match": "Controlador conectado",
+      "AutoBind": "Controlador vinculado automáticamente",
+      "Missing": "Controlador ausente",
+      "RequiresManualBind": "Vinculación manual requerida"
+    },
     "Card": {
       "Main": {
         "Title": "Mis Proyectos",
