@@ -389,6 +389,7 @@ namespace MobiFlight.UI
             {
                 StopExecution();
                 MessageExchange.Instance.Publish(project);
+                CreateBindingStatusNotification(project);
             };
 
             PropertyChanged += (s, e) =>
@@ -413,6 +414,25 @@ namespace MobiFlight.UI
             };
 
             RestoreWindowsPositionAndZoomLevel();
+        }
+
+        private void CreateBindingStatusNotification(Project project)
+        {
+            var bindings = project.ControllerBindings;
+            var autoBoundControllers = bindings.Where(b => b.Status == ControllerBindingStatus.AutoBind).ToList();
+
+            if (autoBoundControllers.Count > 0)
+            {
+                MessageExchange.Instance.Publish(new Notification()
+                {
+                    Event = "ControllerAutoBindSuccessful",
+                    Context = new Dictionary<string, string>()
+                    {
+                        { "Count", autoBoundControllers.Count.ToString() },
+                        { "Controllers", string.Join(", ", autoBoundControllers.Select(c => SerialNumber.ExtractDeviceName(c.BoundController))) }
+                    }
+                });
+            }
         }
 
         private async void MainForm_Shown(object sender, EventArgs e)

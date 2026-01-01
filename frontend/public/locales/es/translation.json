@@ -237,6 +237,12 @@
       }
     }
   },
+  "Notifications": {
+    "ControllerAutoBindSuccessful": {
+      "Title": "¡Buenas noticias!",
+      "Description": "Hemos actualizado el proyecto para funcionar con ‘{{controllerName}}’ — está listo para usar."
+    }
+  },
   "Feed": {
     "Title": "Community Feed",
     "Description": "Noticias y novedades de la comunidad de MobiFlight.",
