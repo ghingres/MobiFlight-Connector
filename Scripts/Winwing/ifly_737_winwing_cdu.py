@@ -1,4 +1,5 @@
-from ctypes import Structure, c_int, c_long, c_ubyte, c_double, c_bool, c_char
+from ctypes import Structure, c_int, c_int32, c_long, c_ubyte, c_double, c_bool, c_char, c_wchar
+from enum import Enum
 import ctypes
 import json
 import logging
@@ -16,13 +17,39 @@ ROWS = 14
 CELLS = COLUMNS * ROWS
 
 # Memory map name
-MEMORY_MAP_NAME = "iFly737MAX_SDK_FileMappingObject"
+NG_SDK2_MEMORY_MAP_NAME = "iFly737NG_SDK2_FileMappingObject"
+MAX_SDK_MEMORY_MAP_NAME = "iFly737MAX_SDK_FileMappingObject"
+
+class IflySDK_Identifier(Enum):
+    SDK_UNKNOWN = 1
+    SDK_NG = 2
+    SDK_MAX = 3
+
+class ShareMemory737NGSDK2(ctypes.Structure):
+    """Structure matching the iFly 737 NG SDK2 SDK memory layout"""
+    _fields_ = [
+        # Manually gathered from SDK_CDU.h
+
+        ("LSKChar", ((c_wchar * 24) * 14) * 2),         # <WHCAR> = 16bit unicode character (2 bytes)
+        ("LSK_SmallFont", ((c_int32 * 24) * 14) * 2),   # <BOOL> = 32bit int (4 bytes)
+        ("LSK_Color", ((c_int * 24) * 14) * 2),
+        ("CDU_Can_Display", c_int32 * 2),               # <BOOL> # FALSE: the screen is blank due to power loss or other situation: TRUE: the screen can display normally
+        # Unused, but might be useful at some point
+        ("CDU_MSG_Status", c_int32 * 2),                # <BOOL> = 32bit int (4 bytes)
+        ("CDU_EXEC_Status", c_int32 * 2),               # <BOOL> = 32bit int (4 bytes)
+        ("CDU_CALL_Status", c_int32 * 2),               # <BOOL> = 32bit int (4 bytes)
+        ("CDU_OFST_Status", c_int32 * 2),               # <BOOL> = 32bit int (4 bytes)
+        ("CDU_TEST_Status", c_int * 2),   # 0: no test, test colours = 1:RED, 2:GREEN, 3:BLUE, 4:AMBER, 5:MAGENTA, 6:CYAN, 7:WHITE, 8:GRAYSCALE, 8:CHECKERBOARD
+        ("iFly737NG_State", c_int),                     # Ifly737NG is running
+    ]
+
 
 class ShareMemory737MAXSDK(ctypes.Structure):
     """Structure matching the iFly 737 MAX SDK memory layout"""
     _fields_ = [
         # Manually gathered from SDK_Defines.h
-        ("OFFSET", c_ubyte * 0x42C),
+        ("iFly737MAX_State", c_int32),                  # Ifly737MAX is running
+        ("OFFSET", c_ubyte * 0x428),
 
         ("LSKChar", ((c_char * 24) * 14) * 2),
         ("LSK_SmallFont", ((c_bool * 24) * 14) * 2),
@@ -35,6 +62,7 @@ class ShareMemory737MAXSDK(ctypes.Structure):
         ("CDU_OFST_Status", c_ubyte * 2),
         ("CDU_BRT_Switch_Status", c_ubyte * 2),
     ]
+
 
 class MobiFlightClient:
     def __init__(self, url: str) -> None:
@@ -76,7 +104,123 @@ class MobiFlightClient:
             await self.websocket.close()
             self.websocket = None
 
-def create_mobi_json(memory_map: ShareMemory737MAXSDK, cdu_index: int) -> Dict:
+#
+#       CDU: Display "WAITING FOR IFLY 737" while waiting to connect to iFly
+#
+def create_wait_ifly_json() -> Dict:
+    """Create JSON message for MobiFlight WebSocket"""
+    message: Dict[str, Union[str, List[List[Union[str, int]]]]] = {
+        "Target": "Display",
+        "Data": [[] for _ in range(CELLS)]
+    }
+    
+    data = []        
+
+    for row in range(5):
+        for col in range(COLUMNS):
+            data.append([])
+
+
+    line6=[[],[],[],[],[],["W","c",1],[],["A","c",1],[],["I","c",1],[],["T","c",1],[],["I","c",1],[],["N","c",1],[],["G","c",1],[],[],[],[],[],[]]
+    line7=[[],[],[],[],[],[],[],[],[],["F","c",1],[],["O","c",1],[],["R","c",1],[],[],[],[],[],[],[],[],[],[]]
+    line8=[[],[],[],[],[],["I","w",1],[],["F","w",1],[],["L","w",1],[],["Y","w",1],[],["7","m",1],[],["3","m",1],[],["7","m",1],[],[],[],[],[],[]]
+
+    for digit in line6:
+        data.append(digit)
+    for digit in line7:
+        data.append(digit)
+    for digit in line8:
+        data.append(digit)
+
+    for row in range(6):
+        for col in range(COLUMNS):
+            data.append([])
+
+    message["Data"] = data
+                
+    return message
+#
+#       CDU/NG: Display we're switched off / empty
+#
+def create_ng_nopower_cdu_json() -> Dict:
+    """Create JSON message for MobiFlight WebSocket"""
+    message: Dict[str, Union[str, List[List[Union[str, int]]]]] = {
+        "Target": "Display",
+        "Data": [[] for _ in range(CELLS)]
+    }
+    
+    data = []        
+
+    for row in range(ROWS):
+        for col in range(COLUMNS):
+            data.append([])
+
+    message["Data"] = data
+                
+    return message
+#
+#       CDU/NG: Display contents of the ifly CDU
+#
+def create_ng_mobi_json(memory_map: ShareMemory737NGSDK2, cdu_index: int) -> Dict:
+    """Create JSON message for MobiFlight WebSocket from memory map data"""
+    message: Dict[str, Union[str, List[List[Union[str, int]]]]] = {
+        "Target": "Display",
+        "Data": [[] for _ in range(CELLS)]
+    }
+    
+    # Color mapping from iFly NG to MobiFlight format
+    color_map = {
+        0: "w",  # White
+        1: "g",  # Green
+        2: "c",  # Cyan
+        3: "m",  # Magenta
+        4: "e",  # Grey (for reverse video/background)
+        5: "w",  # Box (using grey)
+        6: "w",  # Degree Symbol (White)
+        7: "e",  # Degree Symbol (Grey)
+        8: "m",  # Degree Symbol (Magenta)
+        9: "w",  # Left Arrow (White)
+        10: "w"  # Right Arrow (White)
+    }
+
+    try:
+        data = []        
+        for row in range(ROWS):
+            for col in range(COLUMNS):
+                    char = memory_map.LSKChar[cdu_index][row][col]
+                    small_font = memory_map.LSK_SmallFont[cdu_index][row][col]
+                    color = memory_map.LSK_Color[cdu_index][row][col]
+                    
+                    if color == 0 and char in [' ', '\0']:
+                        data.append([])
+                    else:
+                        # Handle special characters
+                        if color == 5:  # Box character
+                            char = "\u2610"  # Unicode box
+                        elif color == 9:  # Left arrow
+                            char = "\u2190"  # Unicode left arrow
+                        elif color == 10:  # Right arrow
+                            char = "\u2192"  # Unicode right arrow
+                        elif color in (6, 7, 8):  # Degree symbol
+                            char = "\u00B0"  # Unicode degree symbol
+
+                        data.append([
+                            char,
+                            color_map.get(color, "w"),
+                            1 if small_font else 0
+                        ])
+
+        message["Data"] = data
+                
+    except Exception as e:
+        logging.error(f"Error processing CDU data: {e}")
+        return {"Target": "Display", "Data": [[] for _ in range(CELLS)]}
+    
+    return message
+#
+#       CDU/MAX: Display contents of the ifly CDU
+#
+def create_max_mobi_json(memory_map: ShareMemory737MAXSDK, cdu_index: int) -> Dict:
     """Create JSON message for MobiFlight WebSocket from memory map data"""
     message: Dict[str, Union[str, List[List[Union[str, int]]]]] = {
         "Target": "Display",
@@ -139,13 +283,48 @@ class IFlyCDUClient:
         self.client = MobiFlightClient(CAPTAIN_CDU_URL if cdu_index == 0 else FO_CDU_URL)
         self.memory_map: Optional[mmap.mmap] = None
         self._running: bool = False
+        self.iflySDK: IflySDK_Identifier = IflySDK_Identifier.SDK_UNKNOWN
 
     def setup_memory_map(self) -> bool:
         try:
+            #
+            #   Open the iFly MAX 737 Memory Map to see if that's the model we are using
+            #
             self.memory_map = mmap.mmap(-1, ctypes.sizeof(ShareMemory737MAXSDK),
-                                      MEMORY_MAP_NAME,
+                                      MAX_SDK_MEMORY_MAP_NAME,
                                       access=mmap.ACCESS_READ)
-            logging.info(f"Successfully opened memory map for CDU {self.cdu_index}")
+            data = self.memory_map.read(ctypes.sizeof(ShareMemory737MAXSDK))
+            self.memory_map.seek(0)
+            memory_struct = ShareMemory737MAXSDK.from_buffer_copy(data)
+            #
+            #   Are we an iFly 737 MAX ??
+            #
+            if 1 == memory_struct.iFly737MAX_State:
+                self.iflySDK = IflySDK_Identifier.SDK_MAX
+                logging.info(f"Successfully opened memory map for Ifly737MAX CDU {self.cdu_index}")
+                return True
+            else:
+                self.memory_map.close()
+                self.memory_map = None
+                self.memory_map = mmap.mmap(-1, ctypes.sizeof(ShareMemory737NGSDK2),
+                                          NG_SDK2_MEMORY_MAP_NAME,
+                                          access=mmap.ACCESS_READ)
+                data = self.memory_map.read(ctypes.sizeof(ShareMemory737NGSDK2))
+                self.memory_map.seek(0)
+                memory_struct = ShareMemory737NGSDK2.from_buffer_copy(data)
+            #
+            #   Are we an iFly 737 NG ??
+            #
+                if 1 == memory_struct.iFly737NG_State:
+                    self.iflySDK = IflySDK_Identifier.SDK_NG
+                    logging.info(f"Successfully opened memory map for Ifly737NG CDU {self.cdu_index}")
+                    return True
+            #
+            #   Unable to determine what iFly 737 airplane model we are from the Memory Mapped file
+            #
+            logging.error(f"Failed to match any iFly 737 memory mapped file for CDU {self.cdu_index}: {e}")
+            return False
+
             return True
         except Exception as e:
             logging.error(f"Failed to open memory map for CDU {self.cdu_index}: {e}")
@@ -156,15 +335,34 @@ class IFlyCDUClient:
             return
         
         try:
-            # Read the entire structure
-            data = self.memory_map.read(ctypes.sizeof(ShareMemory737MAXSDK))
-            self.memory_map.seek(0)
-            
-            # Create structure from memory map data
-            memory_struct = ShareMemory737MAXSDK.from_buffer_copy(data)
-            
-            # Create and send JSON message
-            json_data = create_mobi_json(memory_struct, self.cdu_index)
+            # Read the entire structure and create data structure from memory mapped data
+            if IflySDK_Identifier.SDK_MAX == self.iflySDK:
+                data = self.memory_map.read(ctypes.sizeof(ShareMemory737MAXSDK))
+                self.memory_map.seek(0)
+                memory_struct = ShareMemory737MAXSDK.from_buffer_copy(data)
+                #
+                # Align output to current state of object
+                #
+                if 0 == memory_struct.iFly737MAX_State:                             # Ifly now unavailable
+                    json_data = create_wait_ifly_json()
+                else:
+                    json_data = create_max_mobi_json(memory_struct, self.cdu_index)     # Ifly is available
+            elif IflySDK_Identifier.SDK_NG == self.iflySDK:
+                data = self.memory_map.read(ctypes.sizeof(ShareMemory737NGSDK2))
+                self.memory_map.seek(0)
+                memory_struct = ShareMemory737NGSDK2.from_buffer_copy(data)
+                #
+                # Align output to current state of object
+                #
+                if 0 == memory_struct.iFly737NG_State:                              # Ifly now unavailable
+                    json_data = create_wait_ifly_json()
+                elif 0 == memory_struct.CDU_Can_Display[self.cdu_index]:            # Ifly available, CDU is OFF
+                    json_data = create_ng_nopower_cdu_json()
+                else:
+                    json_data = create_ng_mobi_json(memory_struct, self.cdu_index)     # Ifly is available
+            else:
+                return
+
             await self.client.send(json_data)
             
         except Exception as e:
