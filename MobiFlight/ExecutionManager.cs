@@ -194,9 +194,8 @@ namespace MobiFlight
             mobiFlightCache.ModuleConnected += new EventHandler(ModuleCache_ModuleConnected);
             mobiFlightCache.ModuleRemoved += new EventHandler(ModuleCache_ModuleRemoved);
             mobiFlightCache.LookupFinished += new EventHandler(mobiFlightCache_LookupFinished);
-
-            // ChildProcessMonitor necessary, that in case of MobiFlight crash, all child processes are terminated
-            scriptRunner = new ScriptRunner(joystickManager, this.simConnectCache, new ChildProcessMonitor());
+            
+            scriptRunner = new ScriptRunner(joystickManager, this.simConnectCache);
             OnSimAircraftChanged += scriptRunner.OnSimAircraftChanged;
             OnSimAircraftPathChanged += scriptRunner.OnSimAircraftPathChanged;
 
@@ -289,7 +288,9 @@ namespace MobiFlight
 
             MessageExchange.Instance.Subscribe<CommandAddConfigItem>((message) =>
             {
-                IConfigItem item = new OutputConfigItem();
+                IConfigItem item = new OutputConfigItem() {
+                    Source = SourceFactory.Create(Project.ToProjectInfo().Sim)
+                };
                 if (message.Type == "InputConfig")
                 {
                     item = new InputConfigItem();

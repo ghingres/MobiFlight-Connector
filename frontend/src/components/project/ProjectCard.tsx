@@ -54,7 +54,7 @@ export const ProjectCardTitle = ({
     },
     listitem: {
       title: "text-lg font-semibold truncate",
-      button: "h-6 p-0 [&_svg]:size-6",
+      button: "h-6 p-1 [&_svg]:size-6 w-auto",
       icon: "h-6",
       options: {}
     },
@@ -88,10 +88,11 @@ export const ProjectCardImage = ({
   className,
 }: HtmlHTMLAttributes<HTMLDivElement> & { summary: ProjectInfo }) => {
   const imageUrl = summary.Thumbnail || `/sim/${summary.Sim?.toLowerCase()}.jpg`
+
   return summary.Sim ? (
     <div className={cn("bg-accent rounded-lg", className)}>
       <img
-        src={new URL(imageUrl, import.meta.url).href}
+        src={imageUrl}
         alt={summary.Name}
         className="h-full w-full rounded-lg object-cover"
       />
@@ -192,15 +193,16 @@ const ProjectCard = ({
                   className="flex flex-row -space-x-4 hover:space-x-0"
                   data-testid="controller-icons"
                 >
-                  {summary.Controllers?.map(
-                    (controllerName, index) =>
-                      controllerName != "-" && (
+                  {summary.ControllerBindings?.map(
+                    (controllerBinding, index) => {
+                      return controllerBinding.BoundController != "-" && (
                         <ControllerIcon
                           className="transition-all ease-in-out"
-                          key={`${controllerName}-${index}`}
-                          serial={controllerName}
+                          key={`${controllerBinding.BoundController}-${index}`}
+                          controllerBinding={controllerBinding}
                         />
-                      ),
+                      )
+                    },
                   )}
                 </div>
               </div>

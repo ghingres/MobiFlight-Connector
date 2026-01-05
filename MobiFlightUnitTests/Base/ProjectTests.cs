@@ -1,5 +1,5 @@
-﻿using MobiFlight.Base;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using System.IO;
 using System.Linq;
 
@@ -8,6 +8,29 @@ namespace MobiFlight.Base.Tests
     [TestClass()]
     public class ProjectTests
     {
+        private LogSeverity _logSeverity = LogSeverity.Error;
+        private Mock<ILogAppender> _mockLogAppender;
+
+        [TestInitialize]
+        public void SetUp()
+        {
+            // Create a mock log appender
+            _mockLogAppender = new Mock<ILogAppender>();
+            _logSeverity = Log.Instance.Severity; // Store the current log severity
+            Log.Instance.Severity = LogSeverity.Debug; // Set the log severity to Debug
+            Log.Instance.ClearAppenders();
+            Log.Instance.AddAppender(_mockLogAppender.Object);
+        }
+
+        [TestCleanup]
+        public void TearDown()
+        {
+            // Remove the mock appender after each test
+            Log.Instance.ClearAppenders();
+            Log.Instance.Severity = _logSeverity; // Restore the original log severity
+            Log.Instance.Enabled = false; // Disable logging
+        }
+
         [TestMethod()]
         public void OpenFileTest_Single_Xml()
         {
@@ -19,17 +42,17 @@ namespace MobiFlight.Base.Tests
             o.OpenFile();
 
             Assert.IsNotNull(o.ConfigFiles);
-            Assert.IsTrue(o.ConfigFiles.Count > 0);
+            Assert.IsNotEmpty(o.ConfigFiles);
 
             var config = o.ConfigFiles[0];
             var inputConfigs = config.ConfigItems.Where(i => i is InputConfigItem);
 
             Assert.IsNotNull(inputConfigs);
-            Assert.IsTrue(inputConfigs.Count() > 0);
+            Assert.IsGreaterThan(0, inputConfigs.Count());
 
             var outputConfigs = config.ConfigItems.Where(i => i is OutputConfigItem);
             Assert.IsNotNull(outputConfigs);
-            Assert.IsTrue(outputConfigs.Count() > 0);
+            Assert.IsGreaterThan(0, outputConfigs.Count());
         }
 
         [TestMethod()]
@@ -43,16 +66,16 @@ namespace MobiFlight.Base.Tests
             o.OpenFile();
 
             Assert.IsNotNull(o.ConfigFiles);
-            Assert.IsTrue(o.ConfigFiles.Count > 0);
+            Assert.IsNotEmpty(o.ConfigFiles);
 
             var config = o.ConfigFiles[0];
             var outputConfig = config.ConfigItems.Where(i => i is OutputConfigItem && i.Name == "COM1 Active").First();
 
             Assert.IsNotNull(outputConfig);
-            Assert.IsTrue(outputConfig as OutputConfigItem != null);
+            Assert.IsNotNull(outputConfig as OutputConfigItem);
             var preconditions = (outputConfig as OutputConfigItem).Preconditions;
 
-            Assert.AreEqual(0, preconditions.Count);    
+            Assert.AreEqual(0, preconditions.Count);
         }
 
         [TestMethod()]
@@ -66,13 +89,13 @@ namespace MobiFlight.Base.Tests
             o.OpenFile();
 
             Assert.IsNotNull(o.ConfigFiles);
-            Assert.IsTrue(o.ConfigFiles.Count > 0);
+            Assert.IsNotEmpty(o.ConfigFiles);
 
             var config = o.ConfigFiles[0];
             var outputConfig = config.ConfigItems.Where(i => i is OutputConfigItem && i.Name == "COM1 Standby").First();
 
             Assert.IsNotNull(outputConfig);
-            Assert.IsTrue(outputConfig as OutputConfigItem != null);
+            Assert.IsNotNull(outputConfig as OutputConfigItem);
             var preconditions = (outputConfig as OutputConfigItem).Preconditions;
 
             Assert.AreEqual(2, preconditions.Count);
@@ -89,17 +112,17 @@ namespace MobiFlight.Base.Tests
             o.OpenFile();
 
             Assert.IsNotNull(o.ConfigFiles);
-            Assert.IsTrue(o.ConfigFiles.Count > 0);
+            Assert.IsNotEmpty(o.ConfigFiles);
 
             var config = o.ConfigFiles[0];
             var inputConfigs = config.ConfigItems.Where(i => i is InputConfigItem);
 
             Assert.IsNotNull(inputConfigs);
-            Assert.IsTrue(inputConfigs.Count() > 0);
+            Assert.IsGreaterThan(0, inputConfigs.Count());
 
             var outputConfigs = config.ConfigItems.Where(i => i is OutputConfigItem);
             Assert.IsNotNull(outputConfigs);
-            Assert.IsTrue(outputConfigs.Count() > 0);
+            Assert.IsGreaterThan(0, outputConfigs.Count());
         }
 
         [TestMethod()]
@@ -134,7 +157,7 @@ namespace MobiFlight.Base.Tests
             o.SaveFile();
 
             string fileContent = File.ReadAllText(outFile);
-            Assert.IsFalse(fileContent.Contains("\"SchemaVersion\":"));
+            Assert.DoesNotContain("\"SchemaVersion\":", fileContent);
         }
 
         [TestMethod()]
@@ -150,7 +173,7 @@ namespace MobiFlight.Base.Tests
             o.SaveFile();
 
             string fileContent = File.ReadAllText(outFile);
-            Assert.IsFalse(fileContent.Contains("\"FilePath\":"));
+            Assert.DoesNotContain("\"FilePath\":", fileContent);
         }
 
         [TestMethod()]
@@ -202,7 +225,7 @@ namespace MobiFlight.Base.Tests
             targetProject.Merge(sourceProject);
 
             // Assert
-            Assert.AreEqual(originalCount + 2, targetProject.ConfigFiles.Count);
+            Assert.HasCount(originalCount + 2, targetProject.ConfigFiles);
             Assert.IsTrue(targetProject.ConfigFiles.Any(cf => cf.Label == "Source Config 1"));
             Assert.IsTrue(targetProject.ConfigFiles.Any(cf => cf.Label == "Source Config 2"));
             Assert.IsTrue(targetProject.ConfigFiles.Any(cf => cf.Label == "Original Config"));
@@ -225,7 +248,7 @@ namespace MobiFlight.Base.Tests
             targetProject.Merge(sourceProject);
 
             // Assert
-            Assert.AreEqual(originalCount, targetProject.ConfigFiles.Count);
+            Assert.HasCount(originalCount, targetProject.ConfigFiles);
             Assert.IsTrue(targetProject.ConfigFiles.Any(cf => cf.Label == "Original Config"));
         }
 
@@ -251,7 +274,7 @@ namespace MobiFlight.Base.Tests
 
             // Assert
             var totalItemsAfterMerge = targetProject.ConfigFiles.SelectMany(cf => cf.ConfigItems).Count();
-            Assert.IsTrue(totalItemsAfterMerge > originalItemCount);
+            Assert.IsGreaterThan(originalItemCount, totalItemsAfterMerge);
 
             // Verify original items are still there
             Assert.IsTrue(targetProject.ConfigFiles.SelectMany(cf => cf.ConfigItems).Any(item => item.GUID == "original-guid"));
@@ -275,7 +298,7 @@ namespace MobiFlight.Base.Tests
             targetProject.MergeFromProjectFile(sourceFile);
 
             // Assert
-            Assert.IsTrue(targetProject.ConfigFiles.Count > originalCount);
+            Assert.IsGreaterThan(originalCount, targetProject.ConfigFiles.Count);
             Assert.IsTrue(targetProject.ConfigFiles.Any(cf => cf.Label == "Config File 1"));
             Assert.IsTrue(targetProject.ConfigFiles.Any(cf => cf.Label == "Original Config"));
         }
@@ -295,7 +318,7 @@ namespace MobiFlight.Base.Tests
             targetProject.MergeFromProjectFile(sourceFile);
 
             // Assert
-            Assert.AreEqual(originalCount + 2, targetProject.ConfigFiles.Count);
+            Assert.HasCount(originalCount + 2, targetProject.ConfigFiles);
             Assert.IsTrue(targetProject.ConfigFiles.Any(cf => cf.Label == "Config File 2A"));
             Assert.IsTrue(targetProject.ConfigFiles.Any(cf => cf.Label == "Config File 2B"));
             Assert.IsTrue(targetProject.ConfigFiles.Any(cf => cf.Label == "Original Config"));
@@ -322,7 +345,7 @@ namespace MobiFlight.Base.Tests
             targetProject.MergeFromProjectFile(sourceFile);
 
             // Assert
-            Assert.AreEqual(originalCount, targetProject.ConfigFiles.Count);
+            Assert.HasCount(originalCount, targetProject.ConfigFiles);
             Assert.IsTrue(targetProject.ConfigFiles.Any(cf => cf.Label == "Original Config"));
         }
 
@@ -409,7 +432,7 @@ namespace MobiFlight.Base.Tests
             targetProject.Merge(sourceProject);
 
             // Assert
-            Assert.AreEqual(2, targetProject.ConfigFiles.Count);
+            Assert.HasCount(2, targetProject.ConfigFiles);
             Assert.AreEqual(2, targetProject.ConfigFiles.Count(cf => cf.Label == "Same Label"));
         }
 
@@ -441,8 +464,8 @@ namespace MobiFlight.Base.Tests
             var outputItems = allItems.Where(item => item is OutputConfigItem).ToList();
             var inputItems = allItems.Where(item => item is InputConfigItem).ToList();
 
-            Assert.IsTrue(outputItems.Count > 1); // Original + merged outputs
-            Assert.IsTrue(inputItems.Count > 1); // Original + merged inputs
+            Assert.IsGreaterThan(1, outputItems.Count); // Original + merged outputs
+            Assert.IsGreaterThan(1, inputItems.Count); // Original + merged inputs
 
             // Verify specific merged items
             Assert.IsTrue(allItems.Any(item => item.GUID == "merge-test-guid-2a"));
@@ -465,105 +488,9 @@ namespace MobiFlight.Base.Tests
             project.DetermineProjectInfos();
 
             // Assert
-            Assert.IsNotNull(project.Controllers);
-            Assert.AreEqual(0, project.Controllers.Count);
             Assert.IsNull(project.Sim);
-            Assert.IsFalse(project.UseFsuipc);
-        }
-
-        [TestMethod()]
-        public void DetermineProjectInfos_WithMultipleConfigFiles_ShouldCollectUniqueControllers()
-        {
-            // Arrange
-            var project = new Project();
-            var config1 = new ConfigFile();
-            config1.ConfigItems.Add(new OutputConfigItem { ModuleSerial = "SN-123-456" });
-            config1.ConfigItems.Add(new OutputConfigItem { ModuleSerial = "SN-123-456" }); // Duplicate
-            var config2 = new ConfigFile();
-            config2.ConfigItems.Add(new InputConfigItem { ModuleSerial = "SN-789-012" });
-            config2.ConfigItems.Add(new OutputConfigItem { ModuleSerial = "SN-345-678" });
-
-            project.ConfigFiles.Add(config1);
-            project.ConfigFiles.Add(config2);
-
-            // Act
-            project.DetermineProjectInfos();
-
-            // Assert
-            Assert.AreEqual(3, project.Controllers.Count);
-            Assert.IsTrue(project.Controllers.Contains("SN-123-456"));
-            Assert.IsTrue(project.Controllers.Contains("SN-789-012"));
-            Assert.IsTrue(project.Controllers.Contains("SN-345-678"));
-        }
-
-        [TestMethod()]
-        public void DetermineProjectInfos_WithDuplicateSerials_ShouldOnlyIncludeUnique()
-        {
-            // Arrange
-            var project = new Project();
-            var config1 = new ConfigFile();
-            config1.ConfigItems.Add(new OutputConfigItem { ModuleSerial = "SN-AAA-111" });
-            config1.ConfigItems.Add(new InputConfigItem { ModuleSerial = "SN-AAA-111" });
-
-            var config2 = new ConfigFile();
-            config2.ConfigItems.Add(new OutputConfigItem { ModuleSerial = "SN-AAA-111" });
-            config2.ConfigItems.Add(new InputConfigItem { ModuleSerial = "SN-BBB-222" });
-
-            project.ConfigFiles.Add(config1);
-            project.ConfigFiles.Add(config2);
-
-            // Act
-            project.DetermineProjectInfos();
-
-            // Assert
-            Assert.AreEqual(2, project.Controllers.Count);
-            Assert.IsTrue(project.Controllers.Contains("SN-AAA-111"));
-            Assert.IsTrue(project.Controllers.Contains("SN-BBB-222"));
-        }
-
-        [TestMethod()]
-        public void DetermineProjectInfos_CalledMultipleTimes_ShouldClearPreviousControllers()
-        {
-            // Arrange
-            var project = new Project();
-            var config = new ConfigFile();
-            config.ConfigItems.Add(new OutputConfigItem { ModuleSerial = "SN-FIRST-001" });
-            project.ConfigFiles.Add(config);
-
-            // Act - First call
-            project.DetermineProjectInfos();
-
-            // Modify project
-            project.ConfigFiles.Clear();
-            var newConfig = new ConfigFile();
-            newConfig.ConfigItems.Add(new OutputConfigItem { ModuleSerial = "SN-SECOND-002" });
-            project.ConfigFiles.Add(newConfig);
-
-            // Act - Second call
-            project.DetermineProjectInfos();
-
-            // Assert
-            Assert.AreEqual(1, project.Controllers.Count);
-            Assert.IsFalse(project.Controllers.Contains("SN-FIRST-001"));
-            Assert.IsTrue(project.Controllers.Contains("SN-SECOND-002"));
-        }
-
-        [TestMethod()]
-        public void DetermineProjectInfos_WithNoModuleSerials_ShouldHaveEmptyControllersList()
-        {
-            // Arrange
-            var project = new Project();
-            var config = new ConfigFile();
-            config.ConfigItems.Add(new OutputConfigItem { ModuleSerial = null });
-            config.ConfigItems.Add(new InputConfigItem { ModuleSerial = "" });
-            project.ConfigFiles.Add(config);
-
-            // Act
-            project.DetermineProjectInfos();
-
-            // Assert
-            // The method doesn't filter out null/empty serials, it just collects distinct values
-            Assert.IsNotNull(project.Controllers);
+            Assert.IsFalse(project.Features.FSUIPC);
+            Assert.IsFalse(project.Features.ProSim);
         }
 
         [TestMethod()]
@@ -586,7 +513,8 @@ namespace MobiFlight.Base.Tests
 
             // Assert
             Assert.AreEqual("msfs", project.Sim);
-            Assert.IsFalse(project.UseFsuipc);
+            Assert.IsFalse(project.Features.FSUIPC);
+            Assert.IsFalse(project.Features.ProSim);
         }
 
         [TestMethod()]
@@ -601,6 +529,7 @@ namespace MobiFlight.Base.Tests
                 ModuleSerial = "SN-123-456",
                 Source = new XplaneSource()
             };
+
             config.ConfigItems.Add(outputConfig);
             project.ConfigFiles.Add(config);
 
@@ -609,11 +538,12 @@ namespace MobiFlight.Base.Tests
 
             // Assert
             Assert.AreEqual("xplane", project.Sim);
-            Assert.IsFalse(project.UseFsuipc);
+            Assert.IsFalse(project.Features.FSUIPC);
+            Assert.IsFalse(project.Features.ProSim);
         }
 
         [TestMethod()]
-        public void DetermineProjectInfos_WithProSimConfig_ShouldSetSimToProsim()
+        public void DetermineProjectInfos_WithProSimConfig_ShouldSetFeatureForProsim()
         {
             // Arrange
             var project = new Project();
@@ -624,15 +554,25 @@ namespace MobiFlight.Base.Tests
                 ModuleSerial = "SN-123-456",
                 Source = new ProSimSource()
             };
+
+            var msfsConfig = new OutputConfigItem
+            {
+                ModuleSerial = "SN-123-456",
+                Source = new SimConnectSource()
+            };
+
             config.ConfigItems.Add(outputConfig);
+            config.ConfigItems.Add(msfsConfig);
             project.ConfigFiles.Add(config);
 
             // Act
             project.DetermineProjectInfos();
 
             // Assert
-            Assert.AreEqual("prosim", project.Sim);
-            Assert.IsFalse(project.UseFsuipc);
+            Assert.AreNotEqual("prosim", project.Sim);
+            Assert.AreEqual("msfs", project.Sim);
+            Assert.IsFalse(project.Features.FSUIPC);
+            Assert.IsTrue(project.Features.ProSim);
         }
 
         [TestMethod()]
@@ -654,7 +594,7 @@ namespace MobiFlight.Base.Tests
             project.DetermineProjectInfos();
 
             // Assert
-            Assert.IsTrue(project.UseFsuipc);
+            Assert.IsTrue(project.Features.FSUIPC);
             // FSUIPC source alone doesn't set a specific sim
         }
 
@@ -690,7 +630,6 @@ namespace MobiFlight.Base.Tests
             // Assert
             // Should only set the first sim found (MSFS in this case)
             Assert.AreEqual("msfs", project.Sim);
-            Assert.AreEqual(2, project.Controllers.Count);
         }
 
         [TestMethod()]
@@ -720,8 +659,7 @@ namespace MobiFlight.Base.Tests
 
             // Assert
             Assert.AreEqual("msfs", project.Sim);
-            Assert.IsTrue(project.UseFsuipc);
-            Assert.AreEqual(2, project.Controllers.Count);
+            Assert.IsTrue(project.Features.FSUIPC);
         }
 
         [TestMethod()]
@@ -762,8 +700,7 @@ namespace MobiFlight.Base.Tests
 
             // Assert
             Assert.AreEqual("msfs", project.Sim);
-            Assert.IsTrue(project.UseFsuipc);
-            Assert.AreEqual(3, project.Controllers.Count);
+            Assert.IsTrue(project.Features.FSUIPC);
         }
 
         [TestMethod()]
@@ -792,7 +729,6 @@ namespace MobiFlight.Base.Tests
 
             // Assert
             Assert.AreEqual("xplane", project.Sim);
-            Assert.AreEqual(2, project.Controllers.Count);
         }
         #endregion
 
@@ -809,7 +745,7 @@ namespace MobiFlight.Base.Tests
                 "Extension.FilePath.AIC",
                 "Extension.FilePath.mfproj",
             };
-           
+
             var mfprojExtension = "Extension.FilePath.mfproj";
 
             testExtensions.ToList().ForEach(ext =>
@@ -817,7 +753,7 @@ namespace MobiFlight.Base.Tests
                 project.FilePath = ext;
                 var result = project.MigrateFileExtension();
                 Assert.AreEqual(mfprojExtension, project.FilePath, "Extension was not migrated to .mfproj");
-                Assert.AreEqual(project.FilePath, result, "Return value should be the same as FilePath value");
+                Assert.AreEqual(result, project.FilePath, "Return value should be the same as FilePath value");
             });
 
             var invalidExtensions = new[]
@@ -828,12 +764,97 @@ namespace MobiFlight.Base.Tests
                 "Extension.FilePath.config",
             };
 
-            invalidExtensions.ToList().ForEach(ext => {
+            invalidExtensions.ToList().ForEach(ext =>
+            {
                 project.FilePath = ext;
                 var result = project.MigrateFileExtension();
                 Assert.AreEqual(ext, project.FilePath, "Extension should not be changed for invalid extensions");
-                Assert.AreEqual(project.FilePath, result, "Return value should be the same as FilePath value");
+                Assert.AreEqual(result, project.FilePath, "Return value should be the same as FilePath value");
             });
         }
+
+        #region OpenFile Log Suppression Tests
+        [TestMethod()]
+        public void OpenFile_LogSuppression_DoesNotEmitMigrationLogs()
+        {
+            var tempFile = Path.Combine(Path.GetTempPath(), $"project_test_{System.Guid.NewGuid()}.mfproj");
+            try
+            {
+                // old schema version triggers migration path
+                File.WriteAllText(tempFile, "{ \"Name\": \"TestProject\", \"ConfigFiles\": [], \"_version\": \"0.1\" }");
+
+                Log.Instance.Severity = LogSeverity.Debug;
+                Log.Instance.Enabled = true;
+
+                var p = new Project { FilePath = tempFile };
+
+                // Act - open in peek mode (suppress migration logging)
+                p.OpenFile(suppressMigrationLogging: true);
+
+                // Assert - no migration-related entries
+                // Assert - migration-related entries present
+                _mockLogAppender.Verify(
+                    appender => appender.log(It.Is<string>(msg => msg.Contains("Migrating document")), LogSeverity.Debug),
+                    Times.Never
+                );
+
+                _mockLogAppender.Verify(
+                    appender => appender.log(It.Is<string>(msg => msg.Contains("Applying V0.9 migrations")), LogSeverity.Debug),
+                    Times.Never
+                );
+
+                _mockLogAppender.Verify(
+                    appender => appender.log(It.Is<string>(msg => msg.Contains("Migration complete")), LogSeverity.Debug),
+                    Times.Never
+                );
+            }
+            finally
+            {
+                try { if (File.Exists(tempFile)) File.Delete(tempFile); } catch { }
+            }
+        }
+
+        [TestMethod()]
+        public void OpenFile_LogSuppression_WhenNotSuppressed_EmitsMigrationLogs()
+        {
+            var tempFile = Path.Combine(Path.GetTempPath(), $"project_test_{System.Guid.NewGuid()}.mfproj");
+            try
+            {
+                // old schema version triggers migration path
+                File.WriteAllText(tempFile, "{ \"Name\": \"TestProject\", \"ConfigFiles\": [], \"_version\": \"0.1\" }");
+
+                Log.Instance.Severity = LogSeverity.Debug;
+                Log.Instance.Enabled = true;
+
+                var p = new Project { FilePath = tempFile };
+
+                // Act - open normally (should emit migration logs)
+                p.OpenFile();
+
+                // Assert - migration-related entries present
+                _mockLogAppender.Verify(
+                    appender => appender.log(It.Is<string>(msg => msg.Contains("Migrating document")), LogSeverity.Debug),
+                    Times.Once
+                );
+
+                _mockLogAppender.Verify(
+                    appender => appender.log(It.Is<string>(msg => msg.Contains("Applying V0.9 migrations")), LogSeverity.Debug),
+                    Times.Once
+                );
+
+                _mockLogAppender.Verify(
+                    appender => appender.log(It.Is<string>(msg => msg.Contains("Migration complete")), LogSeverity.Debug),
+                    Times.Once
+                );
+            }
+            finally
+            {
+                try { if (File.Exists(tempFile)) File.Delete(tempFile); } catch { }
+            }
+        }
+
+        #endregion
+
+
     }
 }

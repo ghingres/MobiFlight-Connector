@@ -1,5 +1,4 @@
 ﻿using MobiFlight.UI;
-using System.IO;
 
 namespace MobiFlight.BrowserMessages.Incoming.Handler
 {
@@ -93,6 +92,12 @@ namespace MobiFlight.BrowserMessages.Incoming.Handler
 
                 case CommandMainMenuAction.help_donate:
                     _mainForm.donateToolStripButton_Click(null, null);
+                    break;
+
+                // Virtual Menu Actions
+                case CommandMainMenuAction.virtual_recent_remove:
+                    var index = message.Index;
+                    _mainForm.RecentFilesRemove(index);
                     break;
             }
         }

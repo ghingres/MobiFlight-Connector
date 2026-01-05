@@ -308,16 +308,18 @@ namespace MobiFlight.Execution
                 var datarefValue = proSimCache.readDataref(source.ProSimDataRef.Path);
                 if (datarefValue is string)
                 {
+                    result.type = FSUIPCOffsetType.String;
                     result.String = datarefValue as string;
                 }
                 else
                 {
+                    result.type = FSUIPCOffsetType.Float;
                     result.Float64 = (double)datarefValue;
                 }
             }
             else
             {
-                Log.Instance.log("Unknown source type: " + cfg.Source.SourceType, LogSeverity.Error);
+                Log.Instance.log("Unknown source type: " + cfg.Source?.SourceType ?? "none", LogSeverity.Error);
             }
 
             return result;

@@ -205,20 +205,28 @@ namespace MobiFlight.ProSim
                 else
                 {
                     // Create new cache entry
-                    _subscribedDataRefs[datarefPath] = new CachedDataRef
+                    var newCachedRef = new CachedDataRef
                     {
                         Path = datarefPath,
                         Value = value,
                     };
+
+                    // Set DataRefDescription if available
+                    if (_dataRefDescriptions.TryGetValue(datarefPath, out var description))
+                    {
+                        newCachedRef.DataRefDescription = description;
+                    }
+
+                    _subscribedDataRefs[datarefPath] = newCachedRef;
                 }
             }
         }
 
-        private readonly Dictionary<string, string> mutationLookup = new Dictionary<string, string>
+        private readonly Dictionary<string, (string method, string graphqlType)> mutationLookup = new Dictionary<string, (string, string)>
         {
-            { "System.Int32", "writeInt" },
-            { "System.Double", "writeFloat" },
-            { "System.Boolean", "writeBoolean" }
+            { "System.Int32", ("writeInt", "Int!") },
+            { "System.Double", ("writeFloat", "Float!") },
+            { "System.Boolean", ("writeBool", "Boolean!") }
         };
 
         private void WriteOutValue(string datarefPath, object value)
@@ -254,23 +262,26 @@ namespace MobiFlight.ProSim
                     return;
                 }
 
-                if (!mutationLookup.TryGetValue(description.DataType, out var method))
+                if (!mutationLookup.TryGetValue(description.DataType, out var mutation))
                 {
                     return;
                 }
+
+                var (method, graphqlType) = mutation;
 
                 Task.Run(async () => {
                     try
                     {
                         var query = $@"
-mutation {{
+mutation ($name: String!, $value: {graphqlType}) {{
 	dataRef {{
-		{method}(name: ""{datarefPath}"", value: {value})
+		{method}(name: $name, value: $value)
 	}}
 }}";
                         await _connection.SendMutationAsync<object>(new GraphQL.GraphQLRequest
                         {
-                            Query = query
+                            Query = query,
+                            Variables = new { name = datarefPath, value }
                         });
                     }
                     catch

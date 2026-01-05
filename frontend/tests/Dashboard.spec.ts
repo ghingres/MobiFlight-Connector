@@ -28,12 +28,12 @@ test.describe("Project view tests", () => {
     await dashboardPage.mobiFlightPage.initWithTestDataAndSpecificProjectProps({
       Name: "Test Project",
       Sim: "msfs",
-      Controllers: [
-        "ProtoBoard-v2/ SN-3F1-FDD",
-        "MobiFlight Board / SN-12345",
-        "Alpha Flight Controls / JS-67890",
-        "Bravo Throttle Quadrant / JS-b0875190-3b89-11ed-8007-444553540000",
-        "miniCOCKPIT miniFCU/ SN-E98-277",
+      ControllerBindings: [
+        { "BoundController": "ProtoBoard-v2/ SN-3F1-FDD", "OriginalController": "ProtoBoard-v2/ SN-3F1-FDD", "Status": "Match" },
+        { "BoundController": null, "OriginalController": "MobiFlight Board / SN-12345", "Status": "Missing" },
+        { "BoundController": "Alpha Flight Controls / JS-67890", "OriginalController": "Alpha Flight Controls / JS-67891", "Status": "AutoBind" },
+        { "BoundController": "Bravo Throttle Quadrant / JS-b0875190-3b89-11ed-8007-444553540000", "OriginalController": "Bravo Throttle Quadrant / JS-b0875190-3b89-11ed-8007-444553540000", "Status": "Match" },
+        { "BoundController": "miniCOCKPIT miniFCU/ SN-E98-277", "OriginalController": "miniCOCKPIT miniFCU/ SN-E98-277", "Status": "Match" },
       ],
     })
 
@@ -49,23 +49,23 @@ test.describe("Project view tests", () => {
     await expect(controllerIcons).toHaveCount(5)
     await expect(controllerIcons.nth(0)).toHaveAttribute(
       "title",
-      "ProtoBoard-v2",
+      "ProtoBoard-v2 - Controller connected",
     )
     await expect(controllerIcons.nth(1)).toHaveAttribute(
       "title",
-      "MobiFlight Board",
+      "MobiFlight Board - Controller missing",
     )
     await expect(controllerIcons.nth(2)).toHaveAttribute(
       "title",
-      "Alpha Flight Controls",
+      "Alpha Flight Controls - Auto-bound controller",
     )
     await expect(controllerIcons.nth(3)).toHaveAttribute(
       "title",
-      "Bravo Throttle Quadrant",
+      "Bravo Throttle Quadrant - Controller connected",
     )
     await expect(controllerIcons.nth(4)).toHaveAttribute(
       "title",
-      "miniCOCKPIT miniFCU",
+      "miniCOCKPIT miniFCU - Controller connected",
     )
   })
 
@@ -115,40 +115,84 @@ test.describe("Project view tests", () => {
     expect(lastCommand.key).toEqual("CommandProjectToolbar")
     expect(lastCommand.payload.action).toEqual("stop")
   })
+})
 
-  test("Create new project", async ({ dashboardPage, page }) => {
-    await dashboardPage.gotoPage()
-
+test.describe("Project settings modal features", () => {
+  test("Create new project in modal", async ({ dashboardPage, page }) => {
     const createProjectButton = page.getByRole("button", { name: "Project" })
     const createProjectDialog = page.getByRole("dialog", {
       name: "Create New Project",
     })
-    const fsuipcCheckbox = createProjectDialog.getByLabel("Use FSUIPC")
+    const fsuipcCheckbox = createProjectDialog.getByLabel("FSUIPC")
+    const prosimCheckbox = createProjectDialog.getByLabel("ProSim")
     const projectNameInput = createProjectDialog.getByLabel("Project Name")
     const createButton = createProjectDialog.getByRole("button", {
       name: "Create",
     })
 
     const projectOptions = [
-      { name: "MSFS no FSUIPC", value: "msfs", useFsuipc: false },
-      { name: "MSFS with FSUIPC", value: "msfs", useFsuipc: true },
-      { name: "X-Plane", value: "xplane", useFsuipc: false },
-      { name: "Prepar3D", value: "p3d", useFsuipc: false },
+      {
+        name: "MSFS no FSUIPC",
+        value: "msfs",
+        simLabel: "Microsoft Flight Simulator",
+        fsuipc: { click: false, use: false },
+        prosim: { click: false, use: false },
+      },
+      {
+        name: "MSFS with FSUIPC",
+        value: "msfs",
+        simLabel: "Microsoft Flight Simulator",
+        fsuipc: { click: true, use: true },
+        prosim: { click: false, use: false },
+      },
+      {
+        name: "X-Plane",
+        value: "xplane",
+        simLabel: "X-Plane",
+        fsuipc: { click: false, use: false },
+        prosim: { click: false, use: false },
+      },
+      {
+        name: "Prepar3D",
+        value: "p3d",
+        simLabel: "Prepar3D",
+        fsuipc: { click: false, use: true },
+        prosim: { click: false, use: false },
+      },
+      {
+        name: "FSX / FS2004",
+        value: "fsx",
+        simLabel: "FSX / FS2004",
+        fsuipc: { click: false, use: true },
+        prosim: { click: false, use: false },
+      },
+      {
+        name: "MSFS with ProSim",
+        value: "msfs",
+        simLabel: "Microsoft Flight Simulator",
+        fsuipc: { click: false, use: false },
+        prosim: { click: true, use: true },
+      },
     ]
-    
+
     for (const option of projectOptions) {
+      await dashboardPage.gotoPage()
       await dashboardPage.mobiFlightPage.trackCommand("CommandMainMenu")
-      
+
       await createProjectButton.click()
-        
+
       await projectNameInput.fill(option.name)
 
-      const simOptionLocator = `[role="radio"][value="${option.value}"]`
-      const simOption = createProjectDialog.locator(simOptionLocator)
+      const simOption = createProjectDialog.getByRole("radio", { name: option.value })
 
-      await simOption.check()
-      if (option.useFsuipc) {
+      await simOption.click()
+      await expect(createProjectDialog.getByText(option.simLabel)).toBeVisible()
+      if (option.fsuipc.click) {
         await fsuipcCheckbox.check()
+      }
+
+      if (option.prosim.click) {
+        await prosimCheckbox.check()
       }
 
       await createButton.click()
@@ -161,15 +205,59 @@ test.describe("Project view tests", () => {
       expect(lastCommand.payload.action).toEqual("file.new")
       expect(lastCommand.payload.options.project.Name).toEqual(option.name)
       expect(lastCommand.payload.options.project.Sim).toEqual(option.value)
-      expect(lastCommand.payload.options.project.UseFsuipc).toEqual(
-        option.useFsuipc,
+      expect(lastCommand.payload.options.project.Features.FSUIPC).toEqual(
+        option.fsuipc.use,
       )
-
-      await dashboardPage.gotoPage()
+      expect(lastCommand.payload.options.project.Features.ProSim).toEqual(
+        option.prosim.use,
+      )
     }
   })
 
-  test("Dont allow new project without a name", async ({ dashboardPage, page }) => {
+  test("Reset feature checkboxes when changing simulator", async ({
+    dashboardPage,
+    page,
+  }) => {
+    await dashboardPage.gotoPage()
+    const createProjectButton = page.getByRole("button", { name: "Project" })
+    const createProjectDialog = page.getByRole("dialog", {
+      name: "Create New Project",
+    })
+    const fsuipcCheckbox = createProjectDialog.getByLabel("FSUIPC")
+    const prosimCheckbox = createProjectDialog.getByLabel("ProSim")
+    const projectNameInput = createProjectDialog.getByLabel("Project Name")
+
+    await createProjectButton.click()
+    await projectNameInput.fill("Test Reset Features")
+
+    // Select MSFS and enable both features
+    const msfsOption = createProjectDialog.getByRole("radio", {
+      name: "msfs",
+    })
+    await msfsOption.click()
+    await fsuipcCheckbox.check()
+    await prosimCheckbox.check()
+
+    expect(await fsuipcCheckbox.isChecked()).toBeTruthy()
+    expect(await prosimCheckbox.isChecked()).toBeTruthy()
+
+    // Change to X-Plane and verify both features are disabled
+    const p3dOption = createProjectDialog.getByRole("radio", {
+      name: "p3d",
+    })
+    await p3dOption.click()
+    expect(await prosimCheckbox.isChecked()).toBeFalsy()
+
+    // Change back to MSFS and verify both features are disabled
+    await msfsOption.click()
+    expect(await fsuipcCheckbox.isChecked()).toBeFalsy()
+    expect(await prosimCheckbox.isChecked()).toBeFalsy()
+  })
+
+  test("Dont allow new project without a name", async ({
+    dashboardPage,
+    page,
+  }) => {
     await dashboardPage.gotoPage()
 
     const createProjectButton = page.getByRole("button", { name: "Project" })
@@ -189,7 +277,9 @@ test.describe("Project view tests", () => {
     await expect(createProjectDialog).toBeVisible()
 
     // Error message is shown
-    const errorMessage = createProjectDialog.getByTestId("form-project-name-error")
+    const errorMessage = createProjectDialog.getByTestId(
+      "form-project-name-error",
+    )
     await expect(errorMessage).toBeVisible()
 
     await projectNameInput.fill("Valid Name")
@@ -205,7 +295,9 @@ test.describe("Project view tests", () => {
     await dashboardPage.mobiFlightPage.initWithTestData()
 
     const currentProjectCard = page.getByTestId("project-card")
-    const projectContextMenu = currentProjectCard.getByRole('button', { name: 'Open menu' })
+    const projectContextMenu = currentProjectCard.getByRole("button", {
+      name: "Open menu",
+    })
     await projectContextMenu.click()
 
     const settingsMenuItem = page.getByRole("menuitem", { name: "Settings" })
@@ -216,6 +308,41 @@ test.describe("Project view tests", () => {
       name: "Edit Project",
     })
     await expect(editProjectDialog).toBeVisible()
+  })
+
+  test("Using [space] and [del] work when on top of config list view", async ({
+    configListPage,
+    page,
+  }) => {
+    // https://github.com/MobiFlight/MobiFlight-Connector/issues/2448
+    await configListPage.gotoPage()
+    await configListPage.mobiFlightPage.initWithTestData()
+
+    const FileMenu = page
+      .getByRole("menubar")
+      .getByRole("menuitem", { name: "File" })
+    await expect(FileMenu).toBeVisible()
+    await FileMenu.click()
+    const NewMenuItem = page.getByRole("menuitem", { name: "New" })
+    await expect(NewMenuItem).toBeVisible()
+    await NewMenuItem.click()
+
+    const createProjectDialog = page.getByRole("dialog", {
+      name: "Create New Project",
+    })
+    await expect(createProjectDialog).toBeVisible()
+
+    const projectNameInput = createProjectDialog.getByLabel("Project Name")
+    await projectNameInput.fill("Test Project With Space")
+
+    await expect(projectNameInput).toHaveValue("Test Project With Space")
+    await projectNameInput.press("Backspace")
+    await projectNameInput.press("Backspace")
+    await projectNameInput.press("Backspace")
+    await projectNameInput.press("Backspace")
+    await projectNameInput.press("Backspace")
+
+    await expect(projectNameInput).toHaveValue("Test Project With ")
   })
 })
 
@@ -288,18 +415,37 @@ test.describe("Project list view tests", () => {
       await expect(projectItems.nth(i)).toContainText("New Project")
     }
   })
+
+  test("Remove projects from recent list", async ({ dashboardPage, page }) => {
+    await dashboardPage.gotoPage()
+    await dashboardPage.mobiFlightPage.initWithTestData()
+    await dashboardPage.mobiFlightPage.trackCommand("CommandMainMenu")
+
+    const recentProjectsList = page.getByTestId("recent-projects-list")
+    const projectItems = recentProjectsList.getByTestId("project-list-item")
+
+    await expect(recentProjectsList).toBeVisible()
+    await expect(projectItems).toHaveCount(27)
+
+    const secondProject = projectItems.nth(1)
+    const removeButton = secondProject.getByRole("button", { name: "Remove" })
+    await expect(removeButton).toBeVisible()
+    await removeButton.click()
+
+    const postedCommands =
+      await dashboardPage.mobiFlightPage.getTrackedCommands()
+    const lastCommand = postedCommands!.pop()
+    expect(lastCommand.key).toEqual("CommandMainMenu")
+    expect(lastCommand.payload.action).toEqual("virtual.recent.remove")
+    expect(lastCommand.payload.index).toEqual(1)
+  })
 })
 
 test.describe("Community Feed tests", () => {
-  test("Confirm default feed items", async ({
-    dashboardPage,
-    page,
-  }) => {
+  test("Confirm default feed items", async ({ dashboardPage, page }) => {
     await dashboardPage.gotoPage()
 
-    await expect(
-      page.getByText("Community Feed"),
-    ).toBeVisible()
+    await expect(page.getByText("Community Feed")).toBeVisible()
 
     const feedFilter = page.getByTestId("community-feed-filter-bar")
     await expect(feedFilter).toBeVisible()
@@ -308,10 +454,12 @@ test.describe("Community Feed tests", () => {
     await expect(allFilterButton).toBeVisible()
     await expect(allFilterButton).toHaveCount(1)
 
-    const communityFilterButton = page.getByRole("button", { name: "Community" })
+    const communityFilterButton = page.getByRole("button", {
+      name: "Community",
+    })
     await expect(communityFilterButton).toBeVisible()
     await expect(communityFilterButton).toHaveCount(1)
-    
+
     const offersFilterButton = page.getByRole("button", { name: "Offers" })
     await expect(offersFilterButton).toBeVisible()
     await expect(offersFilterButton).toHaveCount(1)
@@ -341,7 +489,10 @@ test.describe("Community Feed tests", () => {
     const feedItems = page.getByTestId("community-feed-item")
     await expect(feedItems).toHaveCount(4)
     const offerItem = feedItems.nth(0)
-    const offerButton = offerItem.getByRole("button", { name: "Support Us!", exact: true })
+    const offerButton = offerItem.getByRole("button", {
+      name: "Support Us!",
+      exact: true,
+    })
     await expect(offerButton).toBeVisible()
 
     await dashboardPage.mobiFlightPage.trackCommand("CommandOpenLinkInBrowser")
@@ -351,9 +502,7 @@ test.describe("Community Feed tests", () => {
       await dashboardPage.mobiFlightPage.getTrackedCommands()
     const lastCommand = postedCommands!.pop()
     expect(lastCommand.key).toEqual("CommandOpenLinkInBrowser")
-    expect(lastCommand.payload.url).toEqual(
-      "https://mobiflight.com/donate",
-    )
+    expect(lastCommand.payload.url).toEqual("https://mobiflight.com/donate")
   })
 
   test("Confirm responsiveness small window size", async ({
@@ -365,11 +514,13 @@ test.describe("Community Feed tests", () => {
 
     const feedTitle = page.getByText("Community Feed")
     await expect(feedTitle).not.toBeVisible()
-    
+
     const dashBoardNav = page.getByTestId("dashboard-nav")
     await expect(dashBoardNav).toBeVisible()
 
-    const communityNavButton = dashBoardNav.getByRole("button", { name: "Community" })
+    const communityNavButton = dashBoardNav.getByRole("button", {
+      name: "Community",
+    })
     await expect(communityNavButton).toBeVisible()
     await expect(communityNavButton).toHaveCount(1)
 
