@@ -20,7 +20,7 @@ CELLS = COLUMNS * ROWS
 NG_SDK2_MEMORY_MAP_NAME = "iFly737NG_SDK2_FileMappingObject"
 MAX_SDK_MEMORY_MAP_NAME = "iFly737MAX_SDK_FileMappingObject"
 
-class IflySDK_Identifier(Enum):
+class iFlySDK_Identifier(Enum):
     SDK_UNKNOWN = 1
     SDK_NG = 2
     SDK_MAX = 3
@@ -412,4 +412,4 @@ if __name__ == "__main__":
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
-    asyncio.run(main()) 
+    asyncio.run(main())
