@@ -1,6 +1,7 @@
 using MobiFlight.Base;
 using MobiFlight.BrowserMessages;
 using MobiFlight.BrowserMessages.Incoming;
+using MobiFlight.BrowserMessages.Outgoing;
 using MobiFlight.Execution;
 using MobiFlight.FSUIPC;
 using MobiFlight.InputConfig;
@@ -194,7 +195,7 @@ namespace MobiFlight
             mobiFlightCache.ModuleConnected += new EventHandler(ModuleCache_ModuleConnected);
             mobiFlightCache.ModuleRemoved += new EventHandler(ModuleCache_ModuleRemoved);
             mobiFlightCache.LookupFinished += new EventHandler(mobiFlightCache_LookupFinished);
-            
+
             scriptRunner = new ScriptRunner(joystickManager, this.simConnectCache);
             OnSimAircraftChanged += scriptRunner.OnSimAircraftChanged;
             OnSimAircraftPathChanged += scriptRunner.OnSimAircraftPathChanged;
@@ -221,6 +222,10 @@ namespace MobiFlight
                 OnJoystickConnectedFinished?.Invoke(sender, e);
             };
 
+
+            OnMidiBoardConnectedFinished += (s, e) => { PublishConnectedDevices(); };
+            OnJoystickConnectedFinished += (s, e) => { PublishConnectedDevices(); };
+
             midiBoardManager.OnButtonPressed += new ButtonEventHandler(mobiFlightCache_OnButtonPressed);
             midiBoardManager.Connected += (sender, e) =>
             {
@@ -242,6 +247,42 @@ namespace MobiFlight
             InitializeFrontendSubscriptions();
         }
 
+        private void PublishConnectedDevices()
+        {
+            var connectedControllers = new List<Controller>();
+            mobiFlightCache.GetModules().ToList().ForEach(module =>
+            {
+                connectedControllers.Add(new Controller()
+                {
+                    Name = module.Name,
+                    Connected = true,
+                    Serial = module.Serial
+                });
+            });
+
+            joystickManager.GetJoysticks().ToList().ForEach(controller =>
+            {
+                connectedControllers.Add(new Controller()
+                {
+                    Name = controller.Name,
+                    Connected = true,
+                    Serial = controller.Serial
+                });
+            });
+
+            midiBoardManager.GetMidiBoards().ToList().ForEach(controller =>
+            {
+                connectedControllers.Add(new Controller()
+                {
+                    Name = controller.Name,
+                    Connected = true,
+                    Serial = controller.Serial
+                });
+            });
+
+            MessageExchange.Instance.Publish(new ConnectedControllers() { Controllers = connectedControllers });
+        }
+
         private void FrontendUpdateTimer_Execute(object sender, EventArgs e)
         {
             if (!updateFrontend) return;
@@ -254,7 +295,7 @@ namespace MobiFlight
 
             updatedValues.Keys.ToList().ForEach(key =>
             {
-                if(!updatedValues.TryRemove(key, out var value))
+                if (!updatedValues.TryRemove(key, out var value))
                     return;
 
                 list.Add(new ConfigValueOnlyItem(value));
@@ -288,7 +329,8 @@ namespace MobiFlight
 
             MessageExchange.Instance.Subscribe<CommandAddConfigItem>((message) =>
             {
-                IConfigItem item = new OutputConfigItem() {
+                IConfigItem item = new OutputConfigItem()
+                {
                     Source = SourceFactory.Create(Project.ToProjectInfo().Sim)
                 };
                 if (message.Type == "InputConfig")
@@ -394,6 +436,7 @@ namespace MobiFlight
                             if (module == null)
                             {
                                 // the device is currently not connected.
+                                SettingsDialogRequested?.Invoke("mobiFlightTabPage", null);
                                 return;
                             }
                             SettingsDialogRequested?.Invoke(module, null);
@@ -403,7 +446,7 @@ namespace MobiFlight
                         if (SerialNumber.IsMidiBoardSerial(serial) || SerialNumber.IsJoystickSerial(serial))
                         {
                             // at this point we don't need to pass in anything specific
-                            SettingsDialogRequested?.Invoke(null, null);
+                            SettingsDialogRequested?.Invoke("peripheralsTabPage", null);
                         }
                         break;
 
@@ -504,6 +547,7 @@ namespace MobiFlight
             TestModeStop();
             Stop();
             this.OnModuleConnected?.Invoke(sender, e);
+            PublishConnectedDevices();
         }
 
         private void sim_AircraftChanged(object sender, string e)
@@ -580,6 +624,7 @@ namespace MobiFlight
         void mobiFlightCache_LookupFinished(object sender, EventArgs e)
         {
             OnInitialModuleLookupFinished?.Invoke(sender, e);
+            PublishConnectedDevices();
         }
 
         public void SetPollInterval(int value)
@@ -927,7 +972,11 @@ namespace MobiFlight
             }
             catch (Exception ex)
             {
-                Log.Instance.log($"Error on config execution: {ex.Message}", LogSeverity.Error);
+                // This catch block should rarely be hit because individual config errors are now handled within
+                // ConfigItemExecutor (source read errors, modifier errors, precondition errors, device errors).
+                // If we reach here, it's a critical system-level error, so stopping is appropriate to avoid
+                // repeated failures.
+                Log.Instance.log($"Critical error on config execution: {ex.Message}", LogSeverity.Error);
                 Stop();
             }
         } //timer_Tick()
@@ -937,6 +986,7 @@ namespace MobiFlight
             //_disconnectArcaze();
             this.OnModuleRemoved(sender, e);
             Stop();
+            PublishConnectedDevices();
         }
 
         /// <summary>
@@ -1184,7 +1234,7 @@ namespace MobiFlight
             // without MobiFlight in Run-mode nor in test mode
             // in all other cases it will already be running
             mobiFlightCache.StartKeepAwake();
-            
+
             var executor = new ConfigItemExecutor(ConfigItems,
                                                   arcazeCache,
                                                   fsuipcCache,

@@ -38,6 +38,8 @@ namespace MobiFlight.UI
 
         private const string fileExtensionLoadFilter = "MobiFlight Files|*.mfproj;*.mcc|MobiFlight Project (*.mfproj)|*.mfproj|MobiFlight Connector Config (*.mcc)|*.mcc|ArcazeUSB Interface Config (*.aic) |*.aic";
         private const string fileExtensionSaveFilter = "MobiFlight Project (*.mfproj)|*.mfproj";
+        private const double ZOOM_INCREMENT = 0.1; // 10% zoom increment/decrement
+        private const double ZOOM_MINIMUM = 0.5;   // Minimum zoom level (50%)
         public static String Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
         public static String VersionBeta = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(4);
         public static String Build = new System.IO.FileInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).LastWriteTime.ToString("yyyyMMdd");
@@ -201,6 +203,9 @@ namespace MobiFlight.UI
             // Initialize the board configurations
             BoardDefinitions.LoadDefinitions();
 
+            // Initialize python environment
+            Scripts.PythonEnvironment.Initialize();
+
             // Initialize the custom device configurations
             CustomDevices.CustomDeviceDefinitions.LoadDefinitions();
 
@@ -263,6 +268,13 @@ namespace MobiFlight.UI
                     return;
                 }
                 Process.Start(message.Url);
+            });
+
+            MessageExchange.Instance.Subscribe<CommandControllerBindingsUpdate>((message) =>
+            {
+                ControllerBindingService.UpdateControllerBindings(execManager.Project, message.Bindings);
+                MessageExchange.Instance.Publish(execManager.Project);
+                ProjectOrConfigFileHasChanged();
             });
         }
 
@@ -626,7 +638,7 @@ namespace MobiFlight.UI
 
             if (execManager == null) return;
 
-            MessageExchange.Instance.Publish(new MobiFlight.BrowserMessages.Outgoing.BoardDefinitions() { Definitions = BoardDefinitions.Boards });
+            MessageExchange.Instance.Publish(new BrowserMessages.Outgoing.BoardDefinitions() { Definitions = BoardDefinitions.Boards });
             MessageExchange.Instance.Publish(new JoystickDefinitions() { Definitions = execManager.GetJoystickManager().Definitions });
             MessageExchange.Instance.Publish(new MidiControllerDefinitions() { Definitions = execManager.GetMidiBoardManager().Definitions.Values.ToList() });
         }
@@ -692,7 +704,14 @@ namespace MobiFlight.UI
                     return;
                 }
 
-                ShowSettingsDialog("peripheralsTabPage", null, null, null);
+                if (sender is string)
+                {
+                    ShowSettingsDialog(sender as string, null, null, null);
+                    return;
+                }
+
+                // open the settings dialog without pre-selecting anything.
+                ShowSettingsDialog(null, null, null, null);
             }, null);
         }
 
@@ -1224,7 +1243,8 @@ namespace MobiFlight.UI
         void execManager_OnTestModeException(object sender, EventArgs e)
         {
             StopExecution();
-            _showError((sender as Exception).Message);
+            var errorMessage = (sender as Exception)?.Message ?? "An error occurred during test mode";
+            ShowNotification("TestModeException", new Dictionary<string, string>() { { "ErrorMessage", errorMessage } }, errorMessage);
         }
 
         void Default_SettingChanging(object sender, System.Configuration.SettingChangingEventArgs e)
@@ -1647,28 +1667,29 @@ namespace MobiFlight.UI
 
             if (!execManager.SimAvailable())
             {
-                _showError(i18n._tr("uiMessageFsHasBeenStopped"));
+                ShowNotification("SimStopped", null, i18n._tr("uiMessageFsHasBeenStopped"));
                 UpdateAllConnectionIcons();
                 return;
             }
 
             if (sender.GetType() == typeof(SimConnectCache))
             {
-                _showError(i18n._tr("uiMessageSimConnectConnectionLost"));
+                ShowConnectionLost("SimConnect", i18n._tr("uiMessageSimConnectConnectionLost"));
                 UpdateSimConnectStatusIcon();
             }
             else if (sender.GetType() == typeof(XplaneCache))
             {
-                _showError(i18n._tr("uiMessageXplaneConnectionLost"));
+                ShowConnectionLost("X-Plane", i18n._tr("uiMessageXplaneConnectionLost"));
                 UpdateXplaneDirectConnectStatusIcon();
             }
             else if (sender is ProSim.ProSimCacheInterface)
             {
+                ShowConnectionLost("ProSim", i18n._tr("uiMessageProSimConnectionLost"));
                 UpdateProSimStatusIcon();
             }
             else
             {
-                _showError(i18n._tr("uiMessageFsuipcConnectionLost"));
+                ShowConnectionLost("FSUIPC", i18n._tr("uiMessageFsuipcConnectionLost"));
                 if (execManager.GetSimConnectCache().IsConnected())
                     UpdateFsuipcStatusIcon();
             }
@@ -1832,6 +1853,34 @@ namespace MobiFlight.UI
                 notifyIcon.ShowBalloonTip(1000, i18n._tr("Hint"), msg, ToolTipIcon.Warning);
             }
         } //_showError()
+
+        /// <summary>
+        /// Shows connection lost notification using toast or balloon tip depending on window state
+        /// </summary>
+        private void ShowConnectionLost(string simType, string fallbackMessage)
+        {
+            ShowNotification("SimConnectionLost", new Dictionary<string, string>() { { "SimType", simType } }, fallbackMessage);
+        } //ShowConnectionLost()
+
+        /// <summary>
+        /// Shows a notification using toast or balloon tip depending on window state
+        /// </summary>
+        private void ShowNotification(string eventName, Dictionary<string, string> context, string fallbackMessage)
+        {
+            if (this.WindowState == FormWindowState.Minimized)
+            {
+                // When minimized, use the existing _showError method which handles balloon notifications
+                _showError(fallbackMessage);
+                return;
+            }
+
+            // Show toast notification when not minimized
+            MessageExchange.Instance.Publish(new Notification()
+            {
+                Event = eventName,
+                Context = context
+            });
+        } //ShowNotification()
 
         /// <summary>
         /// handles the resize event
@@ -2133,6 +2182,9 @@ namespace MobiFlight.UI
                     if (opd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                     {
                         ProjectHasUnsavedChanges = opd.HasChanged();
+
+                        if (!ProjectHasUnsavedChanges) return;
+
                         var udpatedConfigs = opd.GetUpdatedConfigs();
 
                         for (int i = 0; i < execManager.Project.ConfigFiles.Count; i++)
@@ -2140,7 +2192,8 @@ namespace MobiFlight.UI
                             execManager.Project.ConfigFiles[i].ConfigItems = udpatedConfigs[i];
                         }
 
-                        MessageExchange.Instance.Publish(execManager.Project);
+                        ControllerBindingService.PerformAutoBinding(execManager.Project);
+                        saveToolStripButton_Click(this, new EventArgs());
                     }
                 }
                 else
@@ -2208,12 +2261,22 @@ namespace MobiFlight.UI
             catch (Exception ex)
             {
                 MessageBox.Show($"Unable to save: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageExchange.Instance.Publish(new ProjectStatus()
+                {
+                    HasChanged = ProjectHasUnsavedChanges,
+                    SaveStatus = "error"
+                });
                 return;
             }
 
             MessageExchange.Instance.Publish(execManager.Project);
             _storeAsRecentFile(execManager.Project.FilePath);
             ResetProjectAndConfigChanges();
+            MessageExchange.Instance.Publish(new ProjectStatus()
+            {
+                HasChanged = ProjectHasUnsavedChanges,
+                SaveStatus = "success"
+            });
         }
 
         private void UpdateSimConnectStatusIcon()
@@ -2437,7 +2500,14 @@ namespace MobiFlight.UI
             if (DialogResult.OK == fd.ShowDialog())
             {
                 SaveConfig(fd.FileName);
+                return;
             }
+
+            MessageExchange.Instance.Publish(new ProjectStatus()
+            {
+                HasChanged = ProjectHasUnsavedChanges,
+                SaveStatus = "cancelled"
+            });
         } //saveToolStripMenuItem_Click()
 
         private void TaskBar_StartProjectExecution(object sender, EventArgs e)
@@ -2527,6 +2597,40 @@ namespace MobiFlight.UI
             Process.Start("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7GV3DCC7BXWLY");
         }
 
+        /// <summary>
+        /// Increases the zoom level of the WebView2 frontend by 10%
+        /// </summary>
+        public void ZoomIn()
+        {
+            double currentZoom = frontendPanel1.GetZoomFactor();
+            if (currentZoom > 0.0)
+            {
+                double newZoom = currentZoom + ZOOM_INCREMENT;
+                frontendPanel1.SetZoomFactor(newZoom);
+            }
+        }
+
+        /// <summary>
+        /// Decreases the zoom level of the WebView2 frontend by 10%
+        /// </summary>
+        public void ZoomOut()
+        {
+            double currentZoom = frontendPanel1.GetZoomFactor();
+            if (currentZoom > 0.0)
+            {
+                double newZoom = Math.Max(currentZoom - ZOOM_INCREMENT, ZOOM_MINIMUM);
+                frontendPanel1.SetZoomFactor(newZoom);
+            }
+        }
+
+        /// <summary>
+        /// Resets the zoom level of the WebView2 frontend to 100%
+        /// </summary>
+        public void ZoomReset()
+        {
+            frontendPanel1.SetZoomFactor(1.0);
+        }
+
         private void MainForm_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.Control && e.KeyCode == Keys.S)       // Ctrl-S Save
@@ -2535,11 +2639,6 @@ namespace MobiFlight.UI
                 e.SuppressKeyPress = true;  // Stops bing! Also sets handled which stop event bubbling
                 if (ProjectHasUnsavedChanges)
                     saveToolStripButton_Click(null, null);
-            }
-
-            if (e.Control && (e.KeyCode == Keys.D0 || e.KeyCode == Keys.NumPad0))
-            {
-                frontendPanel1.SetZoomFactor(1.0f);
             }
         }
 

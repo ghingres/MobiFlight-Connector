@@ -12,11 +12,13 @@ import { useRecentProjects, useSettingsStore } from "./stores/settingsStore"
 import { useControllerDefinitionsStore } from "./stores/definitionStore"
 import {
   BoardDefinitions,
+  ConnectedControllers,
   ExecutionState,
   HubHopState,
   JoystickDefinitions,
   MidiControllerDefinitions,
   OverlayState,
+  ProjectStatus,
   RecentProjects,
 } from "./types/messages"
 import {
@@ -33,6 +35,7 @@ import testProject from "@/../tests/data/project.testdata.json" with { type: "js
 import testJsDefinition from "@/../tests/data/joystick.definition.json" with { type: "json" }
 import testMidiDefinition from "@/../tests/data/midicontroller.definition.json" with { type: "json" }
 import testRecentProjects from "@/../tests/data/recentProjects.testdata.json" with { type: "json" }
+import testControllers from "@/../tests/data/connectedControllers.testdata.json" with { type: "json" }
 
 import {
   MidiControllerDefinition,
@@ -41,13 +44,16 @@ import {
 import DebugInfo from "@/components/DebugInfo"
 import { useExecutionStateStore } from "@/stores/executionStateStore"
 import { ProjectInfo } from "@/types/project"
+import { useControllerStore } from "@/stores/controllerStore"
+import { useTranslation } from "react-i18next"
 
 function App() {
   const [queryParameters] = useSearchParams()
   const navigate = useNavigate()
-  const { project, setProject, setHasChanged } = useProjectStore()
+  const { project, setProject, setProjectStatus } = useProjectStore()
   const { setRecentProjects } = useRecentProjects()
   const { setSettings } = useSettingsStore()
+  const { setControllers } = useControllerStore()
   const {
     setBoardDefinitions,
     setJoystickDefinitions,
@@ -137,9 +143,9 @@ function App() {
   })
 
   useAppMessage("ProjectStatus", (message) => {
-    const projectStatus = message.payload as { HasChanged: boolean }
+    const projectStatus = message.payload as ProjectStatus
     console.log("ProjectStatus message received", projectStatus)
-    setHasChanged(projectStatus.HasChanged)
+    setProjectStatus(projectStatus)
   })
 
   useAppMessage("OverlayState", (message) => {
@@ -151,6 +157,11 @@ function App() {
   useAppMessage("HubHopState", (message) => {
     const state = message.payload as HubHopState
     setHubHopState(state)
+  })
+
+  useAppMessage("ConnectedControllers", (message) => {
+    const controllers = (message.payload as ConnectedControllers).Controllers
+    setControllers(controllers)
   })
 
   useEffect(() => {
@@ -175,6 +186,8 @@ function App() {
       setMidiControllerDefinitions([
         testMidiDefinition as MidiControllerDefinition,
       ])
+
+      setControllers(testControllers as ConnectedControllers["Controllers"])
     }
   }, [
     project,
@@ -183,6 +196,7 @@ function App() {
     setMidiControllerDefinitions,
     setProject,
     setRecentProjects,
+    setControllers,
   ])
 
   useAppMessage("ExecutionState", (message) => {
@@ -191,11 +205,16 @@ function App() {
     setIsRunning(IsRunning)
     setIsTesting(IsTesting)
   })
+  const { t } = useTranslation()
 
   return (
     <>
       {overlayVisible && (
-        <LoaderOverlay open={overlayVisible} onOpenChange={setOverlayVisible} />
+        <LoaderOverlay
+          open={overlayVisible}
+          onOpenChange={setOverlayVisible}
+          message={t("General.Overlay.OpeningWizard")}
+        />
       )}
       {outlet ? (
         <div className="flex h-svh flex-row overflow-hidden p-0 select-none">

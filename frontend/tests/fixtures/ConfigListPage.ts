@@ -8,7 +8,6 @@ import {
   ConfigValueFullUpdate,
   ConfigValuePartialUpdate,
   OverlayState,
-  ProjectStatus,
 } from "@/types/messages"
 import { CommandUpdateConfigItem } from "@/types/commands"
 import {
@@ -22,8 +21,12 @@ import { ConfigValueRawAndFinalUpdate, ExecutionState } from "@/types/messages"
 export class ConfigListPage {
   constructor(public readonly mobiFlightPage: MobiFlightPage) {}
 
+  getPageUrl() {
+    return "http://localhost:5173/config"
+  }
+
   async gotoPage() {
-    await this.mobiFlightPage.page.goto("http://localhost:5173/config", {
+    await this.mobiFlightPage.page.goto(this.getPageUrl(), {
       waitUntil: "networkidle",
     })
   }
@@ -64,7 +67,10 @@ export class ConfigListPage {
     )
   }
 
-  async configValueFullUpdate(ConfigItems: IConfigItem[], configIndex: number = 0) {
+  async configValueFullUpdate(
+    ConfigItems: IConfigItem[],
+    configIndex: number = 0,
+  ) {
     const message: AppMessage = {
       key: "ConfigValueFullUpdate",
       payload: {
@@ -182,14 +188,6 @@ export class ConfigListPage {
     await this.mobiFlightPage.publishMessage(message)
   }
 
-  async updateProjectState(projectStatus: ProjectStatus) {
-    const message: AppMessage = {
-      key: "ProjectStatus",
-      payload: projectStatus,
-    }
-    await this.mobiFlightPage.publishMessage(message)
-  }
-
   async setOverlayState(state: OverlayState) {
     const message: AppMessage = {
       key: "OverlayState",
@@ -199,7 +197,8 @@ export class ConfigListPage {
   }
 
   async filterByText(text: string) {
-    const filterInput = this.mobiFlightPage.page.getByPlaceholder("Filter items...")
+    const filterInput =
+      this.mobiFlightPage.page.getByPlaceholder("Filter items...")
     await filterInput.fill(text)
   }
 }

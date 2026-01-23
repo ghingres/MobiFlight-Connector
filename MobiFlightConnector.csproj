@@ -164,8 +164,9 @@
     <Reference Include="NCalc">
       <HintPath>lib\NCalc.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
       <HintPath>packages\Newtonsoft.Json.13.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json.Schema, Version=4.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
       <HintPath>packages\Newtonsoft.Json.Schema.4.0.1\lib\net45\Newtonsoft.Json.Schema.dll</HintPath>
@@ -192,8 +193,8 @@
       <HintPath>packages\System.Buffers.4.6.1\lib\net462\System.Buffers.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.CodeDom, Version=10.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
-      <HintPath>packages\System.CodeDom.10.0.1\lib\net462\System.CodeDom.dll</HintPath>
+    <Reference Include="System.CodeDom, Version=10.0.0.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
+      <HintPath>packages\System.CodeDom.10.0.2\lib\net462\System.CodeDom.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Collections.Immutable, Version=10.0.0.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
@@ -244,6 +245,8 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="vJoyInterfaceWrap, Version=0.2.1.6, Culture=neutral, processorArchitecture=x86">
@@ -274,6 +277,9 @@
     <Content Include="Scripts\Winwing\zibo_737_800x.py">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Scripts\Winwing\microsoft_aircraft_ec135.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base\AutoUpdateChecker.cs" />
@@ -287,6 +293,7 @@
     <Compile Include="Base\ConfigRef.cs" />
     <Compile Include="Base\ConfigRefList.cs" />
     <Compile Include="Base\ConfigItemStatus.cs" />
+    <Compile Include="Base\Controller.cs" />
     <Compile Include="Base\DPIUtil.cs" />
     <Compile Include="Base\Extensions.cs" />
     <Compile Include="Base\FullCacheInterface.cs" />
@@ -322,6 +329,7 @@
     <Compile Include="MobiFlight\BrowserMessages\Incoming\CommandAddConfigFile.cs" />
     <Compile Include="MobiFlight\BrowserMessages\Incoming\CommandAddConfigItem.cs" />
     <Compile Include="MobiFlight\BrowserMessages\Incoming\CommandConfigBulkAction.cs" />
+    <Compile Include="MobiFlight\BrowserMessages\Incoming\CommandControllerBindingsUpdate.cs" />
     <Compile Include="MobiFlight\BrowserMessages\Incoming\CommandProjectToolbar.cs" />
     <Compile Include="MobiFlight\BrowserMessages\Incoming\CommandMainMenu.cs" />
     <Compile Include="MobiFlight\BrowserMessages\Incoming\CommandFileContexMenu.cs" />
@@ -337,6 +345,7 @@
     <Compile Include="MobiFlight\BrowserMessages\Incoming\Handler\CommandMainMenuHandler.cs" />
     <Compile Include="MobiFlight\BrowserMessages\Message.cs" />
     <Compile Include="MobiFlight\BrowserMessages\MessageExchange.cs" />
+    <Compile Include="MobiFlight\BrowserMessages\Outgoing\ConnectedControllers.cs" />
     <Compile Include="MobiFlight\BrowserMessages\Outgoing\RecentProjects.cs" />
     <Compile Include="MobiFlight\BrowserMessages\Outgoing\ConfigValuePartialUpdate.cs" />
     <Compile Include="MobiFlight\BrowserMessages\Outgoing\ConfigValueFullUpdate.cs" />
@@ -405,10 +414,7 @@
     <Compile Include="MobiFlight\Joysticks\VKB\VKBLedContainer.cs" />
     <Compile Include="MobiFlight\Joysticks\WingFlex\FcuCube.cs" />
     <Compile Include="MobiFlight\Joysticks\WingFlex\FcuCubeReport.cs" />
-    <Compile Include="MobiFlight\Joysticks\Winwing\WinwingAgp.cs" />
-    <Compile Include="MobiFlight\Joysticks\Winwing\WinwingEcam.cs" />
-    <Compile Include="MobiFlight\Joysticks\Winwing\WinwingAirbusSidestick.cs" />
-    <Compile Include="MobiFlight\Joysticks\Winwing\Winwing3Pdc.cs" />
+    <Compile Include="MobiFlight\Joysticks\Winwing\WinwingBaseController.cs" />
     <Compile Include="MobiFlight\Joysticks\Winwing\WinwingPap3.cs" />
     <Compile Include="MobiFlight\Joysticks\Winwing\WinwingPap3Report.cs" />
     <Compile Include="MobiFlight\Joysticks\Winwing\WinwingCdu.cs" />
@@ -416,7 +422,6 @@
     <Compile Include="MobiFlight\Joysticks\Winwing\WinwingControllerFactory.cs" />
     <Compile Include="MobiFlight\Joysticks\Winwing\WinwingFcu.cs" />
     <Compile Include="MobiFlight\Joysticks\Winwing\WinwingFcuReport.cs" />
-    <Compile Include="MobiFlight\Joysticks\Winwing\WinwingAirbusThrottle.cs" />
     <Compile Include="MobiFlight\JsonBackedObject.cs" />
     <Compile Include="MobiFlight\MaximumDeviceNumberReachedMobiFlightException.cs" />
     <Compile Include="MobiFlight\MidiBoard\MidiBoard.cs" />
@@ -461,7 +466,7 @@
     <Compile Include="HubHop\Msfs2020HubhopPresetList.cs" />
     <Compile Include="MobiFlight\PortDetails.cs" />
     <Compile Include="MobiFlight\Joysticks\Winwing\CduChar.cs" />
-    <Compile Include="MobiFlight\Scripts\PythonEnvironmentValidator.cs" />
+    <Compile Include="MobiFlight\Scripts\PythonEnvironment.cs" />
     <Compile Include="MobiFlight\Scripts\UserMessageCodes.cs" />
     <Compile Include="MobiFlight\ThreadSafeWebView2.cs">
       <SubType>Component</SubType>
@@ -2262,6 +2267,7 @@
 xcopy /R /Y "$(ProjectDir)Lib\x86\SimConnect.dll" "$(TargetDir)"
 xcopy /R /E /Y /I "$(ProjectDir)MSFS2020-module" "$(TargetDir)MSFS2020-module"
 xcopy /R /E /Y /I "$(ProjectDir)Arduino" "$(TargetDir)Arduino"
+xcopy /R /E /Y /I /D "$(ProjectDir)Python\*.zip" "$(TargetDir)Python\"
 del "$(TargetDir)\log.txt"
 del "$(TargetDir)MSFS2020-module\mobiflight-event-module\modules\events.user.txt"</PreBuildEvent>
   </PropertyGroup>

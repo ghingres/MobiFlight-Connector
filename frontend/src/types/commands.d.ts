@@ -27,6 +27,7 @@ export type CommandMessage =
   | CommandProjectToolbar
   | CommandDiscardChanges
   | CommandOpenLinkInBrowser
+  | CommandControllerBindingsUpdate
 
 export interface CommandMessageBase {
   key: CommandMessageKey
@@ -127,6 +128,9 @@ export type CommandMainMenuPayload = {
     | "extras.copylogs"
     | "extras.serials"
     | "extras.settings"
+    | "view.zoom.in"
+    | "view.zoom.out"
+    | "view.zoom.reset"
     | "help.docs"
     | "help.checkforupdate"
     | "help.discord"
@@ -175,5 +179,12 @@ export interface CommandOpenLinkInBrowser extends CommandMessageBase {
   key: "CommandOpenLinkInBrowser"
   payload: {
     url: string
+  }
+}
+
+export interface CommandControllerBindingsUpdate extends CommandMessageBase {
+  key: "CommandControllerBindingsUpdate"
+  payload: {
+    bindings: ControllerBinding[]
   }
 }

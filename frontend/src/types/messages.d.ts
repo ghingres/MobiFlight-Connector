@@ -20,10 +20,11 @@ export type AppMessageKey =
   | "OverlayState"
   | "Notification"
   | "HubHopState"
+  | "ConnectedControllers"
 
 export type AppMessagePayload =
   | StatusBarUpdate
-  | ConfigLoadedEvent  
+  | ConfigLoadedEvent
   | ConfigValueFullUpdate
   | ConfigValuePartialUpdate
   | ConfigValueRawAndFinalUpdate
@@ -36,12 +37,13 @@ export type AppMessagePayload =
   | Notification
   | HubHopState
   | RecentProjects
-  
+  | ConnectedControllers
+
 // AppMessage is the message format
 // when receiving messages from the backend
 export type AppMessage = {
   key: AppMessageKey
-  payload: AppMessagePayload | Settings | Project 
+  payload: AppMessagePayload | Settings | Project
 }
 
 // ConfigLoadedEvent
@@ -96,6 +98,7 @@ export interface MidiControllerDefinitions {
 
 export interface ProjectStatus {
   HasChanged: boolean
+  SaveStatus: "idle" | "saving" | "success" | "error"
 }
 
 export interface OverlayState {
@@ -103,7 +106,13 @@ export interface OverlayState {
 }
 
 export interface Notification {
-  Event: "ControllerAutoBindSuccessful" | "ControllerManualBindRequired" | "ProjectFileExtensionMigrated"
+  Event:
+    | "ControllerAutoBindSuccessful"
+    | "ControllerManualBindRequired"
+    | "ProjectFileExtensionMigrated"
+    | "SimConnectionLost"
+    | "SimStopped"
+    | "TestModeException"
   Guid?: string
   Context: Record<string, string> | null
 }
@@ -117,6 +126,10 @@ export interface HubHopState {
 
 export interface RecentProjects {
   Projects: ProjectInfo[]
+}
+
+export interface ConnectedControllers {
+  Controllers: Controller[]
 }
 
 // Not sure what this is for
