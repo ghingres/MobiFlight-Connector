@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using FSUIPC;
+using System.Collections.Concurrent;
 
 namespace MobiFlight.FSUIPC
 {
     public class Fsuipc2Cache : FSUIPCCacheInterface
     {
+        private static object fsuipc_lock = new object();
 
         public event EventHandler Closed;
 
@@ -14,16 +16,16 @@ namespace MobiFlight.FSUIPC
         public event EventHandler ConnectionLost;
         public event EventHandler<string> AircraftChanged;
 
-        Dictionary<Int32, Offset<Byte>> __cacheByte = new Dictionary<Int32, Offset<Byte>>();        
-        Dictionary<Int32, Offset<Int16>> __cacheShort = new Dictionary<Int32, Offset<Int16>>();
-        //Dictionary<Int32, Offset<UInt16>> __cacheUShort = new Dictionary<Int32, Offset<UInt16>>();
-        Dictionary<Int32, Offset<Int32>> __cacheInt = new Dictionary<Int32, Offset<Int32>>();
-        //Dictionary<Int32, Offset<UInt32>> __cacheUInt = new Dictionary<Int32, Offset<UInt32>>();
-        Dictionary<Int32, Offset<Single>> __cacheFloat = new Dictionary<Int32, Offset<Single>>();
-        Dictionary<Int32, Offset<Int64>> __cacheLong = new Dictionary<Int32, Offset<Int64>>();
-        //Dictionary<Int32, Offset<UInt64>> __cacheULong = new Dictionary<Int32, Offset<UInt64>>();
-        Dictionary<Int32, Offset<Double>> __cacheDouble = new Dictionary<Int32, Offset<Double>>();
-        Dictionary<Int32, Offset<String>> __cacheString = new Dictionary<Int32, Offset<String>>();
+        ConcurrentDictionary<Int32, Offset<Byte>> __cacheByte = new ConcurrentDictionary<Int32, Offset<Byte>>();
+        ConcurrentDictionary<Int32, Offset<Int16>> __cacheShort = new ConcurrentDictionary<Int32, Offset<Int16>>();
+        //ConcurrentDictionary<Int32, Offset<UInt16>> __cacheUShort = new ConcurrentDictionary<Int32, Offset<UInt16>>();
+        ConcurrentDictionary<Int32, Offset<Int32>> __cacheInt = new ConcurrentDictionary<Int32, Offset<Int32>>();
+        //ConcurrentDictionary<Int32, Offset<UInt32>> __cacheUInt = new ConcurrentDictionary<Int32, Offset<UInt32>>();
+        ConcurrentDictionary<Int32, Offset<Single>> __cacheFloat = new ConcurrentDictionary<Int32, Offset<Single>>();
+        ConcurrentDictionary<Int32, Offset<Int64>> __cacheLong = new ConcurrentDictionary<Int32, Offset<Int64>>();
+        //ConcurrentDictionary<Int32, Offset<UInt64>> __cacheULong = new ConcurrentDictionary<Int32, Offset<UInt64>>();
+        ConcurrentDictionary<Int32, Offset<Double>> __cacheDouble = new ConcurrentDictionary<Int32, Offset<Double>>();
+        ConcurrentDictionary<Int32, Offset<String>> __cacheString = new ConcurrentDictionary<Int32, Offset<String>>();
 
         private readonly Offset<Int32> __macroParam = new Offset<Int32>("macro", 0x0d6c, true);
         private readonly Offset<string> __macroName = new Offset<string>("macro", 0xd70, 40, true);
@@ -132,7 +134,10 @@ namespace MobiFlight.FSUIPC
             if (IsConnected() && _offsetsRegistered && !__isProcessed) {
                 try
                 {
-                    FSUIPCConnection.Process();
+                    lock (fsuipc_lock)
+                    {
+                        FSUIPCConnection.Process();
+                    }
                 }
                 catch (Exception e)
                 {
@@ -159,7 +164,10 @@ namespace MobiFlight.FSUIPC
                         _offsetsRegistered = true;
                         try
                         {
-                            FSUIPCConnection.Process();
+                            lock (fsuipc_lock)
+                            {
+                                FSUIPCConnection.Process();
+                            }
                         }
                         catch (Exception e)
                         {
@@ -176,7 +184,10 @@ namespace MobiFlight.FSUIPC
                         _offsetsRegistered = true;
                         try
                         {
-                            FSUIPCConnection.Process();
+                            lock (fsuipc_lock)
+                            {
+                                FSUIPCConnection.Process();
+                            }
                         }
                         catch (Exception e)
                         {
@@ -193,7 +204,10 @@ namespace MobiFlight.FSUIPC
                         _offsetsRegistered = true;
                         try
                         {
-                            FSUIPCConnection.Process();
+                            lock (fsuipc_lock)
+                            {
+                                FSUIPCConnection.Process();
+                            }
                         }
                         catch (Exception e)
                         {
@@ -210,7 +224,10 @@ namespace MobiFlight.FSUIPC
                         _offsetsRegistered = true;
                         try
                         {
-                            FSUIPCConnection.Process();
+                            lock (fsuipc_lock)
+                            {
+                                FSUIPCConnection.Process();
+                            }
                         }
                         catch (Exception e)
                         {
@@ -305,7 +322,10 @@ namespace MobiFlight.FSUIPC
                 _offsetsRegistered = true;
                 try
                 {
-                    FSUIPCConnection.Process();
+                    lock (fsuipc_lock)
+                    {
+                        FSUIPCConnection.Process();
+                    }
                 }
                 catch (Exception e)
                 {
@@ -330,7 +350,10 @@ namespace MobiFlight.FSUIPC
                 _offsetsRegistered = true;
                 try
                 {
-                    FSUIPCConnection.Process();
+                    lock (fsuipc_lock)
+                    {
+                        FSUIPCConnection.Process();
+                    }
                 }
                 catch (Exception e)
                 {
@@ -355,7 +378,10 @@ namespace MobiFlight.FSUIPC
                 _offsetsRegistered = true;
                 try
                 {
-                    FSUIPCConnection.Process();
+                    lock (fsuipc_lock)
+                    {
+                        FSUIPCConnection.Process();
+                    }
                 }
                 catch (Exception e)
                 {
@@ -381,7 +407,10 @@ namespace MobiFlight.FSUIPC
                 _offsetsRegistered = true;
                 try
                 {
-                    FSUIPCConnection.Process();
+                    lock (fsuipc_lock)
+                    {
+                        FSUIPCConnection.Process();
+                    }
                 }
                 catch (Exception e)
                 {
@@ -397,75 +426,141 @@ namespace MobiFlight.FSUIPC
 
         public void setOffset(int offset, byte value)
         {
-            if (!__cacheByte.ContainsKey(offset))
+            lock (fsuipc_lock)
             {
-                __cacheByte[offset] = new Offset<Byte>(offset);
-                _offsetsRegistered = true;
-            }
+                if (!__cacheByte.ContainsKey(offset))
+                {
+                    __cacheByte[offset] = new Offset<Byte>(offset);
+                    _offsetsRegistered = true;
+                }
 
-            __cacheByte[offset].Value = value;
+                ((Offset<Byte>)__cacheByte[offset]).ActionAtNextProcess = OffsetAction.Write;
+                __cacheByte[offset].Value = value;
+
+                //long retval = this.getValue(offset, 1);
+                //if (retval != value)
+                //{
+                //    Log.Instance.log($"Recovered SetOffset() failure: Byte offset {offset}, value was {retval} after requesting {value}", LogSeverity.Warn);
+                //    __cacheByte[offset].Value = value;
+                //}
+            }
         }
 
         public void setOffset(int offset, short value)
         {
-            if (!__cacheShort.ContainsKey(offset))
+            lock (fsuipc_lock)
             {
-                __cacheShort[offset] = new Offset<Int16>(offset);
-                _offsetsRegistered = true;
-            }
+                if (!__cacheShort.ContainsKey(offset))
+                {
+                    __cacheShort[offset] = new Offset<Int16>(offset);
+                    _offsetsRegistered = true;
+                }
 
-            __cacheShort[offset].Value = value;
+                ((Offset<Int16>)__cacheShort[offset]).ActionAtNextProcess = OffsetAction.Write;
+                __cacheShort[offset].Value = value;
+
+                //long retval = this.getValue(offset, 2);
+                //if (retval != value)
+                //{
+                //    Log.Instance.log($"Recovered SetOffset() failure: Short offset {offset}, value was {retval} after requesting {value}", LogSeverity.Warn);
+                //    __cacheShort[offset].Value = value;
+                //}
+            }
         }
 
         public void setOffset(int offset, int value, bool writeOnly = false)
         {
-            if (!__cacheInt.ContainsKey(offset))
+            lock (fsuipc_lock)
             {
-                __cacheInt[offset] = new Offset<Int32>(offset, writeOnly);
-                _offsetsRegistered = true;
-            }
+                if (!__cacheInt.ContainsKey(offset))
+                {
+                    __cacheInt[offset] = new Offset<Int32>(offset, writeOnly);
+                    _offsetsRegistered = true;
+                }
 
-            __cacheInt[offset].Value = value;
+                ((Offset<Int32>)__cacheInt[offset]).ActionAtNextProcess = OffsetAction.Write;
+                __cacheInt[offset].Value = value;
+
+                //long retval = this.getValue(offset, 4);
+                //if (retval != value)
+                //{
+                //    Log.Instance.log($"Recovered SetOffset() failure: Int offset {offset}, value was {retval} after requesting {value}", LogSeverity.Warn);
+                //    __cacheInt[offset].Value = value;
+                //}
+            }
         }
 
         public void setOffset(int offset, float value)
         {
-            if (!__cacheFloat.ContainsKey(offset))
+            lock (fsuipc_lock)
             {
-                __cacheFloat[offset] = new Offset<float>(offset);
-                _offsetsRegistered = true;
-            }
+                if (!__cacheFloat.ContainsKey(offset))
+                {
+                    __cacheFloat[offset] = new Offset<float>(offset);
+                    _offsetsRegistered = true;
+                }
 
-            __cacheFloat[offset].Value = value;
+                ((Offset<float>)__cacheFloat[offset]).ActionAtNextProcess = OffsetAction.Write;
+                __cacheFloat[offset].Value = value;
+
+                //double retval = this.getFloatValue(offset, 4);
+                //if (retval != value)
+                //{
+                //    Log.Instance.log($"Recovered SetOffset() failure: Float offset {offset}, value was {retval} after requesting {value}", LogSeverity.Warn);
+                //    __cacheFloat[offset].Value = value;
+                //}
+            }
         }
 
         public void setOffset(int offset, double value)
         {
-            if (!__cacheDouble.ContainsKey(offset))
+            lock (fsuipc_lock)
             {
-                __cacheDouble[offset] = new Offset<double>(offset);
-                _offsetsRegistered = true;
-            }
+                if (!__cacheDouble.ContainsKey(offset))
+                {
+                    __cacheDouble[offset] = new Offset<double>(offset);
+                    _offsetsRegistered = true;
+                }
 
-            __cacheDouble[offset].Value = value;
+                ((Offset<double>)__cacheDouble[offset]).ActionAtNextProcess = OffsetAction.Write;
+                __cacheDouble[offset].Value = value;
+
+                //double retval = this.getDoubleValue(offset, 5);
+                //if (retval != value)
+                //{
+                //    Log.Instance.log($"Recovered SetOffset() failure: Double offset {offset}, value was {retval} after requesting {value}", LogSeverity.Warn);
+                //    __cacheDouble[offset].Value = value;
+                //}
+            }
         }
 
         public void setOffset(int offset, string value)
         {
-            // +1 needed because fsuipc string must end with 0x00 and last char is auto set by library
-            int stringLength = value.Length + 1; 
-            if (!__cacheString.ContainsKey(offset))
+            lock (fsuipc_lock)
             {
-                __cacheString[offset] = new Offset<String>(offset, stringLength);
-                _offsetsRegistered = true;                
-            }
-            else if (__cacheString[offset].DataLength != (stringLength))
-            {
-                __cacheString[offset].Disconnect();
-                __cacheString[offset] = new Offset<String>(offset, stringLength);
-            }
+                // +1 needed because fsuipc string must end with 0x00 and last char is auto set by library
+                int stringLength = value.Length + 1;
+                if (!__cacheString.ContainsKey(offset))
+                {
+                    __cacheString[offset] = new Offset<String>(offset, stringLength);
+                    _offsetsRegistered = true;
+                }
+                else if (__cacheString[offset].DataLength != (stringLength))
+                {
+                    __cacheString[offset].Disconnect();
+                    __cacheString[offset] = new Offset<String>(offset, stringLength);
+                }
 
-            __cacheString[offset].Value = value;
+                ((Offset<String>)__cacheString[offset]).ActionAtNextProcess = OffsetAction.Write;
+                __cacheString[offset].Value = value;
+
+                //string retval = this.getStringValue(offset, (byte)stringLength);
+                //if (retval != value)
+                //{
+                //    Log.Instance.log($"Recovered SetOffset() failure: String offset {offset}, value was {retval} after requesting {value}", LogSeverity.Warn);
+                //    __cacheString[offset].Value = value;
+                //}
+            }
         }
 
         public void executeMacro(string macroName, int paramValue)
@@ -473,7 +568,10 @@ namespace MobiFlight.FSUIPC
             __macroParam.Value = paramValue;
             __macroName.Value = macroName;
             try {
-                FSUIPCConnection.Process("macro");
+                lock (fsuipc_lock)
+                {
+                    FSUIPCConnection.Process("macro");
+                }
             }
             catch (Exception e)
             {
@@ -485,7 +583,10 @@ namespace MobiFlight.FSUIPC
         public void setEventID(int eventID, int param)
         {
             try {
-                FSUIPCConnection.SendControlToFS(eventID, param);
+                lock (fsuipc_lock)
+                {
+                    FSUIPCConnection.SendControlToFS(eventID, param);
+                }
             }
             catch (Exception e)
             {
@@ -509,9 +610,12 @@ namespace MobiFlight.FSUIPC
                 // we have no offset registered
                 if (_offsetsRegistered && IsConnected())
                 {
-                    FSUIPCConnection.Process();
-                    long milliseconds = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
-                    lastProcessedMs = milliseconds;
+                    lock (fsuipc_lock)
+                    {
+                        FSUIPCConnection.Process();
+                        long milliseconds = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
+                        lastProcessedMs = milliseconds;
+                    }
                 }
             }
             catch (Exception e)
